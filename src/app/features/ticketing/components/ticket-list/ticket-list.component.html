@@ -1,1 +1,125 @@
-<p>ticket-list works!</p>
+<div class="dashboard-container">
+  <!-- Header with title and actions -->
+  <div class="dashboard-header">
+    <h1 class="dashboard-title">Ticket Dashboard</h1>
+    <div class="dashboard-actions">
+      <button class="filter-button"><i class="filter-icon"></i>Filter</button>
+      <button class="new-ticket-button">New Ticket</button>
+    </div>
+  </div>
+
+  <!-- KPI Cards Section -->
+  <div class="kpi-cards">
+    <div class="kpi-card">
+      <div class="kpi-icon total-icon"></div>
+      <div class="kpi-content">
+        <div class="kpi-label">Total Tickets</div>
+        <div class="kpi-value">248</div>
+        <div class="kpi-comparison">
+          <span>vs. last month</span>
+          <span class="kpi-trend positive">+12%</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="kpi-card">
+      <div class="kpi-icon processing-icon"></div>
+      <div class="kpi-content">
+        <div class="kpi-label">Processing</div>
+        <div class="kpi-value">86</div>
+        <div class="kpi-comparison">
+          <span>vs. last month</span>
+          <span class="kpi-trend positive">+5%</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="kpi-card">
+      <div class="kpi-icon blocked-icon"></div>
+      <div class="kpi-content">
+        <div class="kpi-label">Blocked</div>
+        <div class="kpi-value">32</div>
+        <div class="kpi-comparison">
+          <span>vs. last month</span>
+          <span class="kpi-trend negative">-8%</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="kpi-card">
+      <div class="kpi-icon resolved-icon"></div>
+      <div class="kpi-content">
+        <div class="kpi-label">Resolved</div>
+        <div class="kpi-value">130</div>
+        <div class="kpi-comparison">
+          <span>vs. last month</span>
+          <span class="kpi-trend positive">+18%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Tabs -->
+  <div class="ticket-tabs">
+    <button class="tab-button" [class.active]="activeTab === 'All Tickets'" (click)="setActiveTab('All Tickets')">All Tickets</button>
+    <button class="tab-button" [class.active]="activeTab === 'Processing'" (click)="setActiveTab('Processing')">Processing</button>
+    <button class="tab-button" [class.active]="activeTab === 'Blocked'" (click)="setActiveTab('Blocked')">Blocked</button>
+    <button class="tab-button" [class.active]="activeTab === 'Resolved'" (click)="setActiveTab('Resolved')">Resolved</button>
+    
+    <div class="tab-actions">
+      <button class="group-button">Group by <i class="dropdown-icon"></i></button>
+    </div>
+  </div>
+
+  <!-- Recent Tickets Section -->
+  <div class="tickets-section">
+    <div class="section-header">
+      <h2 class="section-title">Recent Tickets</h2>
+      <a href="#" class="view-all">View All</a>
+    </div>
+
+    <!-- Ticket List -->
+    <div class="ticket-list">
+      <!-- Ticket Items -->
+      <div class="ticket-item" *ngFor="let ticket of filteredTickets()">
+        <div class="ticket-header">
+          <div class="ticket-id">{{ ticket.id }}</div>
+          <div class="ticket-tags">
+            <span class="ticket-tag" [ngClass]="ticket.tags.status">{{ ticket.status }}</span>
+            <span class="ticket-tag" [ngClass]="'priority-' + ticket.tags.priority">{{ ticket.tags.priority }}</span>
+          </div>
+          <button class="ticket-menu-button"></button>
+        </div>
+        
+        <div class="ticket-category">Treatment Act: {{ ticket.category }}</div>
+        <div class="ticket-title">{{ ticket.title }}</div>
+        
+        <div class="ticket-assignee">
+          <div class="assignee-avatar">{{ ticket.assignee.initials }}</div>
+          <div class="assignee-name">{{ ticket.assignee.name }}</div>
+        </div>
+        
+        <div class="ticket-footer">
+          <div class="ticket-meta">
+            <div>Created: {{ ticket.meta.created }}</div>
+            <div>Response time: {{ ticket.meta.responseTime }}</div>
+          </div>
+          
+          <div class="ticket-progress">
+            <div class="progress-label">Progress</div>
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="ticket.progress"></div>
+            </div>
+            <div class="progress-value">{{ ticket.progress }}%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty state when no tickets match filter -->
+      <div class="empty-state" *ngIf="filteredTickets().length === 0">
+        <p>No tickets match your current filter.</p>
+      </div>
+    </div>
+  </div>
+</div>
+  

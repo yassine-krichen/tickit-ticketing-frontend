@@ -7,6 +7,7 @@ import { TranslateService } from '@ngx-translate/core';
   styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent implements OnInit {
+  activeItem: string = 'dashboard';
 
   constructor(private translate: TranslateService) {
     // Set the default language
@@ -18,7 +19,15 @@ export class SidebarComponent implements OnInit {
   switchLanguage(lang: string) {
     this.translate.use(lang);
   }
+
   ngOnInit(): void {
   }
 
+  setActiveItem(item: string): void {
+    this.activeItem = item;
+  }
+
+  toggleTheme(): void {
+    document.body.classList.toggle('dark-mode');
+  }
 }

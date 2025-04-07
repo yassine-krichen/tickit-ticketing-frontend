@@ -2,7 +2,14 @@
     "TITLE": "Tableau de Bord des Tickets",
     "TICKET_LIST": "Liste des Tickets",
     "DASHBOARD": "Tableau de Bord",
-    "SEARCH": "Chercher",
-    "WELCOME": "Bienvenue"
+    "SEARCH": "Rechercher",
+    "WELCOME": "Bienvenue",
+    "SEARCH_TICKETS": "Rechercher des tickets...",
+    "ID": "ID",
+    "TITLE_COL": "Titre",
+    "STATUS": "Statut",
+    "ACTIONS": "Actions",
+    "UPDATE": "Modifier",
+    "DELETE": "Supprimer"
   }
   

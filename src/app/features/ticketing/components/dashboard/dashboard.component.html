@@ -1,12 +1,11 @@
-<!-- src/app/features/ticketing/components/dashboard/dashboard.component.html -->
 <div class="dashboard-layout">
+    <!-- Sidebar on the left -->
     <app-sidebar></app-sidebar>
+    
+    <!-- Main content area on the right -->
     <div class="dashboard-content">
-      <!-- KPI charts and filtering/search area -->
-      <div class="kpi-section">
-        <!-- Your KPI charts and measurements go here -->
-      </div>
-      <!-- Router outlet for ticket list and details -->
+      
+      <!-- Router outlet to display the ticket list and details -->
       <router-outlet></router-outlet>
     </div>
   </div>

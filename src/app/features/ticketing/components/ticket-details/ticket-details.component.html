@@ -1,1 +1,172 @@
-<p>ticket-details works!</p>
+<div class="ticket-details-container">
+  <!-- Header with ticket ID and status -->
+  <div class="ticket-header">
+    <div class="left-section">
+      <button class="back-button" (click)="navigateBack()">
+        <span class="back-icon"></span>
+        Back
+      </button>
+      <h1 class="ticket-id">{{ ticket.id }}</h1>
+      <div class="ticket-tags">
+        <span class="status-tag waiting">{{ ticket.status }}</span>
+        <span class="priority-tag high">{{ ticket.priority }}</span>
+      </div>
+    </div>
+    
+    <div class="right-section">
+      <!-- Actions would go here, not shown in the mockup -->
+    </div>
+  </div>
+
+  <!-- Main content layout with two columns -->
+  <div class="ticket-content">
+    <!-- Left column - Main ticket information -->
+    <div class="ticket-main-content">
+      <!-- Ticket title and metadata -->
+      <div class="ticket-title-section">
+        <h2 class="ticket-title">{{ ticket.title }}</h2>
+        <div class="ticket-metadata">Created {{ ticket.createdAt }} by {{ ticket.createdBy }}</div>
+      </div>
+
+      <!-- Description section -->
+      <div class="content-section">
+        <h3 class="section-title">Description</h3>
+        <p class="description-text">{{ ticket.description }}</p>
+      </div>
+
+      <!-- Treatment Act section -->
+      <div class="content-section">
+        <h3 class="section-title">Treatment Act</h3>
+        <div class="treatment-act-tag">{{ ticket.treatmentAct }}</div>
+      </div>
+
+      <!-- Treatment Flow section -->
+      <div class="content-section">
+        <h3 class="section-title">Treatment Act Flow</h3>
+        <div class="treatment-flow">
+          <ng-container *ngFor="let step of processSteps; let isLast = last">
+            <div class="flow-step" [ngClass]="step.status">
+              <div class="step-indicator">
+                <span *ngIf="step.status === 'completed'" class="step-check"></span>
+                <span *ngIf="step.status === 'error'" class="step-cross"></span>
+                <span *ngIf="step.status === 'pending'" class="step-pending"></span>
+              </div>
+              <div class="step-label">{{ step.name }}</div>
+            </div>
+            <div class="step-connector" *ngIf="!isLast"></div>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- Activity Timeline section -->
+      <div class="content-section">
+        <h3 class="section-title">Activity Timeline</h3>
+        
+        <div class="timeline">
+          <div class="timeline-item" *ngFor="let event of timelineEvents">
+            <div class="timeline-icon" [ngClass]="event.icon"></div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <span class="timeline-title">{{ event.title }}</span>
+                <span class="timeline-time">{{ event.time }}</span>
+              </div>
+              <div class="timeline-body" *ngIf="event.type !== 'status-change' || !event.additionalData?.from">
+                {{ event.description }}
+              </div>
+              <div class="timeline-body" *ngIf="event.type === 'status-change' && event.additionalData?.from">
+                Status changed from <span class="status-label open">{{ event.additionalData.from }}</span> to 
+                <span class="status-label in-progress">{{ event.additionalData.to }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Right column - Metadata and recommendations -->
+    <div class="ticket-sidebar">
+      <!-- Ticket details card -->
+      <div class="sidebar-card">
+        <h3 class="card-title">Ticket Details</h3>
+        
+        <div class="detail-item">
+          <div class="detail-label">Issued By</div>
+          <div class="detail-value">
+            <div class="avatar js">{{ getInitials(ticket.createdBy) }}</div>
+            <span>{{ ticket.createdBy }}</span>
+          </div>
+        </div>
+        
+        <div class="detail-item">
+          <div class="detail-label">Treatment Act</div>
+          <div class="detail-value">{{ ticket.treatmentAct }}</div>
+        </div>
+        
+        <div class="detail-item">
+          <div class="detail-label">Priority</div>
+          <div class="detail-value">
+            <span class="priority high">{{ ticket.priority }}</span>
+          </div>
+        </div>
+        
+        <div class="detail-item">
+          <div class="detail-label">Status</div>
+          <div class="detail-value">
+            <span class="status waiting">{{ ticket.status }}</span>
+          </div>
+        </div>
+        
+        <div class="detail-item">
+          <div class="detail-label">Created</div>
+          <div class="detail-value">{{ ticket.createdDate }}</div>
+        </div>
+        
+        <div class="detail-item">
+          <div class="detail-label">Updated</div>
+          <div class="detail-value">{{ ticket.updatedDate }}</div>
+        </div>
+        
+        <div class="detail-item">
+          <div class="detail-label">Response Time</div>
+          <div class="detail-value">{{ ticket.responseTime }}</div>
+        </div>
+      </div>
+      
+      <!-- Process Tracker card -->
+      <div class="sidebar-card">
+        <h3 class="card-title">Process Tracker</h3>
+        
+        <div class="progress-section">
+          <div class="progress-header">
+            <span>Overall Progress</span>
+            <span class="progress-value">{{ ticket.progress }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width]="ticket.progress + '%'"></div>
+          </div>
+        </div>
+        
+        <div class="progress-steps">
+          <div class="progress-step" *ngFor="let step of processSteps" [ngClass]="step.status">
+            <div class="step-bullet"></div>
+            <div class="step-label">{{ step.name }}</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- AI Recommendations card -->
+      <div class="sidebar-card">
+        <h3 class="card-title">AI Recommendations</h3>
+        
+        <div class="recommendation-item" *ngFor="let recommendation of recommendations">
+          <div class="recommendation-icon" [ngClass]="recommendation.icon"></div>
+          <div class="recommendation-content">
+            <h4 class="recommendation-title">{{ recommendation.title }}</h4>
+            <p class="recommendation-text">{{ recommendation.description }}</p>
+            <a href="#" class="recommendation-link" *ngIf="recommendation.link">{{ recommendation.link }}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

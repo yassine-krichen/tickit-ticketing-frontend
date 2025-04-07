@@ -3,6 +3,13 @@
     "TICKET_LIST": "Ticket List",
     "DASHBOARD": "Dashboard",
     "SEARCH": "Search",
-    "WELCOME": "Welcome"
+    "WELCOME": "Welcome",
+    "SEARCH_TICKETS": "Search tickets...",
+    "ID": "ID",
+    "TITLE_COL": "Title",
+    "STATUS": "Status",
+    "ACTIONS": "Actions",
+    "UPDATE": "Update",
+    "DELETE": "Delete"
   }
   

@@ -1,1 +1,66 @@
-<p>{{ 'TITLE' | translate }}</p>
+<div class="sidebar">
+    <!-- Header Section -->
+    <header class="sidebar-header">
+      <div class="logo-container">
+        <div class="logo-icon"></div>
+        <span class="logo-text">BOTool</span>
+      </div>
+    </header>
+  
+    <!-- Navigation Menu -->
+    <nav class="sidebar-nav">
+      <ul class="nav-list">
+        <li class="nav-item" [class.active]="activeItem === 'dashboard'">
+          <a class="nav-link" (click)="setActiveItem('dashboard')">
+            <div class="nav-icon dashboard-icon"></div>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item" [class.active]="activeItem === 'tickets'">
+          <a class="nav-link" (click)="setActiveItem('tickets')">
+            <div class="nav-icon tickets-icon"></div>
+            <span class="nav-text">Tickets</span>
+          </a>
+        </li>
+        <li class="nav-item" [class.active]="activeItem === 'analytics'">
+          <a class="nav-link" (click)="setActiveItem('analytics')">
+            <div class="nav-icon analytics-icon"></div>
+            <span class="nav-text">Analytics</span>
+          </a>
+        </li>
+        <li class="nav-item" [class.active]="activeItem === 'ai-insights'">
+          <a class="nav-link" (click)="setActiveItem('ai-insights')">
+            <div class="nav-icon ai-insights-icon"></div>
+            <span class="nav-text">AI Insights</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  
+    <!-- User Profile Footer -->
+    <footer class="sidebar-footer">
+      <div class="user-profile">
+        <div class="avatar">
+          <span class="avatar-initials">JD</span>
+        </div>
+        <div class="user-info">
+          <span class="user-name">John</span>
+          <span class="user-role">Doe</span>
+          <span class="user-title">Support Agent</span>
+        </div>
+      </div>
+      
+      <div class="user-actions">
+        <button class="action-button theme-toggle" title="Toggle theme" (click)="toggleTheme()">
+          <div class="action-icon theme-icon"></div>
+        </button>
+        <button class="action-button language-toggle" title="Change language">
+          <div class="action-icon language-icon"></div>
+        </button>
+        <button class="action-button settings" title="Settings">
+          <div class="action-icon settings-icon"></div>
+        </button>
+      </div>
+    </footer>
+  </div>
+  

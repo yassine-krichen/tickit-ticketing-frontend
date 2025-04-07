@@ -8,19 +8,21 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { TicketListComponent } from './components/ticket-list/ticket-list.component';
 import { TicketDetailsComponent } from './components/ticket-details/ticket-details.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { FilterPipe } from '../../shared/pipes/filter.pipe';
 
 @NgModule({
   declarations: [
     DashboardComponent, 
     TicketListComponent, 
     TicketDetailsComponent,
-    SidebarComponent
+    SidebarComponent,
+    FilterPipe
   ],
   imports: [
     CommonModule,
     TicketingRoutingModule,
     RouterModule,
-    TranslateModule
+    TranslateModule.forChild()
   ]
 })
 export class TicketingModule { }
