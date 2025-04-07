@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { TicketingRoutingModule } from './ticketing-routing.module';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
@@ -18,7 +19,8 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
   imports: [
     CommonModule,
     TicketingRoutingModule,
-    RouterModule
+    RouterModule,
+    TranslateModule
   ]
 })
 export class TicketingModule { }
