@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { TicketService } from '../../../../core/services/ticket/ticket.service';
-import { BackendTicket, TicketResponse, Status, TicketUpdateDTO, TicketCount } from '../../../../core/models/ticket.model';
+import { BackendTicket, TicketResponse, Status, TicketUpdateDTO, TicketCount, Priority } from '../../../../core/models/ticket.model';
 import { finalize } from 'rxjs/operators';
 
 // Frontend UI ticket interface - keeping this separate from backend model
@@ -18,6 +18,7 @@ interface Ticket {
   tags: {
     status: string;
     priority: string;
+    priorityLabel: string; // Added for display purposes
   };
   meta: {
     created: string;
@@ -102,36 +103,80 @@ export class TicketListComponent implements OnInit {
       });
   }
 
+  // Map priority to a user-friendly label (P1=lowest, P5=highest)
+  getPriorityLabel(priority: string): string {
+    switch(priority) {
+      case 'P1': return 'Low';
+      case 'P2': return 'Medium-Low';
+      case 'P3': return 'Medium';
+      case 'P4': return 'High';
+      case 'P5': return 'Critical';
+      default: return 'Unknown';
+    }
+  }
+
+  // Extract better user information from the issuedBy field
+  extractUserInfo(issuedBy: string): { name: string, team: string, role: string } {
+    // Split the string by dots
+    const parts = issuedBy.split('.');
+    
+    if (parts.length < 4) {
+      return {
+        name: issuedBy,
+        team: 'Support Team',
+        role: 'Agent'
+      };
+    }
+
+    // First two parts form the name
+    const name = `${parts[0]} ${parts[1]}`.replace(/\b\w/g, c => c.toUpperCase());
+    
+    // Third part is the role
+    const role = parts[2].charAt(0).toUpperCase() + parts[2].slice(1);
+    
+    // Fourth part is the team
+    const team = parts[3].charAt(0).toUpperCase() + parts[3].slice(1);
+
+    return { name, team, role };
+  }
+
   mapToUiTickets(backendTickets: TicketResponse[]): Ticket[] {
-    return backendTickets.map(bt => ({
-      id: bt.id,
-      title: bt.subject,
-      status: bt.status,
-      category: bt.acteTraitement,
-      assignee: {
-        initials: this.getInitials(bt.issuedBy),
-        name: bt.issuedBy,
-        team: 'N/A', // Not available in backend model
-        role: 'N/A'  // Not available in backend model
-      },
-      tags: {
+    return backendTickets.map(bt => {
+      // Extract better user information
+      const userInfo = this.extractUserInfo(bt.issuedBy);
+      
+      return {
+        id: bt.id,
+        title: bt.subject,
         status: bt.status,
-        priority: bt.priority
-      },
-      meta: {
-        created: bt.createdAt,
-        responseTime: bt.responseSla?.toString() || 'N/A'
-      }
-    }));
+        category: bt.acteTraitement,
+        assignee: {
+          initials: this.getInitials(userInfo.name),
+          name: userInfo.name,
+          team: userInfo.team,
+          role: userInfo.role
+        },
+        tags: {
+          status: bt.status,
+          priority: bt.priority,
+          priorityLabel: this.getPriorityLabel(bt.priority)
+        },
+        meta: {
+          created: bt.createdAt,
+          responseTime: bt.responseSla ? `${bt.responseSla} hours` : 'No response yet'
+        }
+      };
+    });
   }
 
   getInitials(name: string): string {
+    // Improved to get up to two initials from first and last name
     return name
       .split(' ')
-      .map(part => part.charAt(0))
-      .join('')
-      .toUpperCase()
-      .substring(0, 2);
+      .filter(part => part.length > 0)
+      .map(part => part.charAt(0).toUpperCase())
+      .slice(0, 2)
+      .join('');
   }
 
   onSearchChange(value: string): void {

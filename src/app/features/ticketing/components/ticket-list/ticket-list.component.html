@@ -169,18 +169,18 @@
             </span>
             <span class="badge rounded-pill d-flex justify-content-center align-items-center"
                   [ngStyle]="{
-                    'background-color': (ticket.tags.priority === 'P1') ? '#fee2e2' :
-                                        (ticket.tags.priority === 'P2') ? '#ffedd5' :
+                    'background-color': (ticket.tags.priority === 'P5') ? '#fee2e2' :
+                                        (ticket.tags.priority === 'P4') ? '#ffedd5' :
                                         (ticket.tags.priority === 'P3') ? '#fef9c3' :
-                                        (ticket.tags.priority === 'P4') ? '#e0ecfc' :
-                                        (ticket.tags.priority === 'P5') ? '#f4f4f5' : 'transparent',
-                    'color': (ticket.tags.priority === 'P1') ? '#b91c1c' :
-                             (ticket.tags.priority === 'P2') ? '#c2410c' :
+                                        (ticket.tags.priority === 'P2') ? '#e0ecfc' :
+                                        (ticket.tags.priority === 'P1') ? '#f4f4f5' : 'transparent',
+                    'color': (ticket.tags.priority === 'P5') ? '#b91c1c' :
+                             (ticket.tags.priority === 'P4') ? '#c2410c' :
                              (ticket.tags.priority === 'P3') ? '#854d0e' :
-                             (ticket.tags.priority === 'P4') ? '#1e40af' :
-                             (ticket.tags.priority === 'P5') ? '#52525b' : '#000'
+                             (ticket.tags.priority === 'P2') ? '#1e40af' :
+                             (ticket.tags.priority === 'P1') ? '#52525b' : '#000'
                   }">
-              {{ ticket.tags.priority }}
+              {{ ticket.tags.priorityLabel }}
             </span>
             <div class="dropdown">
               <button class="btn btn-sm btn-light rounded-circle p-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -208,8 +208,8 @@
             {{ ticket.assignee.initials }}
           </div>
           <div class="small">
-            <div>{{ ticket.assignee.name }}</div>
-            <div class="text-muted">{{ ticket.assignee.role }} / {{ ticket.assignee.team }}</div>
+            <div class="fw-bold">{{ ticket.assignee.name }}</div>
+            <div class="text-muted">{{ ticket.assignee.role }} • {{ ticket.assignee.team }}</div>
           </div>
         </div>
         
