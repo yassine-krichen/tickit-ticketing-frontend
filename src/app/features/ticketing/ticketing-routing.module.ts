@@ -19,11 +19,15 @@ const routes: Routes = [
         path: 'tickets/new',
         component: CreateComponent
       },
+      // edit new ticket endpoint
+      {
+        path: 'tickets/edit/:id',
+        component: CreateComponent
+      },
       {
         path: 'tickets/:id',
         component: TicketDetailsComponent
-      }
-      
+      } 
     ]
   }
 ];

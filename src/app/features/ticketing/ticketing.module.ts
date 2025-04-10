@@ -10,6 +10,7 @@ import { TicketDetailsComponent } from './components/ticket-details/ticket-detai
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { FilterPipe } from '../../shared/pipes/filter.pipe';
 import { CreateComponent } from './components/create/create.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { CreateComponent } from './components/create/create.component';
     CommonModule,
     TicketingRoutingModule,
     RouterModule,
-    TranslateModule.forChild()
+    TranslateModule.forChild(),
+    ReactiveFormsModule
   ]
 })
 export class TicketingModule { }
