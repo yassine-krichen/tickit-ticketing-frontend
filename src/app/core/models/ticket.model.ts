@@ -37,6 +37,7 @@ export interface Ticket {
   description?: string,
   status: string;
   category: string;
+  description: string;
   assignee: Assignee;
   tags: TicketTags;
   meta: TicketMeta;
