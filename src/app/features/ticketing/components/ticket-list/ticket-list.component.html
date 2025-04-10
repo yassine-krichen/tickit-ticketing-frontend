@@ -12,6 +12,15 @@
     </div>
   </div>
 
+  <!-- Loading and error messages -->
+  <div class="alert alert-info" *ngIf="loading">
+    <i class="fas fa-spinner fa-spin me-2"></i> Loading tickets...
+  </div>
+  
+  <div class="alert alert-danger" *ngIf="error">
+    <i class="fas fa-exclamation-triangle me-2"></i> {{ error }}
+  </div>
+
   <!-- KPI Cards Section -->
   <div class="row g-3 mb-4">
     <div class="col-lg-3 col-md-6">
@@ -22,10 +31,7 @@
           </div>
           <div class="text-center">
             <div class="text-muted small">Total Tickets</div>
-            <div class="fs-4 fw-bold">248</div>
-          </div>
-          <div class="badge bg-light text-success mt-2">
-            <i class="fas fa-caret-up"></i> 12% MoM
+            <div class="fs-4 fw-bold">{{ totalTicketsCount }}</div>
           </div>
         </div>
       </div>
@@ -38,11 +44,8 @@
             <i class="fas fa-sync-alt fa-lg text-success"></i>
           </div>
           <div class="text-center">
-            <div class="text-muted small">Processing</div>
-            <div class="fs-4 fw-bold">86</div>
-          </div>
-          <div class="badge bg-light text-success mt-2">
-            <i class="fas fa-caret-up"></i> 5% MoM
+            <div class="text-muted small">In Progress</div>
+            <div class="fs-4 fw-bold">{{ inProgressCount }}</div>
           </div>
         </div>
       </div>
@@ -56,10 +59,7 @@
           </div>
           <div class="text-center">
             <div class="text-muted small">Blocked</div>
-            <div class="fs-4 fw-bold">32</div>
-          </div>
-          <div class="badge bg-light text-danger mt-2">
-            <i class="fas fa-caret-down"></i> 8% MoM
+            <div class="fs-4 fw-bold">{{ blockedCount }}</div>
           </div>
         </div>
       </div>
@@ -73,10 +73,7 @@
           </div>
           <div class="text-center">
             <div class="text-muted small">Resolved</div>
-            <div class="fs-4 fw-bold">130</div>
-          </div>
-          <div class="badge bg-light text-success mt-2">
-            <i class="fas fa-caret-up"></i> 18% MoM
+            <div class="fs-4 fw-bold">{{ resolvedCount }}</div>
           </div>
         </div>
       </div>
@@ -92,18 +89,23 @@
         </button>
       </li>
       <li class="nav-item">
-        <button class="nav-link" [class.active]="activeTab === 'Processing'" (click)="setActiveTab('Processing')">
-          <i class="fas fa-sync-alt me-1"></i> Processing
+        <button class="nav-link" [class.active]="activeTab === 'IN_PROGRESS'" (click)="setActiveTab('IN_PROGRESS')">
+          <i class="fas fa-sync-alt me-1"></i> In Progress
         </button>
       </li>
       <li class="nav-item">
-        <button class="nav-link" [class.active]="activeTab === 'Blocked'" (click)="setActiveTab('Blocked')">
+        <button class="nav-link" [class.active]="activeTab === 'BLOCKED'" (click)="setActiveTab('BLOCKED')">
           <i class="fas fa-ban me-1"></i> Blocked
         </button>
       </li>
       <li class="nav-item">
-        <button class="nav-link" [class.active]="activeTab === 'Resolved'" (click)="setActiveTab('Resolved')">
+        <button class="nav-link" [class.active]="activeTab === 'RESOLVED'" (click)="setActiveTab('RESOLVED')">
           <i class="fas fa-check-circle me-1"></i> Resolved
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="activeTab === 'CLOSED'" (click)="setActiveTab('CLOSED')">
+          <i class="fas fa-archive me-1"></i> Closed
         </button>
       </li>
     </ul>
@@ -136,7 +138,7 @@
           type="text"
           class="form-control border-start-0" 
           placeholder="Search tickets..."
-          (input)="onSearchChange($event.target.value)"
+          (input)="onSearchChange($any($event.target).value)"
           [value]="searchTerm"
         >
       </div>
@@ -150,31 +152,45 @@
             <i class="fas fa-hashtag fa-xs me-1"></i>{{ ticket.id }}
           </div>
           <div class="d-flex gap-2">
-            <span class="badge rounded-pill d-flex justify-content-center align-items-center" style="background-color: #e0ecfc; color: #1e40af;">
+            <span class="badge rounded-pill d-flex justify-content-center align-items-center" 
+                  [ngStyle]="{
+                    'background-color': (ticket.status === 'OPEN') ? '#e0ecfc' :
+                                        (ticket.status === 'IN_PROGRESS') ? '#dcfce7' :
+                                        (ticket.status === 'BLOCKED') ? '#fee2e2' :
+                                        (ticket.status === 'RESOLVED') ? '#f0fdfa' :
+                                        (ticket.status === 'CLOSED') ? '#f4f4f5' : '#e0ecfc',
+                    'color': (ticket.status === 'OPEN') ? '#1e40af' :
+                             (ticket.status === 'IN_PROGRESS') ? '#166534' :
+                             (ticket.status === 'BLOCKED') ? '#b91c1c' :
+                             (ticket.status === 'RESOLVED') ? '#0f766e' :
+                             (ticket.status === 'CLOSED') ? '#52525b' : '#1e40af'
+                  }">
               {{ ticket.status }}
             </span>
             <span class="badge rounded-pill d-flex justify-content-center align-items-center"
-      [ngStyle]="{
-        'background-color': (ticket.tags.priority === 'low') ? '#f4f4f5' :
-                            (ticket.tags.priority === 'medium') ? '#e0ecfc' :
-                            (ticket.tags.priority === 'high') ? '#ffedd5' :
-                            (ticket.tags.priority === 'critical') ? '#fee2e2' : 'transparent',
-        'color': (ticket.tags.priority === 'low') ? '#a1a1a7' :
-                 (ticket.tags.priority === 'medium') ? '#1e40af' :
-                 (ticket.tags.priority === 'high') ? '#f39c67' :
-                 (ticket.tags.priority === 'critical') ? '#e96b6b' : '#000'
-      }">
-  {{ ticket.tags.priority | uppercase }}
-</span>
+                  [ngStyle]="{
+                    'background-color': (ticket.tags.priority === 'P1') ? '#fee2e2' :
+                                        (ticket.tags.priority === 'P2') ? '#ffedd5' :
+                                        (ticket.tags.priority === 'P3') ? '#fef9c3' :
+                                        (ticket.tags.priority === 'P4') ? '#e0ecfc' :
+                                        (ticket.tags.priority === 'P5') ? '#f4f4f5' : 'transparent',
+                    'color': (ticket.tags.priority === 'P1') ? '#b91c1c' :
+                             (ticket.tags.priority === 'P2') ? '#c2410c' :
+                             (ticket.tags.priority === 'P3') ? '#854d0e' :
+                             (ticket.tags.priority === 'P4') ? '#1e40af' :
+                             (ticket.tags.priority === 'P5') ? '#52525b' : '#000'
+                  }">
+              {{ ticket.tags.priority }}
+            </span>
             <div class="dropdown">
               <button class="btn btn-sm btn-light rounded-circle p-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="fas fa-ellipsis-v"></i>
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2"></i>View Details</a></li>
-                <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i>Edit Ticket</a></li>
+                <li><a class="dropdown-item" (click)="updateTicket(ticket)"><i class="fas fa-edit me-2"></i>Edit Ticket</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt me-2"></i>Delete</a></li>
+                <li><a class="dropdown-item text-danger" (click)="deleteTicket(ticket)"><i class="fas fa-trash-alt me-2"></i>Delete</a></li>
               </ul>
             </div>
           </div>
@@ -199,17 +215,25 @@
         
         <div class="d-flex flex-wrap justify-content-between align-items-end">
           <div class="text-muted small">
-            <div><i class="far fa-calendar-alt me-1"></i> Created: {{ ticket.meta.created }}</div>
+            <div><i class="far fa-calendar-alt me-1"></i> Created: {{ ticket.meta.created | date:'medium' }}</div>
             <div><i class="far fa-clock me-1"></i> Response time: {{ ticket.meta.responseTime }}</div>
           </div>
         </div>
       </div>
 
+      <!-- Loading state when fetching tickets -->
+      <div class="p-5 text-center text-muted" *ngIf="loading && tickets?.length === 0">
+        <div class="spinner-border text-primary mb-3" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p>Loading ticket data...</p>
+      </div>
+
       <!-- Empty state when no tickets match filter -->
-      <div class="p-5 text-center text-muted" *ngIf="filteredTickets().length === 0">
+      <div class="p-5 text-center text-muted" *ngIf="!loading && filteredTickets().length === 0">
         <i class="fas fa-search fa-3x mb-3 text-light"></i>
         <p>No tickets match your current filter.</p>
-        <button class="btn btn-sm btn-outline-secondary mt-2">
+        <button class="btn btn-sm btn-outline-secondary mt-2" (click)="clearFilter()">
           <i class="fas fa-redo me-1"></i> Clear Filter
         </button>
       </div>
