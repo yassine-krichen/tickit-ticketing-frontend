@@ -14,6 +14,7 @@ export class CreateComponent implements OnInit {
   form: FormGroup;
   isEditMode = false;
   ticketId: string = null;
+  showTip: boolean = true;
   
   // Define available options for dropdowns
   priorityOptions = Object.values(Priority);
@@ -130,6 +131,6 @@ export class CreateComponent implements OnInit {
   }
   
   dismissTip(): void {
-    // Implement your tip dismissal logic here (e.g., hide the alert)
+    this.showTip = false;
   }
 }

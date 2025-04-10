@@ -2,4 +2,20 @@
  * All styling has been moved to Bootstrap utility classes in the HTML.
  * This file is kept empty for future specific customizations if needed.
  */
+
+/* Add styles for dropdown functionality */
+.dropdown-menu.show {
+  display: block;
+  position: absolute;
+  transform: translate3d(0px, 38px, 0px);
+  top: 0px;
+  left: auto;
+  right: 0px;
+  will-change: transform;
+}
+
+/* Remove dropdown toggle arrow */
+.dropdown-toggle::after {
+  display: none;
+}
   

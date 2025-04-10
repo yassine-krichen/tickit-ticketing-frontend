@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { TicketService } from '../../../../core/services/ticket/ticket.service';
 import { BackendTicket, TicketResponse, Status, TicketUpdateDTO, TicketCount, Priority } from '../../../../core/models/ticket.model';
 import { finalize } from 'rxjs/operators';
+// Declare Bootstrap's dropdown functionality
+declare var bootstrap: any;
 
 // Frontend UI ticket interface - keeping this separate from backend model
 interface Ticket {
@@ -71,6 +73,12 @@ export class TicketListComponent implements OnInit {
   ngOnInit(): void {
     this.loadTickets();
     this.loadTicketCounts();
+    
+    // Initialize Bootstrap dropdowns after view is loaded
+    setTimeout(() => {
+      const dropdownElementList = document.querySelectorAll('.dropdown-toggle');
+      const dropdownList = Array.from(dropdownElementList).map(dropdownToggleEl => new bootstrap.Dropdown(dropdownToggleEl));
+    }, 500);
   }
 
   loadTickets(status?: Status): void {
@@ -208,18 +216,60 @@ export class TicketListComponent implements OnInit {
 
   deleteTicket(ticket: Ticket): void {
     if (confirm(`Are you sure you want to delete ticket ${ticket.id}?`)) {
+      // First update the UI immediately for better user experience
+      this.tickets = this.tickets.filter(t => t.id !== ticket.id);
+      this.backendTickets = this.backendTickets.filter(t => t.id !== ticket.id);
+      
+      // Set a temporary flag to show deletion in progress
+      const deletedId = ticket.id;
+      
       this.ticketService.deleteTicket(ticket.id)
         .subscribe({
           next: () => {
             console.log('Ticket deleted successfully');
-            this.loadTickets(); // Refresh data
-            this.loadTicketCounts(); // Refresh counts
+            // No need to reload data if we've already updated the arrays
+            this.loadTicketCounts(); // Just update the counts
           },
           error: (err) => {
             console.error('Error deleting ticket:', err);
+            this.error = 'Failed to delete ticket. Please try again.';
+            
+            // Revert our optimistic UI update since the server call failed
+            this.loadTickets();
           }
         });
     }
+  }
+
+  // Method to manually toggle the dropdown
+  toggleDropdown(event: Event, ticketId: string): void {
+    event.stopPropagation();
+    
+    // Close any other open dropdowns first
+    const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
+    openDropdowns.forEach(dropdown => {
+      if (dropdown.id !== `dropdown-menu-${ticketId}`) {
+        dropdown.classList.remove('show');
+      }
+    });
+    
+    // Toggle the clicked dropdown
+    const dropdownMenu = document.querySelector(`#dropdown-menu-${ticketId}`);
+    if (dropdownMenu) {
+      dropdownMenu.classList.toggle('show');
+    }
+    
+    // Add click event listener to close dropdown when clicking outside
+    const closeDropdowns = (e: any) => {
+      if (!e.target.closest('.dropdown')) {
+        document.querySelectorAll('.dropdown-menu.show').forEach(dropdown => {
+          dropdown.classList.remove('show');
+        });
+        document.removeEventListener('click', closeDropdowns);
+      }
+    };
+    
+    document.addEventListener('click', closeDropdowns);
   }
 
   setActiveTab(tab: string): void {
@@ -244,19 +294,23 @@ export class TicketListComponent implements OnInit {
   filteredTickets(): Ticket[] {
     if (!this.tickets) return [];
     
-    if (!this.searchTerm) {
-      return this.tickets;
+    // Start with filtering by the active tab if it's not "All Tickets"
+    let filtered = [...this.tickets]; // Create a new array to ensure change detection
+    
+    // Then apply search term filtering if needed
+    if (this.searchTerm) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(ticket => {
+        return (
+          ticket.id.toLowerCase().includes(term) ||
+          ticket.title.toLowerCase().includes(term) ||
+          ticket.status.toLowerCase().includes(term) ||
+          ticket.category.toLowerCase().includes(term) ||
+          ticket.assignee.name.toLowerCase().includes(term)
+        );
+      });
     }
     
-    const term = this.searchTerm.toLowerCase();
-    return this.tickets.filter(ticket => {
-      return (
-        ticket.id.toLowerCase().includes(term) ||
-        ticket.title.toLowerCase().includes(term) ||
-        ticket.status.toLowerCase().includes(term) ||
-        ticket.category.toLowerCase().includes(term) ||
-        ticket.assignee.name.toLowerCase().includes(term)
-      );
-    });
+    return filtered;
   }
 }
