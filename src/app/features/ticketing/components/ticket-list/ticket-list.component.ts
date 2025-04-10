@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { TicketService } from '../../../../core/services/ticket/ticket.service';
+import { BackendTicket, TicketResponse, Status, TicketUpdateDTO, TicketCount, Priority } from '../../../../core/models/ticket.model';
+import { finalize } from 'rxjs/operators';
 
+// Frontend UI ticket interface - keeping this separate from backend model
 interface Ticket {
   id: string;
   title: string;
@@ -14,12 +18,12 @@ interface Ticket {
   tags: {
     status: string;
     priority: string;
+    priorityLabel: string; // Added for display purposes
   };
   meta: {
     created: string;
     responseTime: string;
   };
-  progress: number;
 }
 
 @Component({
@@ -28,99 +32,151 @@ interface Ticket {
   styleUrls: ['./ticket-list.component.css']
 })
 export class TicketListComponent implements OnInit {
-  tickets: Ticket[] = [
-    {
-      id: 'BOT-1234',
-      title: 'Payment processing error in checkout flow',
-      status: 'Waiting for Info',
-      category: 'ESIMB-4321',
-      assignee: {
-        initials: 'JS',
-        name: 'Jane Smith',
-        team: 'Development',
-        role: 'Frontend Developer'
-      },
-      tags: {
-        status: 'waiting',
-        priority: 'high'
-      },
-      meta: {
-        created: '39 days ago',
-        responseTime: '15m'
-      },
-      progress: 40
-    },
-    {
-      id: 'BOT-1233',
-      title: 'Customer unable to access account after password reset',
-      status: 'Technical Review',
-      category: 'BRAME-3456',
-      assignee: {
-        initials: 'MJ',
-        name: 'Mark Johnson',
-        team: 'Support',
-        role: 'Technical Support'
-      },
-      tags: {
-        status: 'technical',
-        priority: 'medium'
-      },
-      meta: {
-        created: '39 days ago',
-        responseTime: '22m'
-      },
-      progress: 50
-    },
-    {
-      id: 'BOT-1232',
-      title: 'Mobile app crashes when uploading profile picture',
-      status: 'Blocked',
-      category: 'ESIMB-5678',
-      assignee: {
-        initials: 'SW',
-        name: 'Sarah Williams',
-        team: 'QA',
-        role: 'QA Engineer'
-      },
-      tags: {
-        status: 'blocked',
-        priority: 'critical'
-      },
-      meta: {
-        created: '39 days ago',
-        responseTime: '45m'
-      },
-      progress: 50
-    },
-    {
-      id: 'BOT-1230',
-      title: 'Discrepancy in monthly billing report calculations',
-      status: 'Resolved',
-      category: 'BRAME-2345',
-      assignee: {
-        initials: 'MB',
-        name: 'Michael Brown',
-        team: 'Finance',
-        role: 'Financial Analyst'
-      },
-      tags: {
-        status: 'resolved',
-        priority: 'medium'
-      },
-      meta: {
-        created: '41 days ago',
-        responseTime: '30m'
-      },
-      progress: 100
-    }
-  ];
+  tickets: Ticket[] = [];
+  backendTickets: TicketResponse[] = [];
+  statusCounts: TicketCount[] = [];
 
+  loading = false;
+  error = '';
   searchTerm: string = '';
   activeTab: string = 'All Tickets';
 
-  constructor() { }
+  constructor(private ticketService: TicketService) { }
+
+  // Getter methods for ticket counts
+  get totalTicketsCount(): number {
+    return this.tickets.length;
+  }
+
+  get inProgressCount(): number {
+    const countObj = this.statusCounts.find(s => s.status === 'IN_PROGRESS');
+    return countObj ? countObj.count : 0;
+  }
+
+  get blockedCount(): number {
+    const countObj = this.statusCounts.find(s => s.status === 'BLOCKED');
+    return countObj ? countObj.count : 0;
+  }
+
+  get resolvedCount(): number {
+    const countObj = this.statusCounts.find(s => s.status === 'RESOLVED');
+    return countObj ? countObj.count : 0;
+  }
+
+  get closedCount(): number {
+    const countObj = this.statusCounts.find(s => s.status === 'CLOSED');
+    return countObj ? countObj.count : 0;
+  }
 
   ngOnInit(): void {
+    this.loadTickets();
+    this.loadTicketCounts();
+  }
+
+  loadTickets(status?: Status): void {
+    this.loading = true;
+    this.error = '';
+    
+    this.ticketService.getAllTickets(status)
+      .pipe(finalize(() => this.loading = false))
+      .subscribe({
+        next: (response) => {
+          this.backendTickets = response;
+          this.tickets = this.mapToUiTickets(response);
+        },
+        error: (err) => {
+          console.error('Error loading tickets:', err);
+          this.error = 'Failed to load tickets. Please try again later.';
+        }
+      });
+  }
+
+  loadTicketCounts(): void {
+    this.ticketService.getTicketCountsByStatus()
+      .subscribe({
+        next: (counts) => {
+          this.statusCounts = counts;
+        },
+        error: (err) => {
+          console.error('Error loading ticket counts:', err);
+        }
+      });
+  }
+
+  // Map priority to a user-friendly label (P1=lowest, P5=highest)
+  getPriorityLabel(priority: string): string {
+    switch(priority) {
+      case 'P1': return 'Low';
+      case 'P2': return 'Medium-Low';
+      case 'P3': return 'Medium';
+      case 'P4': return 'High';
+      case 'P5': return 'Critical';
+      default: return 'Unknown';
+    }
+  }
+
+  // Extract better user information from the issuedBy field
+  extractUserInfo(issuedBy: string): { name: string, team: string, role: string } {
+    // Split the string by dots
+    const parts = issuedBy.split('.');
+    
+    if (parts.length < 4) {
+      return {
+        name: issuedBy,
+        team: 'Support Team',
+        role: 'Agent'
+      };
+    }
+
+    // First two parts form the name
+    const name = `${parts[0]} ${parts[1]}`.replace(/\b\w/g, c => c.toUpperCase());
+    
+    // Third part is the role
+    const role = parts[2].charAt(0).toUpperCase() + parts[2].slice(1);
+    
+    // Fourth part is the team
+    const team = parts[3].charAt(0).toUpperCase() + parts[3].slice(1);
+
+    return { name, team, role };
+  }
+
+  mapToUiTickets(backendTickets: TicketResponse[]): Ticket[] {
+    return backendTickets.map(bt => {
+      // Extract better user information
+      const userInfo = this.extractUserInfo(bt.issuedBy);
+      
+      return {
+        id: bt.id,
+        title: bt.subject,
+        status: bt.status,
+        category: bt.acteTraitement,
+        assignee: {
+          initials: this.getInitials(userInfo.name),
+          name: userInfo.name,
+          team: userInfo.team,
+          role: userInfo.role
+        },
+        tags: {
+          status: bt.status,
+          priority: bt.priority,
+          priorityLabel: this.getPriorityLabel(bt.priority)
+        },
+        meta: {
+          created: bt.createdAt,
+          responseTime: bt.responseSla ? `${bt.responseSla} hours` : 'No response yet'
+        }
+      };
+    });
+  }
+
+  getInitials(name: string): string {
+    // Improved to get up to two initials from first and last name
+    return name
+      .split(' ')
+      .filter(part => part.length > 0)
+      .map(part => part.charAt(0).toUpperCase())
+      .slice(0, 2)
+      .join('');
   }
 
   onSearchChange(value: string): void {
@@ -128,25 +184,68 @@ export class TicketListComponent implements OnInit {
   }
 
   updateTicket(ticket: Ticket): void {
-    console.log('Update ticket', ticket);
+    const backendTicket = this.backendTickets.find(bt => bt.id === ticket.id);
+    if (!backendTicket) return;
+
+    // Create update DTO based on UI changes
+    const updateData: TicketUpdateDTO = {
+      subject: ticket.title,
+      status: backendTicket.status as Status,
+      // Add other fields as needed
+    };
+
+    this.ticketService.updateTicket(ticket.id, updateData)
+      .subscribe({
+        next: (response) => {
+          console.log('Ticket updated successfully', response);
+          this.loadTickets(); // Refresh data
+        },
+        error: (err) => {
+          console.error('Error updating ticket:', err);
+        }
+      });
   }
 
   deleteTicket(ticket: Ticket): void {
-    console.log('Delete ticket', ticket);
+    if (confirm(`Are you sure you want to delete ticket ${ticket.id}?`)) {
+      this.ticketService.deleteTicket(ticket.id)
+        .subscribe({
+          next: () => {
+            console.log('Ticket deleted successfully');
+            this.loadTickets(); // Refresh data
+            this.loadTicketCounts(); // Refresh counts
+          },
+          error: (err) => {
+            console.error('Error deleting ticket:', err);
+          }
+        });
+    }
   }
 
   setActiveTab(tab: string): void {
     this.activeTab = tab;
+    
+    // Map UI tab names to backend status enum
+    let status: Status | undefined;
+    if (tab !== 'All Tickets') {
+      status = tab.toUpperCase().replace(' ', '_') as Status;
+    }
+    
+    this.loadTickets(status);
+  }
+
+  // Method to clear filters
+  clearFilter(): void {
+    this.activeTab = 'All Tickets';
+    this.searchTerm = '';
+    this.loadTickets(); // Reload all tickets
   }
 
   filteredTickets(): Ticket[] {
+    if (!this.tickets) return [];
+    
     if (!this.searchTerm) {
-      if (this.activeTab === 'All Tickets') {
-        return this.tickets;
-      } else {
-        return this.tickets.filter(ticket => 
-          ticket.status.toLowerCase() === this.activeTab.toLowerCase());
-      }
+      return this.tickets;
     }
     
     const term = this.searchTerm.toLowerCase();
