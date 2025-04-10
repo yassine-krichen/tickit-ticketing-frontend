@@ -34,3 +34,13 @@ a, .btn-link {
     color: #ea580c !important;
   }
   
+  .nav-pills .nav-link.active {
+    background-color: #f97316 !important; /* Your orange color */
+    color: #fff !important;              /* Make text white for contrast */
+    border-color: #f97316 !important;    /* If you want a border to match */
+  }
+  
+  .nav-pills .nav-link:hover {
+    background-color: #ffe7d9;           /* Lighter orange on hover? Optional */
+    color: #f97316;                      /* Or keep it white—your choice */
+  }
