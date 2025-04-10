@@ -106,46 +106,43 @@
       </div> -->
       
       <!-- Activity Timeline -->
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">Activity Timeline</h5>
-          <div class="list-group">
-            <div class="list-group-item border-0" *ngFor="let event of timelineEvents">
-              <div class="d-flex gap-3">
-                <div class="d-flex align-items-center justify-content-center rounded-circle"
-                     [ngClass]="{
-                       'bg-info': event.icon === 'ticket-icon',
-                       'bg-primary': event.icon === 'status-icon',
-                       'bg-warning': event.icon === 'waiting-icon',
-                       'bg-success': event.icon === 'ai-icon'
-                     }"
-                     style="width: 36px; height: 36px;">
-                  <!-- You can adjust icons or switch to lighter variants if desired -->
-                  <i class="fas" [ngClass]="{
-                    'fa-ticket-alt': event.icon === 'ticket-icon',
-                    'fa-exchange-alt': event.icon === 'status-icon',
-                    'fa-hourglass-half': event.icon === 'waiting-icon',
-                    'fa-robot': event.icon === 'ai-icon'
-                  }" style="color: #fff;"></i>
-                </div>
-                <div>
-                  <div class="d-flex justify-content-between">
-                    <h6 class="mb-1">{{ event.title }}</h6>
-                    <small class="text-muted">{{ event.time }}</small>
-                  </div>
-                  <p class="mb-0 text-secondary" *ngIf="event.type !== 'status-change' || !event.additionalData?.from">
-                    {{ event.description }}
-                  </p>
-                  <p class="mb-0 text-secondary" *ngIf="event.type === 'status-change' && event.additionalData?.from">
-                    Status changed from <span class="badge bg-secondary">{{ event.additionalData.from }}</span>
-                    to <span class="badge bg-primary">{{ event.additionalData.to }}</span>
-                  </p>
-                </div>
-              </div>
+      <!-- Updated Activity Timeline Card -->
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h5 class="card-title">Activity Timeline</h5>
+    <div class="timeline-vertical">
+      <ng-container *ngFor="let event of timelineEvents; let i = index">
+        <div class="timeline-item d-flex position-relative mb-4">
+          <!-- Icon Column -->
+          <div class="timeline-icon-wrapper d-flex flex-column align-items-center me-3">
+            <div class="timeline-icon rounded-circle d-flex align-items-center justify-content-center"
+                 [ngStyle]="{'background-color': getActionColor(event.action)}"
+                 style="width: 36px; height: 36px; z-index: 1;">
+              <i class="fas" [ngClass]="getActionIcon(event.action)" style="color: #fff; font-size: 1rem;"></i>
+            </div>
+            <!-- Connector Line -->
+            <div *ngIf="i < timelineEvents.length - 1" class="connector"
+                 style="width: 2px; flex-grow: 1; background-color: #e5e7eb;"></div>
+          </div>
+          <!-- Content Column -->
+          <div class="timeline-content flex-grow-1">
+            <div class="d-flex justify-content-between">
+              <h6 class="mb-1">{{ event.title }}</h6>
+              <small class="text-muted">{{ event.time }}</small>
+            </div>
+            <div class="text-secondary" *ngIf="event.type !== 'status-change' || !event.additionalData?.from">
+              {{ event.description }}
+            </div>
+            <div class="text-secondary" *ngIf="event.type === 'status-change' && event.additionalData?.from">
+              Status changed from {{ event.additionalData.from }} to {{ event.additionalData.to }}
             </div>
           </div>
         </div>
-      </div>
+      </ng-container>
+    </div>
+  </div>
+</div>
+
     </div>
     
     <!-- Right Column: Sidebar -->
@@ -222,57 +219,72 @@
         </div>
       </div>
       
-      <!-- Process Tracker Card -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <h5 class="card-title">Process Tracker</h5>
-          <div class="mb-3">
-            <div class="d-flex justify-content-between">
-              <small>Overall Progress</small>
-              <!-- <small class="fw-bold text-warning">{{ ticket.progress }}%</small> -->
+      <!-- Updated Vertical Case Tracker Card -->
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h5 class="card-title mb-3">Case Tracker</h5>
+    <!-- Vertical Timeline Container -->
+    <div class="timeline-vertical">
+      <ng-container *ngFor="let step of processSteps; let i = index">
+        <div class="d-flex align-items-start position-relative timeline-step mb-3">
+          <!-- Icon and Connector Column -->
+          <div class="timeline-icon-wrapper d-flex flex-column align-items-center me-3">
+            <div class="timeline-icon rounded-circle d-flex align-items-center justify-content-center"
+                 [ngStyle]="{ 
+                   'background-color': step.status === 'completed' ? '#10b981' : (step.status === 'error' ? '#ef4444' : '#e5e7eb')
+                 }"
+                 style="width: 32px; height: 32px; z-index: 1;">
+              <i class="fas"
+                 [ngClass]="{
+                   'fa-check': step.status === 'completed',
+                   'fa-times': step.status === 'error',
+                   'fa-minus': step.status === 'pending'
+                 }"
+                 style="color: #fff;"></i>
             </div>
-            <div class="progress" style="height: 6px;">
-              <!-- <div class="progress-bar bg-warning" role="progressbar" [style.width]="ticket.progress + '%'" aria-valuenow="{{ ticket.progress }}" aria-valuemin="0" aria-valuemax="100"></div> -->
-            </div>
+            <!-- Connector: only for steps except the last -->
+            <div *ngIf="i < processSteps.length - 1" class="connector" style="width: 2px; height: 20px; transform: translateY(8px); flex-grow: 1; background-color: #e5e7eb;"></div>
           </div>
-          <div>
-            <div class="d-flex flex-column gap-2">
-              <div class="d-flex align-items-center gap-2" *ngFor="let step of processSteps">
-                <div class="rounded-circle" style="width: 16px; height: 16px;"
-                     [ngClass]="{
-                       'bg-success': step.status === 'completed',
-                       'bg-danger': step.status === 'error',
-                       'bg-light': step.status === 'pending'
-                     }"></div>
-                <small class="text-secondary">{{ step.name }}</small>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- AI Recommendations Card -->
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">AI Recommendations</h5>
-          <div *ngFor="let recommendation of recommendations" class="d-flex gap-3 mb-3">
-            <div class="rounded" style="width: 40px; height: 40px;" [ngClass]="{
-              'bg-warning': recommendation.icon === 'similar-icon',
-              'bg-success': recommendation.icon === 'action-icon'
-            }">
-              <i class="fas" [ngClass]="{
-                'fa-lightbulb': recommendation.icon === 'similar-icon',
-                'fa-bell': recommendation.icon === 'action-icon'
-              }" style="color: #fff; line-height: 40px; text-align: center;"></i>
-            </div>
-            <div>
-              <h6 class="mb-1">{{ recommendation.title }}</h6>
-              <p class="mb-1 small text-muted">{{ recommendation.description }}</p>
-              <a *ngIf="recommendation.link" href="#" class="small text-warning text-decoration-none">{{ recommendation.link }}</a>
-            </div>
+          <!-- Label Column -->
+          <div class="timeline-label">
+            <small class="text-secondary">{{ step.name }}</small>
           </div>
         </div>
+      </ng-container>
+    </div>
+  </div>
+</div>
+
+
+      <!-- Updated AI Recommendations Card -->
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h5 class="card-title">AI Recommendations</h5>
+    <div *ngFor="let recommendation of recommendations" class="d-flex align-items-center gap-3 mb-3">
+      <div class="d-flex align-items-center justify-content-center rounded"
+           [ngClass]="{
+             'bg-warning': recommendation.icon === 'similar-icon',
+             'bg-success': recommendation.icon === 'action-icon'
+           }"
+           style="width: 48px; height: 48px;">
+        <i class="fas"
+           [ngClass]="{
+             'fa-lightbulb': recommendation.icon === 'similar-icon',
+             'fa-bell': recommendation.icon === 'action-icon'
+           }"
+           style="color: #fff; font-size: 1.25rem;"></i>
       </div>
+      <div>
+        <h6 class="mb-1">{{ recommendation.title }}</h6>
+        <p class="mb-1 small text-muted">{{ recommendation.description }}</p>
+        <a *ngIf="recommendation.link" href="#" class="small text-warning text-decoration-none">
+          {{ recommendation.link }}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
     </div>
   </div>
 </div>

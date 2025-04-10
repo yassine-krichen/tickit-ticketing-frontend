@@ -15,6 +15,7 @@ interface TimelineEvent {
   description: string;
   icon: string;
   additionalData?: any;
+  action?: string;
 }
 
 @Component({
@@ -39,9 +40,10 @@ export class TicketDetailsComponent implements OnInit {
   };
 
   processSteps: ProcessStep[] = [
-    { name: 'Initial Assessment', status: 'completed' },
-    { name: 'Technical Verification', status: 'completed' },
-    { name: 'API Integration', status: 'error' },
+    { name: 'Initial TreatmentAct created', status: 'completed' },
+    { name: 'Initial TreatmentAct done', status: 'completed' },
+    { name: '2nd TreatmentAct started', status: 'completed' },
+    { name: '2nd TreatmentAct lack of context', status: 'error' },
     { name: 'Testing', status: 'pending' },
     { name: 'Deployment', status: 'pending' }
   ];
@@ -52,7 +54,8 @@ export class TicketDetailsComponent implements OnInit {
       title: 'Ticket Created',
       time: '39 days ago',
       description: 'Jane Smith created this ticket',
-      icon: 'ticket-icon'
+      icon: 'ticket-icon',
+      action: 'POST'
     },
     {
       type: 'status-change',
@@ -60,7 +63,8 @@ export class TicketDetailsComponent implements OnInit {
       time: '1 hour after creation',
       description: 'Status changed from Open to In Progress',
       icon: 'status-icon',
-      additionalData: { from: 'Open', to: 'In Progress' }
+      additionalData: { from: 'Open', to: 'In Progress' },
+      action: 'PUT'
     },
     {
       type: 'status-change',
@@ -68,14 +72,16 @@ export class TicketDetailsComponent implements OnInit {
       time: '38 days ago',
       description: 'Status changed to Waiting for Info',
       icon: 'waiting-icon',
-      additionalData: { to: 'Waiting for Info' }
+      additionalData: { to: 'Waiting for Info' },
+      action: 'PUT'
     },
     {
       type: 'ai-insight',
       title: 'AI Insight Added',
       time: '15 minutes ago',
       description: 'BOTool AI detected a similar issue was resolved last month. Suggested solution available.',
-      icon: 'ai-icon'
+      icon: 'ai-icon',
+      action: 'AI'
     }
   ];
 
@@ -158,4 +164,27 @@ export class TicketDetailsComponent implements OnInit {
     team: this.userInfo.team,
     role: this.userInfo.role
   };
+
+  // In ticket-details.component.ts, add these helper methods:
+
+getActionColor(action: string): string {
+  switch (action) {
+    case 'POST': return '#10b981';    // green
+    case 'PUT': return '#3b82f6';     // blue
+    case 'AI': return '#f97316';      // orange
+    case 'DELETE': return '#ef4444';  // red
+    default: return '#6b7280';
+  }
+}
+
+getActionIcon(action: string): string {
+  switch (action) {
+    case 'POST': return 'fa-plus-circle';
+    case 'PUT': return 'fa-edit';
+    case 'AI': return 'fa-robot';
+    case 'DELETE': return 'fa-trash';
+    default: return 'fa-info-circle';
+  }
+}
+
 }

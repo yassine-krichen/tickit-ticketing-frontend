@@ -17,3 +17,20 @@
     padding: 16px;
   }
 }
+
+/* Additional CSS for Vertical Timeline */
+.timeline-vertical {
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-step {
+  /* Ensure proper spacing, no overflow on the left */
+  padding-left: 0.5rem;
+  position: relative;
+}
+
+/* Optional: Adjust connector alignment */
+.timeline-icon-wrapper {
+  min-height: 32px;
+}
