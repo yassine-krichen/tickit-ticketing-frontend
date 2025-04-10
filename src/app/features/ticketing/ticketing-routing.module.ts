@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { TicketListComponent } from './components/ticket-list/ticket-list.component';
 import { TicketDetailsComponent } from './components/ticket-details/ticket-details.component';
+import { CreateComponent } from './components/create/create.component';
 
 const routes: Routes = [
   {
@@ -13,10 +14,16 @@ const routes: Routes = [
         path: '',
         component: TicketListComponent
       },
+      // create new ticket endpoint
+      {
+        path: 'tickets/new',
+        component: CreateComponent
+      },
       {
         path: 'tickets/:id',
         component: TicketDetailsComponent
       }
+      
     ]
   }
 ];

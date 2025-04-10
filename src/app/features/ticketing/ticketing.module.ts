@@ -9,6 +9,7 @@ import { TicketListComponent } from './components/ticket-list/ticket-list.compon
 import { TicketDetailsComponent } from './components/ticket-details/ticket-details.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { FilterPipe } from '../../shared/pipes/filter.pipe';
+import { CreateComponent } from './components/create/create.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { FilterPipe } from '../../shared/pipes/filter.pipe';
     TicketListComponent, 
     TicketDetailsComponent,
     SidebarComponent,
-    FilterPipe
+    FilterPipe,
+    CreateComponent
   ],
   imports: [
     CommonModule,

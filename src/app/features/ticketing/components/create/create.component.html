@@ -1,0 +1,158 @@
+<div class="create-ticket-container container-fluid py-4">
+
+    <!-- Header / Breadcrumb -->
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <div>
+        <button class="btn btn-outline-secondary btn-sm me-2" (click)="onBackClick()">
+          <i class="fas fa-arrow-left me-1"></i> Back
+        </button>
+        <span class="fs-5 fw-semibold align-middle">Create New Ticket</span>
+      </div>
+      <div>
+        <!-- Could add a "Help" or "Docs" button here if desired -->
+      </div>
+    </div>
+  
+    <!-- Card Container -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-bottom-0">
+        <h5 class="mb-0 d-flex align-items-center">
+          <i class="fas fa-ticket-alt text-primary me-2"></i>
+          Ticket Details
+        </h5>
+      </div>
+  
+      <div class="card-body">
+        <!-- Form Row 1: Title & Category -->
+        <div class="row g-3 mb-4">
+          <!-- Ticket Title -->
+          <div class="col-md-8">
+            <label for="ticketTitle" class="form-label fw-semibold">Title <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text bg-light text-muted" id="basic-addon1">
+                <i class="fas fa-heading"></i>
+              </span>
+              <input
+                type="text"
+                class="form-control"
+                id="ticketTitle"
+                placeholder="Enter a brief, descriptive title"
+              >
+            </div>
+          </div>
+          <!-- Category -->
+          <div class="col-md-4">
+            <label for="ticketCategory" class="form-label fw-semibold">Category</label>
+            <select class="form-select" id="ticketCategory">
+              <option value="" disabled selected>Select Category</option>
+              <option value="Bug">Bug</option>
+              <option value="Feature">Feature</option>
+              <option value="Improvement">Improvement</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Form Row 2: Priority & Attachment -->
+        <div class="row g-3 mb-4">
+          <!-- Priority -->
+          <div class="col-md-4">
+            <label for="ticketPriority" class="form-label fw-semibold">Priority</label>
+            <select class="form-select" id="ticketPriority">
+              <option value="" disabled selected>Select Priority</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+              <option value="Critical">Critical</option>
+            </select>
+          </div>
+          <!-- Attachments -->
+          <div class="col-md-8">
+            <label class="form-label fw-semibold d-block">Attachments</label>
+            <div class="input-group">
+              <label class="input-group-text bg-light text-muted" for="fileUpload">
+                <i class="fas fa-paperclip"></i>
+              </label>
+              <input
+                type="file"
+                class="form-control"
+                id="fileUpload"
+                multiple
+              >
+            </div>
+          </div>
+        </div>
+  
+        <!-- Description (full width) -->
+        <div class="mb-4">
+          <label for="ticketDescription" class="form-label fw-semibold">Description</label>
+          <textarea
+            class="form-control"
+            id="ticketDescription"
+            rows="4"
+            placeholder="Provide a detailed description or steps to reproduce..."
+          ></textarea>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Additional Info Card -->
+    <div class="card border-0 shadow-sm mt-4">
+      <div class="card-header bg-white border-bottom-0">
+        <h5 class="mb-0 d-flex align-items-center">
+          <i class="fas fa-info-circle text-primary me-2"></i>
+          Additional Info
+        </h5>
+      </div>
+      <div class="card-body">
+        <!-- Row 1: Assignee & Due Date -->
+        <div class="row g-3 mb-4">
+          <!-- Assignee -->
+          <div class="col-md-6">
+            <label for="ticketAssignee" class="form-label fw-semibold">Assignee</label>
+            <select class="form-select" id="ticketAssignee">
+              <option value="" disabled selected>Select a team member</option>
+              <option value="John">John Doe</option>
+              <option value="Jane">Jane Smith</option>
+              <option value="Mark">Mark Brown</option>
+            </select>
+          </div>
+          <!-- Due Date -->
+          <div class="col-md-6">
+            <label for="ticketDueDate" class="form-label fw-semibold">Due Date</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light text-muted">
+                <i class="fas fa-calendar-alt"></i>
+              </span>
+              <input
+                type="date"
+                class="form-control"
+                id="ticketDueDate"
+              >
+            </div>
+          </div>
+        </div>
+        <!-- Row 2: Watchers -->
+        <div class="mb-4">
+          <label for="ticketWatchers" class="form-label fw-semibold">Watchers</label>
+          <select class="form-select" id="ticketWatchers" multiple>
+            <option value="Anna">Anna Johnson</option>
+            <option value="Bob">Bob Davis</option>
+            <option value="Chris">Chris Wilson</option>
+          </select>
+          <small class="text-muted">You can select multiple watchers by holding CTRL (or Command on Mac)</small>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Form Actions -->
+    <div class="mt-4 d-flex justify-content-end gap-2">
+      <button class="btn btn-outline-secondary">
+        <i class="fas fa-ban me-1"></i> Cancel
+      </button>
+      <button class="btn btn-primary">
+        <i class="fas fa-save me-1"></i> Save
+      </button>
+    </div>
+  </div>
+  
