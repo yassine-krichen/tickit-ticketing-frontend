@@ -33,62 +33,44 @@
           </h5>
         </div>
         <div class="card-body">
-          <!-- Row 1: Title & Category -->
+          <!-- Row 1: Subject & Acte Traitement -->
           <div class="row g-3 mb-4">
             <div class="col-md-8">
-              <label for="ticketTitle" class="form-label fw-semibold">
-                Title <span class="text-danger">*</span>
+              <label for="ticketSubject" class="form-label fw-semibold">
+                Subject <span class="text-danger">*</span>
               </label>
               <div class="input-group">
                 <span class="input-group-text bg-light text-muted">
                   <i class="fas fa-heading"></i>
                 </span>
-                <input type="text" class="form-control" id="ticketTitle" formControlName="title" placeholder="Enter a brief, descriptive title" />
+                <input type="text" class="form-control" id="ticketSubject" formControlName="subject" placeholder="Enter a brief, descriptive subject" />
               </div>
             </div>
             <div class="col-md-4">
-              <label for="ticketCategory" class="form-label fw-semibold">Category</label>
-              <select class="form-select" id="ticketCategory" formControlName="category">
-                <option value="" disabled>Select Category</option>
-                <option value="Bug">Bug</option>
-                <option value="Feature">Feature</option>
-                <option value="Improvement">Improvement</option>
-                <option value="Other">Other</option>
-              </select>
+              <label for="acteTraitement" class="form-label fw-semibold">Acte Traitement</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light text-muted" [class.bg-light-gray]="isEditMode">
+                  <i class="fas fa-id-badge"></i>
+                </span>
+                <input type="text" class="form-control" id="acteTraitement" formControlName="acteTraitement" placeholder="Enter Acte Traitement ID" [class.bg-light-gray]="isEditMode" />
+              </div>
+              <small *ngIf="isEditMode" class="text-muted">This field cannot be modified in edit mode</small>
             </div>
           </div>
           
-          <!-- Row 2: Priority, Status & Treatment Act Id -->
+          <!-- Row 2: Priority & Status -->
           <div class="row g-3 mb-4">
-            <div class="col-md-3">
-              <label for="ticketPriority" class="form-label fw-semibold">Priority</label>
+            <div class="col-md-6">
+              <label for="ticketPriority" class="form-label fw-semibold">Priority <span class="text-danger">*</span></label>
               <select class="form-select" id="ticketPriority" formControlName="priority">
-                <option value="" disabled>Select Priority</option>
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
-                <option value="Critical">Critical</option>
-              </select>
-            </div>
-            <div class="col-md-3">
-              <label for="ticketStatus" class="form-label fw-semibold">Status</label>
-              <select class="form-select" id="ticketStatus" formControlName="status">
-                <option value="" disabled>Select Status</option>
-                <option value="Open">Open</option>
-                <option value="In-Progress">In-Progress</option>
-                <option value="Blocked">Blocked</option>
-                <option value="Resolved">Resolved</option>
-                <option value="Closed">Closed</option>
+                <option *ngFor="let priority of priorityOptions" [value]="priority">{{getPriorityDisplay(priority)}}</option>
               </select>
             </div>
             <div class="col-md-6">
-              <label for="treatmentActId" class="form-label fw-semibold">Treatment Act Id</label>
-              <div class="input-group">
-                <span class="input-group-text bg-light text-muted">
-                  <i class="fas fa-id-badge"></i>
-                </span>
-                <input type="text" class="form-control" id="treatmentActId" formControlName="treatmentActId" placeholder="Enter Treatment Act Id" />
-              </div>
+              <label for="ticketStatus" class="form-label fw-semibold">Status <span class="text-danger">*</span></label>
+              <select class="form-select" id="ticketStatus" formControlName="status">
+                <option *ngFor="let status of statusOptions" [value]="status">{{getStatusDisplay(status)}}</option>
+              </select>
             </div>
           </div>
           
@@ -111,4 +93,6 @@
       </div>
     </form>
   </div>
+  
+
   
