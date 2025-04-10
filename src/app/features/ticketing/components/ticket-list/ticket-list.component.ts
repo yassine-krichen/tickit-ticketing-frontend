@@ -8,6 +8,8 @@ interface Ticket {
   assignee: {
     initials: string;
     name: string;
+    team: string;
+    role: string;
   };
   tags: {
     status: string;
@@ -34,7 +36,9 @@ export class TicketListComponent implements OnInit {
       category: 'ESIMB-4321',
       assignee: {
         initials: 'JS',
-        name: 'Jane Smith'
+        name: 'Jane Smith',
+        team: 'Development',
+        role: 'Frontend Developer'
       },
       tags: {
         status: 'waiting',
@@ -53,7 +57,9 @@ export class TicketListComponent implements OnInit {
       category: 'BRAME-3456',
       assignee: {
         initials: 'MJ',
-        name: 'Mark Johnson'
+        name: 'Mark Johnson',
+        team: 'Support',
+        role: 'Technical Support'
       },
       tags: {
         status: 'technical',
@@ -72,7 +78,9 @@ export class TicketListComponent implements OnInit {
       category: 'ESIMB-5678',
       assignee: {
         initials: 'SW',
-        name: 'Sarah Williams'
+        name: 'Sarah Williams',
+        team: 'QA',
+        role: 'QA Engineer'
       },
       tags: {
         status: 'blocked',
@@ -91,7 +99,9 @@ export class TicketListComponent implements OnInit {
       category: 'BRAME-2345',
       assignee: {
         initials: 'MB',
-        name: 'Michael Brown'
+        name: 'Michael Brown',
+        team: 'Finance',
+        role: 'Financial Analyst'
       },
       tags: {
         status: 'resolved',

@@ -1,1 +1,36 @@
 /* You can add global styles to this file, and also import other style files */
+.btn-primary {
+    background-color: #f97316 !important;
+    border-color: #f97316 !important;
+  }
+  
+  /* If you also need to override hover and active states */
+  .btn-primary:hover,
+  .btn-primary:focus,
+  .btn-primary:active {
+    background-color: #ea580c !important;
+    border-color: #ea580c !important;
+  }
+  
+  /* Change default text color for unhighlighted groups */
+  .nav-link {
+    color: rgba(0, 0, 0, 0.753) !important;
+  }
+  
+  /* Active tab color */
+  .nav-link.active {
+    color: #ea580c !important;
+    
+  }
+  
+/* Overwrite anchor link color globally with !important */
+a, .btn-link {
+    color: #f97316 !important;
+  }
+  
+  /* Set a higher tone on hover and focus for better visual feedback */
+  a:hover,
+  a:focus {
+    color: #ea580c !important;
+  }
+  
