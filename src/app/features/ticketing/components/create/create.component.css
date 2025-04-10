@@ -1,5 +1,3 @@
-/* Example custom styles to refine spacing and aesthetics */
-
 /* Container styling */
 .create-ticket-container {
     max-width: 1200px;
@@ -20,10 +18,15 @@
     font-size: 0.9rem;
   }
   
-  /* Adjust form label emphasis */
+  /* Emphasize form labels */
   .form-label.fw-semibold {
     font-weight: 600;
   }
   
-  /* You can add more custom styles to polish the design if needed */
+  /* Optional: Add gentle spacing for rows on smaller devices */
+  @media (max-width: 768px) {
+    .row.g-3 > [class*="col-"] {
+      margin-bottom: 0.5rem;
+    }
+  }
   

@@ -8,12 +8,31 @@
         </button>
         <span class="fs-5 fw-semibold align-middle">Create New Ticket</span>
       </div>
-      <div>
-        <!-- Could add a "Help" or "Docs" button here if desired -->
-      </div>
     </div>
-  
-    <!-- Card Container -->
+    <div class="alert position-relative rounded" style="
+    border-left: 4px solid #1e40af;
+    background-color: #e0ecfc;
+    border-radius: 0;
+    padding: 1rem 2rem 1rem 1.5rem;
+    margin: 1rem 0;
+    color: #1e40af;
+">
+    <button type="button" class="btn-close position-absolute" style="
+        top: 0.5rem;
+        right: 0.5rem;
+        font-size: 0.75rem;
+    " onclick="this.parentElement.remove()"></button>
+    
+    <div class="d-flex align-items-start gap-3">
+        <div>
+            <div class="mb-2 fw-medium">Quick Tip</div>
+            <p class="m-0" style="font-size: 0.875rem; color: #1e40af;">
+                Creating a ticket from the Treatment Act page will auto-fill this form with relevant data, saving you time and ensuring accuracy.
+            </p>
+        </div>
+    </div>
+</div>
+    <!-- Ticket Details Card -->
     <div class="card border-0 shadow-sm">
       <div class="card-header bg-white border-bottom-0">
         <h5 class="mb-0 d-flex align-items-center">
@@ -23,13 +42,15 @@
       </div>
   
       <div class="card-body">
-        <!-- Form Row 1: Title & Category -->
+        <!-- Row 1: Title & Category -->
         <div class="row g-3 mb-4">
           <!-- Ticket Title -->
           <div class="col-md-8">
-            <label for="ticketTitle" class="form-label fw-semibold">Title <span class="text-danger">*</span></label>
+            <label for="ticketTitle" class="form-label fw-semibold">
+              Title <span class="text-danger">*</span>
+            </label>
             <div class="input-group">
-              <span class="input-group-text bg-light text-muted" id="basic-addon1">
+              <span class="input-group-text bg-light text-muted">
                 <i class="fas fa-heading"></i>
               </span>
               <input
@@ -37,7 +58,7 @@
                 class="form-control"
                 id="ticketTitle"
                 placeholder="Enter a brief, descriptive title"
-              >
+              />
             </div>
           </div>
           <!-- Category -->
@@ -53,10 +74,10 @@
           </div>
         </div>
         
-        <!-- Form Row 2: Priority & Attachment -->
+        <!-- Row 2: Priority, Status & Treatment Act Id -->
         <div class="row g-3 mb-4">
           <!-- Priority -->
-          <div class="col-md-4">
+          <div class="col-md-3">
             <label for="ticketPriority" class="form-label fw-semibold">Priority</label>
             <select class="form-select" id="ticketPriority">
               <option value="" disabled selected>Select Priority</option>
@@ -66,24 +87,38 @@
               <option value="Critical">Critical</option>
             </select>
           </div>
-          <!-- Attachments -->
-          <div class="col-md-8">
-            <label class="form-label fw-semibold d-block">Attachments</label>
+          <!-- Status -->
+          <div class="col-md-3">
+            <label for="ticketStatus" class="form-label fw-semibold">Status</label>
+            <select class="form-select" id="ticketStatus">
+              <option value="" disabled selected>Select Status</option>
+              <option value="Open">Open</option>
+              <option value="In-Progress">In-Progress</option>
+              <option value="Blocked">Blocked</option>
+              <option value="Resolved">Resolved</option>
+              <option value="Closed">Closed</option>
+            </select>
+          </div>
+          <!-- Treatment Act Id -->
+          <div class="col-md-6">
+            <label for="treatmentActId" class="form-label fw-semibold">
+              Treatment Act Id
+            </label>
             <div class="input-group">
-              <label class="input-group-text bg-light text-muted" for="fileUpload">
-                <i class="fas fa-paperclip"></i>
-              </label>
+              <span class="input-group-text bg-light text-muted">
+                <i class="fas fa-id-badge"></i>
+              </span>
               <input
-                type="file"
+                type="text"
                 class="form-control"
-                id="fileUpload"
-                multiple
-              >
+                id="treatmentActId"
+                placeholder="Enter Treatment Act Id"
+              />
             </div>
           </div>
         </div>
   
-        <!-- Description (full width) -->
+        <!-- Row 3: Description -->
         <div class="mb-4">
           <label for="ticketDescription" class="form-label fw-semibold">Description</label>
           <textarea
@@ -92,55 +127,6 @@
             rows="4"
             placeholder="Provide a detailed description or steps to reproduce..."
           ></textarea>
-        </div>
-      </div>
-    </div>
-  
-    <!-- Additional Info Card -->
-    <div class="card border-0 shadow-sm mt-4">
-      <div class="card-header bg-white border-bottom-0">
-        <h5 class="mb-0 d-flex align-items-center">
-          <i class="fas fa-info-circle text-primary me-2"></i>
-          Additional Info
-        </h5>
-      </div>
-      <div class="card-body">
-        <!-- Row 1: Assignee & Due Date -->
-        <div class="row g-3 mb-4">
-          <!-- Assignee -->
-          <div class="col-md-6">
-            <label for="ticketAssignee" class="form-label fw-semibold">Assignee</label>
-            <select class="form-select" id="ticketAssignee">
-              <option value="" disabled selected>Select a team member</option>
-              <option value="John">John Doe</option>
-              <option value="Jane">Jane Smith</option>
-              <option value="Mark">Mark Brown</option>
-            </select>
-          </div>
-          <!-- Due Date -->
-          <div class="col-md-6">
-            <label for="ticketDueDate" class="form-label fw-semibold">Due Date</label>
-            <div class="input-group">
-              <span class="input-group-text bg-light text-muted">
-                <i class="fas fa-calendar-alt"></i>
-              </span>
-              <input
-                type="date"
-                class="form-control"
-                id="ticketDueDate"
-              >
-            </div>
-          </div>
-        </div>
-        <!-- Row 2: Watchers -->
-        <div class="mb-4">
-          <label for="ticketWatchers" class="form-label fw-semibold">Watchers</label>
-          <select class="form-select" id="ticketWatchers" multiple>
-            <option value="Anna">Anna Johnson</option>
-            <option value="Bob">Bob Davis</option>
-            <option value="Chris">Chris Wilson</option>
-          </select>
-          <small class="text-muted">You can select multiple watchers by holding CTRL (or Command on Mac)</small>
         </div>
       </div>
     </div>
