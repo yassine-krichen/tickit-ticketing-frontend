@@ -1,5 +1,7 @@
+// ticket-details.component.ts
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Priority, Status, Ticket, TicketResponse } from 'src/app/core/models/ticket.model';
 
 interface ProcessStep {
   name: string;
@@ -22,19 +24,18 @@ interface TimelineEvent {
 })
 export class TicketDetailsComponent implements OnInit {
   ticketId: string = 'BOT-1234';
-  ticket = {
+  ticket: TicketResponse = {
     id: 'BOT-1234',
-    title: 'Payment processing error in checkout flow',
-    status: 'Waiting for Info',
-    priority: 'High',
-    description: 'Customers are reporting an error when trying to complete payment using credit cards. The error occurs after entering card details and clicking \'Pay Now\'.',
-    createdBy: 'Jane Smith',
+    subject: 'Payment processing error in checkout flow',
+    priority: Priority.P4,
+    status: Status.IN_PROGRESS,
+    description: 'Customers are reporting an error when trying to complete payment using credit cards. The error occurs after entering card details and clicking "Pay Now".',
+    issuedBy: 'jane.smith.pilot.tunisia-T1',
     createdAt: '39 days ago',
-    createdDate: '2/27/2025, 1:10:00 PM',
-    updatedDate: '2/27/2025, 2:55:00 PM',
-    responseTime: '15m',
-    treatmentAct: 'ESIMB-4321',
-    progress: 40
+    updatedAt: '2/27/2025, 2:55:00 PM',
+    responseSla: 15,
+    resolutionSla: 15,
+    acteTraitement: 'ESIMB-4321',
   };
 
   processSteps: ProcessStep[] = [
@@ -59,10 +60,7 @@ export class TicketDetailsComponent implements OnInit {
       time: '1 hour after creation',
       description: 'Status changed from Open to In Progress',
       icon: 'status-icon',
-      additionalData: {
-        from: 'Open',
-        to: 'In Progress'
-      }
+      additionalData: { from: 'Open', to: 'In Progress' }
     },
     {
       type: 'status-change',
@@ -70,9 +68,7 @@ export class TicketDetailsComponent implements OnInit {
       time: '38 days ago',
       description: 'Status changed to Waiting for Info',
       icon: 'waiting-icon',
-      additionalData: {
-        to: 'Waiting for Info'
-      }
+      additionalData: { to: 'Waiting for Info' }
     },
     {
       type: 'ai-insight',
@@ -103,7 +99,7 @@ export class TicketDetailsComponent implements OnInit {
     this.route.params.subscribe(params => {
       if (params['id']) {
         this.ticketId = params['id'];
-        // In a real app, fetch ticket details from a service here
+        // Fetch ticket details from service if needed
       }
     });
   }
@@ -111,10 +107,55 @@ export class TicketDetailsComponent implements OnInit {
   navigateBack(): void {
     window.history.back();
   }
-  
+
   getInitials(name: string): string {
     return name.split(' ')
       .map(part => part.charAt(0))
       .join('');
   }
+
+  // Map priority to a user-friendly label (P1=lowest, P5=highest)
+  getPriorityLabel(priority: string): string {
+    switch(priority) {
+      case 'P1': return 'Very-Low';
+      case 'P2': return 'Low';
+      case 'P3': return 'Medium';
+      case 'P4': return 'High';
+      case 'P5': return 'Critical';
+      default: return 'Unknown';
+    }
+  }
+
+  extractUserInfo(issuedBy: string): { name: string, team: string, role: string } {
+    // Split the string by dots
+    const parts = issuedBy.split('.');
+    
+    if (parts.length < 4) {
+      return {
+        name: issuedBy,
+        team: 'Support Team',
+        role: 'Agent'
+      };
+    }
+
+    // First two parts form the name
+    const name = `${parts[0]} ${parts[1]}`.replace(/\b\w/g, c => c.toUpperCase());
+    
+    // Third part is the role
+    const role = parts[2].charAt(0).toUpperCase() + parts[2].slice(1);
+    
+    // Fourth part is the team
+    const team = parts[3].charAt(0).toUpperCase() + parts[3].slice(1);
+
+    return { name, team, role };
+  }
+
+  userInfo: any = this.extractUserInfo(this.ticket.issuedBy);
+
+  assignee = {
+    initials: this.getInitials(this.userInfo.name),
+    name: this.userInfo.name,
+    team: this.userInfo.team,
+    role: this.userInfo.role
+  };
 }
