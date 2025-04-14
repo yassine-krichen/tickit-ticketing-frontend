@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TicketService } from '../../../../core/services/ticket/ticket.service';
 import { Priority, Status } from '../../../../core/models/ticket.model';
+import { getPriorityLabel, getStatusLabel } from '../../../../core/utils/ticket.util';
 
 @Component({
   selector: 'app-create',
@@ -22,19 +23,19 @@ export class CreateComponent implements OnInit {
   
   // Display mappings for enums
   priorityDisplayMap = {
-    [Priority.P1]: 'Very Low',
-    [Priority.P2]: 'Low',
-    [Priority.P3]: 'Medium',
-    [Priority.P4]: 'High',
-    [Priority.P5]: 'Critical'
+    [Priority.P1]: getPriorityLabel(Priority.P1),
+    [Priority.P2]: getPriorityLabel(Priority.P2),
+    [Priority.P3]: getPriorityLabel(Priority.P3),
+    [Priority.P4]: getPriorityLabel(Priority.P4),
+    [Priority.P5]: getPriorityLabel(Priority.P5)
   };
   
   statusDisplayMap = {
-    [Status.OPEN]: 'Open',
-    [Status.IN_PROGRESS]: 'In Progress',
-    [Status.BLOCKED]: 'Blocked',
-    [Status.RESOLVED]: 'Resolved',
-    [Status.CLOSED]: 'Closed'
+    [Status.OPEN]: getStatusLabel(Status.OPEN),
+    [Status.IN_PROGRESS]: getStatusLabel(Status.IN_PROGRESS),
+    [Status.BLOCKED]: getStatusLabel(Status.BLOCKED),
+    [Status.RESOLVED]: getStatusLabel(Status.RESOLVED),
+    [Status.CLOSED]: getStatusLabel(Status.CLOSED)
   };
   
   constructor(

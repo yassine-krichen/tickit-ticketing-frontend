@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { TicketService } from '../../../../core/services/ticket/ticket.service';
 import { BackendTicket, TicketResponse, Status, TicketUpdateDTO, TicketCount, Priority } from '../../../../core/models/ticket.model';
 import { finalize } from 'rxjs/operators';
+import { extractUserInfo, getInitials, getPriorityLabel } from '../../../../core/utils/ticket.util';
 // Declare Bootstrap's dropdown functionality
 declare var bootstrap: any;
 
@@ -111,47 +112,10 @@ export class TicketListComponent implements OnInit {
       });
   }
 
-  // Map priority to a user-friendly label (P1=lowest, P5=highest)
-  getPriorityLabel(priority: string): string {
-    switch(priority) {
-      case 'P1': return 'Low';
-      case 'P2': return 'Medium-Low';
-      case 'P3': return 'Medium';
-      case 'P4': return 'High';
-      case 'P5': return 'Critical';
-      default: return 'Unknown';
-    }
-  }
-
-  // Extract better user information from the issuedBy field
-  extractUserInfo(issuedBy: string): { name: string, team: string, role: string } {
-    // Split the string by dots
-    const parts = issuedBy.split('.');
-    
-    if (parts.length < 4) {
-      return {
-        name: issuedBy,
-        team: 'Support Team',
-        role: 'Agent'
-      };
-    }
-
-    // First two parts form the name
-    const name = `${parts[0]} ${parts[1]}`.replace(/\b\w/g, c => c.toUpperCase());
-    
-    // Third part is the role
-    const role = parts[2].charAt(0).toUpperCase() + parts[2].slice(1);
-    
-    // Fourth part is the team
-    const team = parts[3].charAt(0).toUpperCase() + parts[3].slice(1);
-
-    return { name, team, role };
-  }
-
   mapToUiTickets(backendTickets: TicketResponse[]): Ticket[] {
     return backendTickets.map(bt => {
       // Extract better user information
-      const userInfo = this.extractUserInfo(bt.issuedBy);
+      const userInfo = extractUserInfo(bt.issuedBy);
       
       return {
         id: bt.id,
@@ -159,7 +123,7 @@ export class TicketListComponent implements OnInit {
         status: bt.status,
         category: bt.acteTraitement,
         assignee: {
-          initials: this.getInitials(userInfo.name),
+          initials: getInitials(userInfo.name),
           name: userInfo.name,
           team: userInfo.team,
           role: userInfo.role
@@ -167,7 +131,7 @@ export class TicketListComponent implements OnInit {
         tags: {
           status: bt.status,
           priority: bt.priority,
-          priorityLabel: this.getPriorityLabel(bt.priority)
+          priorityLabel: getPriorityLabel(bt.priority)
         },
         meta: {
           created: bt.createdAt,
@@ -175,16 +139,6 @@ export class TicketListComponent implements OnInit {
         }
       };
     });
-  }
-
-  getInitials(name: string): string {
-    // Improved to get up to two initials from first and last name
-    return name
-      .split(' ')
-      .filter(part => part.length > 0)
-      .map(part => part.charAt(0).toUpperCase())
-      .slice(0, 2)
-      .join('');
   }
 
   onSearchChange(value: string): void {
