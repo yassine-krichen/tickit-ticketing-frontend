@@ -7,26 +7,26 @@ import { TicketingRoutingModule } from './ticketing-routing.module';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { TicketListComponent } from './components/ticket-list/ticket-list.component';
 import { TicketDetailsComponent } from './components/ticket-details/ticket-details.component';
-import { SidebarComponent } from './components/sidebar/sidebar.component';
-import { FilterPipe } from '../../shared/pipes/filter.pipe';
 import { CreateComponent } from './components/create/create.component';
+import { FilterPipe } from '../../shared/pipes/filter.pipe';
 import { ReactiveFormsModule } from '@angular/forms';
+import { CoreModule } from '../../core/core.module';
 
 @NgModule({
   declarations: [
     DashboardComponent, 
     TicketListComponent, 
     TicketDetailsComponent,
-    SidebarComponent,
+    CreateComponent,
     FilterPipe,
-    CreateComponent
   ],
   imports: [
     CommonModule,
     TicketingRoutingModule,
     RouterModule,
     TranslateModule.forChild(),
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    CoreModule
   ]
 })
 export class TicketingModule { }
