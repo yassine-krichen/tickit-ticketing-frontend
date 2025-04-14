@@ -1,0 +1,12 @@
+/* Ticket Details Layout */
+.ticket-details-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.ticket-details-content {
+  flex: 1;
+  padding: 20px;
+  margin-left: 200px; /* Match the sidebar width */
+  transition: margin-left 0.3s ease;
+}

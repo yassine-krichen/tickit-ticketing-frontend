@@ -1,0 +1,27 @@
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h5 class="card-title">AI Recommendations</h5>
+    <div *ngFor="let recommendation of recommendations" class="d-flex align-items-center gap-3 mb-3">
+      <div class="d-flex align-items-center justify-content-center rounded"
+           [ngClass]="{
+             'bg-warning': recommendation.icon === 'similar-icon',
+             'bg-success': recommendation.icon === 'action-icon'
+           }"
+           style="width: 48px; height: 48px;">
+        <i class="fas"
+           [ngClass]="{
+             'fa-lightbulb': recommendation.icon === 'similar-icon',
+             'fa-bell': recommendation.icon === 'action-icon'
+           }"
+           style="color: #fff; font-size: 1.25rem;"></i>
+      </div>
+      <div>
+        <h6 class="mb-1">{{ recommendation.title }}</h6>
+        <p class="mb-1 small text-muted">{{ recommendation.description }}</p>
+        <a *ngIf="recommendation.link" href="#" class="small text-warning text-decoration-none">
+          {{ recommendation.link }}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

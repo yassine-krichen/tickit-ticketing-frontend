@@ -1,0 +1,68 @@
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h5 class="card-title">Ticket Details</h5>
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item d-flex justify-content-between">
+        <span class="text-muted">Issued By</span>
+        <span class="d-flex align-items-center gap-2">
+          <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
+            {{ assignee.initials }}
+          </div>
+          {{ assignee.name }} ({{ assignee.role }}-{{ assignee.team }})
+        </span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between">
+        <span class="text-muted">Treatment Act</span>
+        <span>{{ ticket.acteTraitement }}</span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between">
+        <span class="text-muted">Priority</span>
+        <span class="badge rounded-pill d-flex justify-content-center align-items-center"
+              [ngStyle]="{
+                'background-color': (ticket.priority === 'P5') ? '#fee2e2' :
+                                    (ticket.priority === 'P4') ? '#ffedd5' :
+                                    (ticket.priority === 'P3') ? '#fef9c3' :
+                                    (ticket.priority === 'P2') ? '#e0ecfc' :
+                                    (ticket.priority === 'P1') ? '#f4f4f5' : 'transparent',
+                'color': (ticket.priority === 'P5') ? '#b91c1c' :
+                         (ticket.priority === 'P4') ? '#c2410c' :
+                         (ticket.priority === 'P3') ? '#854d0e' :
+                         (ticket.priority === 'P2') ? '#1e40af' :
+                         (ticket.priority === 'P1') ? '#52525b' : '#000'
+              }">
+          {{ getPriorityLabel(ticket.priority) }}
+        </span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between">
+        <span class="text-muted">Status</span>
+        <span class="badge rounded-pill d-flex justify-content-center align-items-center" 
+              [ngStyle]="{
+                'background-color': (ticket.status === 'OPEN') ? '#e0ecfc' :
+                                    (ticket.status === 'IN_PROGRESS') ? '#dcfce7' :
+                                    (ticket.status === 'BLOCKED') ? '#fee2e2' :
+                                    (ticket.status === 'RESOLVED') ? '#f0fdfa' :
+                                    (ticket.status === 'CLOSED') ? '#f4f4f5' : '#e0ecfc',
+                'color': (ticket.status === 'OPEN') ? '#1e40af' :
+                         (ticket.status === 'IN_PROGRESS') ? '#166534' :
+                         (ticket.status === 'BLOCKED') ? '#b91c1c' :
+                         (ticket.status === 'RESOLVED') ? '#0f766e' :
+                         (ticket.status === 'CLOSED') ? '#52525b' : '#1e40af'
+              }">
+          {{ ticket.status }}
+        </span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between">
+        <span class="text-muted">Created</span>
+        <span>{{ ticket.createdAt | date:'medium' }}</span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between">
+        <span class="text-muted">Updated</span>
+        <span>{{ ticket.updatedAt ? (ticket.updatedAt | date:'medium') : 'Unmodified' }}</span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between">
+        <span class="text-muted">Response Time</span>
+        <span>{{ ticket.responseSla ? ticket.responseSla + ' hours' : 'No Response' }}</span>
+      </li>
+    </ul>
+  </div>
+</div>

@@ -1,4 +1,3 @@
-// ticket-details.component.ts
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Priority, Status, TicketResponse } from 'src/app/core/models/ticket.model';
@@ -136,7 +135,6 @@ export class TicketDetailsComponent implements OnInit {
     window.history.back();
   }
 
-  // Map priority to a user-friendly label (P1=lowest, P5=highest)
   getPriorityLabel(priority: string): string {
     switch(priority) {
       case 'P1': return 'Very-Low';

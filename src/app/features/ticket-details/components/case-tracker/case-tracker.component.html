@@ -1,0 +1,30 @@
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h5 class="card-title mb-3">Case Tracker</h5>
+    <div class="timeline-vertical">
+      <ng-container *ngFor="let step of steps; let i = index">
+        <div class="d-flex align-items-start position-relative timeline-step mb-3">
+          <div class="timeline-icon-wrapper d-flex flex-column align-items-center me-3">
+            <div class="timeline-icon rounded-circle d-flex align-items-center justify-content-center"
+                 [ngStyle]="{ 
+                   'background-color': step.status === 'completed' ? '#10b981' : (step.status === 'error' ? '#ef4444' : '#e5e7eb')
+                 }"
+                 style="width: 32px; height: 32px; z-index: 1;">
+              <i class="fas"
+                 [ngClass]="{
+                   'fa-check': step.status === 'completed',
+                   'fa-times': step.status === 'error',
+                   'fa-minus': step.status === 'pending'
+                 }"
+                 style="color: #fff;"></i>
+            </div>
+            <div *ngIf="i < steps.length - 1" class="connector" style="width: 2px; height: 20px; transform: translateY(8px); flex-grow: 1; background-color: #e5e7eb;"></div>
+          </div>
+          <div class="timeline-label">
+            <small class="text-secondary">{{ step.name }}</small>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

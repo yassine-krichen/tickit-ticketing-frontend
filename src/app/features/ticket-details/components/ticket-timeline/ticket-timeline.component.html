@@ -1,0 +1,35 @@
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h5 class="card-title">Activity Timeline</h5>
+    <div class="timeline-vertical">
+      <ng-container *ngFor="let event of events; let i = index">
+        <div class="timeline-item d-flex position-relative mb-4">
+          <!-- Icon Column -->
+          <div class="timeline-icon-wrapper d-flex flex-column align-items-center me-3">
+            <div class="timeline-icon rounded-circle d-flex align-items-center justify-content-center"
+                 [ngStyle]="{'background-color': getActionColor(event.action)}"
+                 style="width: 36px; height: 36px; z-index: 1;">
+              <i class="fas" [ngClass]="getActionIcon(event.action)" style="color: #fff; font-size: 1rem;"></i>
+            </div>
+            <!-- Connector Line -->
+            <div *ngIf="i < events.length - 1" class="connector"
+                 style="width: 2px; flex-grow: 1; background-color: #e5e7eb;"></div>
+          </div>
+          <!-- Content Column -->
+          <div class="timeline-content flex-grow-1">
+            <div class="d-flex justify-content-between">
+              <h6 class="mb-1">{{ event.title }}</h6>
+              <small class="text-muted">{{ event.time }}</small>
+            </div>
+            <div class="text-secondary" *ngIf="event.type !== 'status-change' || !event.additionalData?.from">
+              {{ event.description }}
+            </div>
+            <div class="text-secondary" *ngIf="event.type === 'status-change' && event.additionalData?.from">
+              Status changed from {{ event.additionalData.from }} to {{ event.additionalData.to }}
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

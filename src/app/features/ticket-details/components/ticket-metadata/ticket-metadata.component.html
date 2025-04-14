@@ -1,0 +1,20 @@
+<div class="ticket-metadata">
+  <div class="ticket-title">
+    <h2 class="h4 mb-2">{{ ticket.subject }}</h2>
+    <div class="ticket-meta-info">
+      <span class="meta-item">
+        <i class="fas fa-calendar-alt me-1"></i>
+        Created {{ ticket.createdAt | date:'medium' }}
+      </span>
+      <span class="meta-item">
+        <i class="fas fa-user me-1"></i>
+        {{ assignee.name }} ({{ assignee.role }}-{{ assignee.team }})
+      </span>
+      <span class="meta-item ticket-id" (click)="copyToClipboard(ticket.id)" [class.copied]="copied">
+        <i class="fas fa-hashtag me-1"></i>
+        {{ ticket.id }}
+        <span class="copy-tooltip">{{ copied ? 'Copied!' : 'Click to copy' }}</span>
+      </span>
+    </div>
+  </div>
+</div>

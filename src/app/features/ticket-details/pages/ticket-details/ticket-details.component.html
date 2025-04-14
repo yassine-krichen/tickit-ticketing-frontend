@@ -1,0 +1,60 @@
+<div class="ticket-details-layout">
+  <!-- Sidebar on the left -->
+  <app-sidebar></app-sidebar>
+  
+  <!-- Main content area on the right -->
+  <div class="ticket-details-content">
+    <!-- Loading and error messages -->
+    <div class="alert alert-info" *ngIf="loading">
+      <i class="fas fa-spinner fa-spin me-2"></i> Loading ticket details...
+    </div>
+    
+    <div class="alert alert-danger" *ngIf="error">
+      <i class="fas fa-exclamation-triangle me-2"></i> {{ error }}
+    </div>
+
+    <div *ngIf="ticket">
+      <!-- Header -->
+      <app-ticket-header 
+        [ticket]="ticket"
+        [assignee]="assignee"
+        (back)="navigateBack()">
+      </app-ticket-header>
+
+      <!-- Content Area -->
+      <div class="row g-4">
+        <!-- Left Column: Main Ticket Info -->
+        <div class="col-lg-8">
+          <!-- Metadata -->
+          <app-ticket-metadata [ticket]="ticket" [assignee]="assignee"></app-ticket-metadata>
+          
+          <!-- Description Card -->
+          <app-ticket-description [description]="ticket.description"></app-ticket-description>
+          
+          <!-- Treatment Act Card -->
+          <app-ticket-treatment-act [acteTraitement]="ticket.acteTraitement"></app-ticket-treatment-act>
+          
+          <!-- Activity Timeline -->
+          <app-ticket-timeline [events]="timelineEvents"></app-ticket-timeline>
+        </div>
+        
+        <!-- Right Column: Sidebar -->
+        <div class="col-lg-4">
+          <app-ticket-sidebar>
+            <!-- Ticket Details Card -->
+            <app-ticket-info 
+              [ticket]="ticket"
+              [assignee]="assignee">
+            </app-ticket-info>
+            
+            <!-- Case Tracker Card -->
+            <app-case-tracker [steps]="processSteps"></app-case-tracker>
+
+            <!-- AI Recommendations Card -->
+            <app-ai-recommendations [recommendations]="recommendations"></app-ai-recommendations>
+          </app-ticket-sidebar>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

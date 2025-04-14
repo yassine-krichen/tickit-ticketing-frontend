@@ -1,0 +1,79 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.ticket-metadata {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.ticket-title {
+  color: #1f2937;
+}
+
+.ticket-title h2 {
+  font-weight: 600;
+  color: #111827;
+}
+
+.ticket-meta-info {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  color: #6b7280;
+  font-size: 0.875rem;
+  position: relative;
+}
+
+.meta-item i {
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+.ticket-id {
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.ticket-id:hover {
+  color: #3b82f6;
+}
+
+.ticket-id:hover .copy-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.copy-tooltip {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #1f2937;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.ticket-id.copied {
+  color: #10b981;
+}
+
+.ticket-id.copied .copy-tooltip {
+  background-color: #10b981;
+}
