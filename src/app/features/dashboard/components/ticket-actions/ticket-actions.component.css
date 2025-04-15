@@ -2,18 +2,23 @@
   display: none;
 }
 
+.dropdown {
+  position: relative;
+}
+
 .dropdown-menu {
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
   border: 1px solid rgba(0, 0, 0, 0.1);
-  max-width: 200px;
-  right: 0;
-  left: auto;
-  position: absolute;
+  min-width: 200px;
   z-index: 1000;
+  display: none;
+  max-height: 250px;
+  overflow-y: auto;
+  background-color: white;
 }
 
-.dropdown {
-  position: relative;
+.dropdown-menu.show {
+  display: block;
 }
 
 .dropdown-item {

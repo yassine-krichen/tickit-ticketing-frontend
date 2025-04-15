@@ -111,24 +111,25 @@ export class DashboardContentComponent implements OnInit {
 
   deleteTicket(ticket: any): void {
     if (confirm(`Are you sure you want to delete ticket #${ticket.id}?`)) {
-      this.ticketService.deleteTicket(ticket.id).subscribe(
-        () => {
+      this.ticketService.deleteTicket(ticket.id).subscribe({
+        next: (response) => {
+          // Filter out the deleted ticket
           this.tickets = this.tickets.filter(t => t.id !== ticket.id);
           this.calculateStatistics();
+          // Show success message
+          alert(response.message || 'Ticket deleted successfully');
         },
-        error => {
+        error: (error) => {
           console.error('Error deleting ticket:', error);
           alert('Failed to delete ticket. Please try again.');
         }
-      );
+      });
     }
   }
 
   toggleDropdown(event: Event, ticketId: string): void {
-    event.stopPropagation();
-    const dropdownMenu = document.getElementById(`dropdown-menu-${ticketId}`);
-    if (dropdownMenu) {
-      dropdownMenu.classList.toggle('show');
-    }
+    // This method is no longer needed as dropdown is managed by ticket-actions component
+    // We keep it for compatibility but don't need to do anything
+    console.log('Dropdown toggle event received for ticket', ticketId);
   }
 }

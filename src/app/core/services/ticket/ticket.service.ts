@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { 
   Ticket, 
   BackendTicket, 
@@ -72,8 +73,17 @@ export class TicketService {
     return this.http.put<TicketResponse>(`${this.baseUrl}/${ticketId}`, updateData);
   }
 
-  // Delete a ticket
-  deleteTicket(ticketId: string): Observable<string> {
-    return this.http.delete<string>(`${this.baseUrl}/${ticketId}`);
+  // Delete a ticket - Updated to handle plain text responses
+  deleteTicket(ticketId: string): Observable<any> {
+    const headers = new HttpHeaders().set('Accept', 'text/plain');
+    return this.http.delete(`${this.baseUrl}/${ticketId}`, { 
+      headers,
+      responseType: 'text' 
+    }).pipe(
+      map(response => {
+        // Return success object with the response message
+        return { success: true, message: response };
+      })
+    );
   }
 }
