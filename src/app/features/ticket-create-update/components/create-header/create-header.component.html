@@ -1,1 +1,7 @@
-<p>create-header works!</p>
+<div class="create-header">
+  <button class="back-button" (click)="onBackClick()">
+    <i class="fas fa-arrow-left"></i>
+    Back
+  </button>
+  <h1>{{ isEditMode ? 'Edit Ticket' : 'Create New Ticket' }}</h1>
+</div>

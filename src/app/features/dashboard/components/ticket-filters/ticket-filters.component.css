@@ -1,0 +1,44 @@
+.nav-tabs .nav-link {
+  border: none;
+  color: #6c757d;
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid transparent;
+}
+
+.nav-tabs .nav-link.active {
+  color: #007bff;
+  border-bottom: 2px solid #007bff;
+}
+
+.btn-light {
+  border: 1px solid #dee2e6;
+  background-color: #f8f9fa;
+}
+
+.btn-light:hover {
+  background-color: #e9ecef;
+}
+
+.d-flex {
+  padding-top: 10px;
+  margin-top: 15px;
+}
+
+/* For mobile screens */
+@media (max-width: 768px) {
+  .d-flex {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+  
+  .nav-tabs {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    margin-bottom: 1rem;
+  }
+  
+  .nav-tabs .nav-item {
+    white-space: nowrap;
+  }
+}

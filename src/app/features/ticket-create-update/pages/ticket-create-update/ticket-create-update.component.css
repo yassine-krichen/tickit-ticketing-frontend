@@ -1,0 +1,44 @@
+.ticket-create-update-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.ticket-create-update-content {
+  flex: 1;
+  padding: 20px;
+  margin-left: 200px; /* Match the sidebar width */
+  transition: margin-left 0.3s ease;
+  background-color: #f8f9fa;
+}
+
+.create-ticket-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Card spacing adjustments */
+.card:not(:last-child) {
+  margin-bottom: 1rem;
+}
+
+/* Input group icon sizing/color adjustments */
+.input-group-text i {
+  font-size: 0.9rem;
+}
+
+/* Emphasize form labels */
+.form-label.fw-semibold {
+  font-weight: 600;
+}
+
+.bg-light-gray {
+  background-color: #e9ecef !important;
+  cursor: not-allowed;
+}
+
+/* Optional: Add gentle spacing for rows on smaller devices */
+@media (max-width: 768px) {
+  .row.g-3 > [class*="col-"] {
+    margin-bottom: 0.5rem;
+  }
+}

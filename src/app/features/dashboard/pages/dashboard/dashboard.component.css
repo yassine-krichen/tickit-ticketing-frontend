@@ -1,0 +1,19 @@
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.dashboard-content {
+  flex: 1;
+  padding: 20px;
+  margin-left: 200px; /* Match the sidebar width */
+  transition: margin-left 0.3s ease;
+  background-color: #f8f9fa;
+}
+
+@media (max-width: 768px) {
+  .dashboard-content {
+    margin-left: 0;
+    width: 100%;
+  }
+}

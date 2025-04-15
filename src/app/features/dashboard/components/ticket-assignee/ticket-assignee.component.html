@@ -1,1 +1,9 @@
-<p>ticket-assignee works!</p>
+<div class="d-flex align-items-center">
+  <i class="far fa-user me-1"></i> Issued by: 
+  <div class="d-flex align-items-center ms-1">
+    <div class="avatar" [ngStyle]="{'background-color': getAssigneeColor()}">
+      {{ getInitials() }}
+    </div>
+    <span class="ms-1">{{ assigneeName }}</span>
+  </div>
+</div>

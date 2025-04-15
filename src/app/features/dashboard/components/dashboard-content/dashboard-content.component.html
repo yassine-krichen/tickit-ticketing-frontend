@@ -1,1 +1,87 @@
-<p>dashboard-content works!</p>
+<div class="container-fluid py-4">
+  <!-- Header with title and actions -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0 text-dark">Ticket Dashboard</h1>
+    <div class="d-flex gap-3">
+      <button class="btn btn-outline-secondary d-flex align-items-center">
+        <i class="fas fa-filter me-2"></i>Filter
+      </button>
+      <button class="btn btn-primary" [routerLink]="['/ticket-create-update/ticket/new']">
+        <i class="fas fa-plus me-1"></i>
+        Create New Ticket
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading and error messages -->
+  <div class="alert alert-info" *ngIf="loading">
+    <i class="fas fa-spinner fa-spin me-2"></i> Loading tickets...
+  </div>
+  
+  <div class="alert alert-danger" *ngIf="error">
+    <i class="fas fa-exclamation-triangle me-2"></i> {{ error }}
+  </div>
+
+  <!-- KPI Cards Section -->
+  <app-kpis-metrics 
+    [totalTicketsCount]="totalTicketsCount"
+    [inProgressCount]="inProgressCount"
+    [blockedCount]="blockedCount"
+    [resolvedCount]="resolvedCount"
+    class="mb-4">
+  </app-kpis-metrics>
+
+  <!-- Filter Tabs -->
+  <app-ticket-filters 
+    [activeTab]="activeTab"
+    (tabChange)="setActiveTab($event)"
+    class="mb-4">
+  </app-ticket-filters>
+
+  <!-- Recent Tickets Section -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+      <h5 class="mb-0">
+        <i class="fas fa-clipboard-list me-2"></i> Recent Tickets
+      </h5>
+      <a href="#" class="text-decoration-none">
+        View All <i class="fas fa-arrow-right ms-1"></i>
+      </a>
+    </div>
+
+    <!-- Ticket Search -->
+    <div class="p-3 border-bottom">
+      <app-ticket-search 
+        [searchTerm]="searchTerm"
+        (search)="onSearchChange($event)">
+      </app-ticket-search>
+    </div>
+    
+    <!-- Ticket Items -->
+    <div class="list-group list-group-flush">
+      <app-ticket-item 
+        *ngFor="let ticket of filteredTickets()"
+        [ticket]="ticket"
+        (delete)="deleteTicket($event)"
+        (toggleDropdown)="toggleDropdown($event.event, $event.ticketId)">
+      </app-ticket-item>
+
+      <!-- Loading state when fetching tickets -->
+      <div class="p-5 text-center text-muted" *ngIf="loading && tickets?.length === 0">
+        <div class="spinner-border text-primary mb-3" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p>Loading ticket data...</p>
+      </div>
+
+      <!-- Empty state when no tickets match filter -->
+      <div class="p-5 text-center text-muted" *ngIf="!loading && filteredTickets().length === 0">
+        <i class="fas fa-search fa-3x mb-3 text-light"></i>
+        <p>No tickets match your current filter.</p>
+        <button class="btn btn-sm btn-outline-secondary mt-2" (click)="clearFilter()">
+          <i class="fas fa-redo me-1"></i> Clear Filter
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

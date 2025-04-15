@@ -1,0 +1,12 @@
+.list-group-item {
+  transition: background-color 0.2s;
+}
+
+.list-group-item:hover {
+  background-color: #f8f9fa;
+}
+
+h6 {
+  font-weight: 500;
+  color: #333;
+}

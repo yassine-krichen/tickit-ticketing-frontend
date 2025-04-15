@@ -1,1 +1,62 @@
-<p>ticket-form works!</p>
+<div class="card border-0 shadow-sm">
+  <div class="card-header bg-white border-bottom-0">
+    <h5 class="mb-0 d-flex align-items-center">
+      <i class="fas fa-ticket-alt text-primary me-2"></i>
+      Ticket Details
+    </h5>
+  </div>
+  <div class="card-body" [formGroup]="form">
+    <!-- Row 1: Subject & Acte Traitement -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-8">
+        <label for="ticketSubject" class="form-label fw-semibold">
+          Subject <span class="text-danger">*</span>
+        </label>
+        <div class="input-group">
+          <span class="input-group-text bg-light text-muted">
+            <i class="fas fa-heading"></i>
+          </span>
+          <input type="text" class="form-control" id="ticketSubject" formControlName="subject" placeholder="Enter a brief, descriptive subject" />
+        </div>
+      </div>
+      <div class="col-md-4">
+        <label for="acteTraitement" class="form-label fw-semibold">Acte Traitement</label>
+        <div class="input-group">
+          <span class="input-group-text bg-light text-muted" [class.bg-light-gray]="isEditMode">
+            <i class="fas fa-id-badge"></i>
+          </span>
+          <input type="text" class="form-control" id="acteTraitement" formControlName="acteTraitement" placeholder="Enter Acte Traitement ID" [class.bg-light-gray]="isEditMode" />
+        </div>
+        <small *ngIf="isEditMode" class="text-muted">This field cannot be modified in edit mode</small>
+      </div>
+    </div>
+    
+    <!-- Row 2: Priority & Status -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">
+        <label for="ticketPriority" class="form-label fw-semibold">Priority <span class="text-danger">*</span></label>
+        <select class="form-select" id="ticketPriority" formControlName="priority">
+          <option value="" disabled>Select Priority</option>
+          <option *ngFor="let priority of priorityOptions" [value]="priority">
+            {{getPriorityDisplay(priority)}}
+          </option>
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label for="ticketStatus" class="form-label fw-semibold">Status <span class="text-danger">*</span></label>
+        <select class="form-select" id="ticketStatus" formControlName="status">
+          <option value="" disabled>Select Status</option>
+          <option *ngFor="let status of statusOptions" [value]="status">
+            {{getStatusDisplay(status)}}
+          </option>
+        </select>
+      </div>
+    </div>
+    
+    <!-- Row 3: Description -->
+    <div class="mb-4">
+      <label for="ticketDescription" class="form-label fw-semibold">Description</label>
+      <textarea class="form-control" id="ticketDescription" formControlName="description" rows="4" placeholder="Provide a detailed description or steps to reproduce..."></textarea>
+    </div>
+  </div>
+</div>

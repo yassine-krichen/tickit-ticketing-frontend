@@ -1,0 +1,32 @@
+.dropdown-toggle::after {
+  display: none;
+}
+
+.dropdown-menu {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  max-width: 200px;
+  right: 0;
+  left: auto;
+  position: absolute;
+  z-index: 1000;
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-item {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+.dropdown-item.text-danger:hover {
+  background-color: #fee2e2;
+}

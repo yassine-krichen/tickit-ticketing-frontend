@@ -1,1 +1,30 @@
-<p>ticket-actions works!</p>
+<div class="dropdown">
+  <button class="btn btn-sm btn-light rounded-circle p-1 dropdown-toggle" 
+          type="button" 
+          [id]="'dropdownMenuButton' + ticketId" 
+          data-bs-toggle="dropdown" 
+          aria-expanded="false" 
+          (click)="onToggleDropdown($event)">
+    <i class="fas fa-ellipsis-v"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end" 
+      [id]="'dropdown-menu-' + ticketId" 
+      [attr.aria-labelledby]="'dropdownMenuButton' + ticketId">
+    <li>
+      <a class="dropdown-item" [routerLink]="['/ticket-details', ticketId]">
+        <i class="fas fa-eye me-2"></i>View Details
+      </a>
+    </li>
+    <li>
+      <a class="dropdown-item" [routerLink]="['/ticket-create-update/ticket/edit', ticketId]">
+        <i class="fas fa-edit me-2"></i>Edit Ticket
+      </a>
+    </li>
+    <li><hr class="dropdown-divider"></li>
+    <li>
+      <a class="dropdown-item text-danger" (click)="onDelete()">
+        <i class="fas fa-trash-alt me-2"></i>Delete
+      </a>
+    </li>
+  </ul>
+</div>

@@ -1,1 +1,7 @@
-<p>ticket-status-badge works!</p>
+<span class="badge rounded-pill" 
+      [ngStyle]="{
+        'background-color': getStatusColor().background,
+        'color': getStatusColor().text
+      }">
+  {{ getStatusLabel() }}
+</span>

@@ -1,1 +1,7 @@
-<p>ticket-priority-badge works!</p>
+<span class="badge rounded-pill" 
+      [ngStyle]="{
+        'background-color': getPriorityColor().background,
+        'color': getPriorityColor().text
+      }">
+  {{ getPriorityLabel() }}
+</span>
