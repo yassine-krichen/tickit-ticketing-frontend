@@ -16,9 +16,25 @@
         *ngIf="!isEditMode && showTip"
         (dismiss)="dismissTip()">
       </app-create-tip>
+      
+      <!-- Loading Indicator -->
+      <div *ngIf="isEditMode && loading" class="text-center py-5">
+        <div class="spinner-border text-primary mb-2" role="status">
+          <span class="visually-hidden">Loading ticket data...</span>
+        </div>
+        <p class="text-muted">Loading ticket data...</p>
+      </div>
+      
+      <!-- Error Message -->
+      <div *ngIf="error" class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        {{ error }}
+        <button type="button" class="btn-close float-end" (click)="error = null"></button>
+      </div>
      
-      <!-- Ticket Form Component -->
+      <!-- Ticket Form Component - Only show when not loading in edit mode -->
       <app-ticket-form
+        *ngIf="!isEditMode || (isEditMode && !loading && ticket)"
         [ticket]="ticket"
         [editMode]="isEditMode"
         (formSubmit)="onSubmit($event)"

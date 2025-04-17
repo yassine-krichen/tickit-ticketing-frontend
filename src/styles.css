@@ -1,46 +1,203 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* Global Bootstrap primary color override (blue → orange) */
+:root {
+    --bs-primary: #f97316;
+    --bs-primary-rgb: 249, 115, 22;
+    --bs-primary-dark: #ea580c;
+    --bs-primary-light: #fdba74;
+}
+
+/* Button variants */
 .btn-primary {
     background-color: #f97316 !important;
     border-color: #f97316 !important;
-  }
-  
-  /* If you also need to override hover and active states */
-  .btn-primary:hover,
-  .btn-primary:focus,
-  .btn-primary:active {
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active,
+.btn-check:checked + .btn-primary {
     background-color: #ea580c !important;
     border-color: #ea580c !important;
-  }
-  
-  /* Change default text color for unhighlighted groups */
-  .nav-link {
-    color: rgba(0, 0, 0, 0.753) !important;
-  }
-  
-  /* Active tab color */
-  .nav-link.active {
-    color: #ea580c !important;
-    
-  }
-  
-/* Overwrite anchor link color globally with !important */
+}
+
+.btn-outline-primary {
+    color: #f97316 !important;
+    border-color: #f97316 !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active,
+.btn-outline-primary.active,
+.btn-check:checked + .btn-outline-primary {
+    background-color: #f97316 !important;
+    color: #fff !important;
+    border-color: #f97316 !important;
+}
+
+/* Link styles */
 a, .btn-link {
     color: #f97316 !important;
-  }
-  
-  /* Set a higher tone on hover and focus for better visual feedback */
-  a:hover,
-  a:focus {
+    text-decoration-color: rgba(249, 115, 22, 0.3);
+}
+
+a:hover,
+a:focus,
+.btn-link:hover,
+.btn-link:focus {
     color: #ea580c !important;
-  }
-  
-  .nav-pills .nav-link.active {
-    background-color: #f97316 !important; /* Your orange color */
-    color: #fff !important;              /* Make text white for contrast */
-    border-color: #f97316 !important;    /* If you want a border to match */
-  }
-  
-  .nav-pills .nav-link:hover {
-    background-color: #ffe7d9;           /* Lighter orange on hover? Optional */
-    color: #f97316;                      /* Or keep it white—your choice */
-  }
+    text-decoration-color: rgba(234, 88, 12, 0.5);
+}
+
+/* Navigation */
+.nav-link {
+    color: rgba(0, 0, 0, 0.753) !important;
+}
+
+.nav-link.active {
+    color: #f97316 !important;
+}
+
+.nav-pills .nav-link.active {
+    background-color: #f97316 !important;
+    color: #fff !important;
+    border-color: #f97316 !important;
+}
+
+.nav-pills .nav-link:hover {
+    background-color: rgba(249, 115, 22, 0.1);
+    color: #f97316 !important;
+}
+
+.nav-tabs .nav-link.active {
+    color: #f97316 !important;
+    border-color: #dee2e6 #dee2e6 #fff !important;
+}
+
+.nav-tabs .nav-link:hover {
+    border-color: #f97316 #f97316 #dee2e6 !important;
+}
+
+/* Badges */
+.badge-primary,
+.bg-primary {
+    background-color: #f97316 !important;
+}
+
+/* Form controls */
+.form-control:focus,
+.form-select:focus {
+    border-color: #fdba74 !important;
+    box-shadow: 0 0 0 0.25rem rgba(249, 115, 22, 0.25) !important;
+}
+
+.form-check-input:checked {
+    background-color: #f97316 !important;
+    border-color: #f97316 !important;
+}
+
+.form-check-input:focus {
+    border-color: #fdba74 !important;
+    box-shadow: 0 0 0 0.25rem rgba(249, 115, 22, 0.25) !important;
+}
+
+/* Progress bars */
+.progress-bar {
+    background-color: #f97316 !important;
+}
+
+/* List groups */
+.list-group-item.active {
+    background-color: #f97316 !important;
+    border-color: #f97316 !important;
+}
+
+/* Pagination */
+.page-item.active .page-link {
+    background-color: #f97316 !important;
+    border-color: #f97316 !important;
+}
+
+.page-link {
+    color: #f97316 !important;
+}
+
+.page-link:hover {
+    color: #ea580c !important;
+    background-color: rgba(249, 115, 22, 0.1);
+}
+
+.page-link:focus {
+    box-shadow: 0 0 0 0.25rem rgba(249, 115, 22, 0.25) !important;
+}
+
+/* Dropdown */
+.dropdown-item.active,
+.dropdown-item:active {
+    background-color: #f97316 !important;
+}
+
+/* Outlines and focus rings */
+.btn:focus,
+.btn:focus-visible,
+.form-control:focus-visible,
+.form-select:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline-color: rgba(249, 115, 22, 0.5) !important;
+}
+
+/* Table variants */
+.table-primary {
+    --bs-table-bg: rgba(249, 115, 22, 0.1) !important;
+    --bs-table-striped-bg: rgba(249, 115, 22, 0.15) !important;
+    --bs-table-active-bg: rgba(249, 115, 22, 0.2) !important;
+    --bs-table-hover-bg: rgba(249, 115, 22, 0.15) !important;
+    color: #000;
+    border-color: rgba(249, 115, 22, 0.2) !important;
+}
+
+/* Alert variants */
+.alert-primary {
+    background-color: rgba(249, 115, 22, 0.15) !important;
+    border-color: rgba(249, 115, 22, 0.3) !important;
+    color: #ea580c !important;
+}
+
+/* Text colors */
+.text-primary {
+    color: #f97316 !important;
+}
+
+/* Border colors */
+.border-primary {
+    border-color: #f97316 !important;
+}
+
+/* Card variants */
+.card-primary {
+    border-color: #f97316 !important;
+}
+
+.card-primary .card-header {
+    background-color: #f97316 !important;
+    color: #fff !important;
+}
+
+/* Dark mode specific adjustments */
+body.dark-mode .text-primary {
+    color: #fdba74 !important;
+}
+
+body.dark-mode .btn-outline-primary {
+    color: #fdba74 !important;
+    border-color: #fdba74 !important;
+}
+
+body.dark-mode a {
+    color: #fdba74 !important;
+}

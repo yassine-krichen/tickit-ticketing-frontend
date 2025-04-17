@@ -24,6 +24,31 @@
   background-color: #f8f9fa;
 }
 
+.ticket-card {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ticket-card:hover {
+    background-color: rgba(249, 115, 22, 0.05);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.ticket-card::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 0;
+    background-color: #f97316;
+    transition: height 0.2s ease;
+}
+
+.ticket-card:hover::after {
+    height: 100%;
+}
+
 /* Custom for smaller screens */
 @media (max-width: 768px) {
   .d-flex.justify-content-between.align-items-center {
