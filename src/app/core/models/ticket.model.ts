@@ -14,6 +14,22 @@ export enum Status {
   CLOSED = 'CLOSED'
 }
 
+// Simplified CaseType enum (add the ones you need from backend CaseType)
+export enum CaseType {
+  GRAFIC = 'GRAFIC',
+  XOIP = 'XOIP',
+  TRAVAUX_TIERS = 'TRAVAUX_TIERS',
+  BRAME = 'BRAME',
+  BRAME_PRE_ETUDE = 'BRAME_PRE_ETUDE',
+  BRAME_ETUDE = 'BRAME_ETUDE',
+  BRAME_RACCORDEMENT = 'BRAME_RACCORDEMENT',
+  BRAME_CONTROLE_TRAVAUX = 'BRAME_CONTROLE_TRAVAUX',
+  GEORESO = 'GEORESO',
+  GEORESO_CABLE = 'GEORESO_CABLE',
+  GEORESO_IMB = 'GEORESO_IMB',
+  GEORESO_SITE_SUPPORT = 'GEORESO_SITE_SUPPORT'
+}
+
 export interface Assignee {
   initials: string;
   name: string;
@@ -24,11 +40,15 @@ export interface Assignee {
 export interface TicketTags {
   status: string;
   priority: string;
+  type?: string;
+  step?: string;
 }
 
 export interface TicketMeta {
   created: string;
   responseTime: string;
+  responseSla?: string;
+  resolutionSla?: string;
 }
 
 export interface Ticket {
@@ -40,6 +60,9 @@ export interface Ticket {
   assignee: Assignee;
   tags: TicketTags;
   meta: TicketMeta;
+  type?: CaseType;
+  step?: CaseType;
+  subStatus?: string;
 }
 
 // Backend compatible interfaces
@@ -48,6 +71,9 @@ export interface BackendTicket {
   acteTraitement: string;
   subject: string;
   description: string;
+  type: CaseType;
+  step: CaseType;
+  subStatus: string;
   priority: Priority;
   status: Status;
   issuedBy: string;
@@ -61,6 +87,9 @@ export interface TicketRequest {
   acteTraitement: string;
   subject: string;
   description: string;
+  type: CaseType;
+  step: CaseType;
+  subStatus?: string;
   priority: Priority;
   status: Status;
   issuedBy: string;
@@ -74,12 +103,20 @@ export interface TicketResponse extends BackendTicket {
 export interface TicketUpdateDTO {
   subject?: string;
   description?: string;
+  type?: CaseType;
+  step?: CaseType;
+  subStatus?: string;
   priority?: Priority;
   status?: Status;
   issuedBy?: string;
 }
 
 export interface TicketCount {
-  status: Status;
+  category: any;
   count: number;
+}
+
+export interface TypeStepValidation {
+  type: CaseType;
+  step: CaseType;
 }

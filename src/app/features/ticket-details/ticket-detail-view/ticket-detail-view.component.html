@@ -1,0 +1,41 @@
+<div class="ticket-detail-container" *ngIf="ticket">
+  <div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">{{ ticket.subject }}</h5>
+      <span class="badge" [ngClass]="getStatusClass(ticket.status)">{{ getStatusLabel(ticket.status) }}</span>
+    </div>
+    <div class="card-body">
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <p><strong>ID:</strong> {{ ticket.id }}</p>
+          <p><strong>Treatment Act ID:</strong> {{ ticket.acteTraitement }}</p>
+          <p><strong>Type:</strong> {{ getCaseTypeLabel(ticket.type) }}</p>
+          <p><strong>Step:</strong> {{ getCaseTypeLabel(ticket.step) }}</p>
+          <p *ngIf="ticket.subStatus"><strong>Sub Status:</strong> {{ ticket.subStatus }}</p>
+          <p><strong>Priority:</strong> <span class="badge" [ngClass]="getPriorityClass(ticket.priority)">{{ getPriorityLabel(ticket.priority) }}</span></p>
+        </div>
+        <div class="col-md-6">
+          <p><strong>Created:</strong> {{ ticket.createdAt | date:'medium' }}</p>
+          <p><strong>Last Updated:</strong> {{ ticket.updatedAt | date:'medium' }}</p>
+          <p><strong>Issued By:</strong> {{ ticket.issuedBy }}</p>
+          
+          <!-- SLA Information -->
+          <div *ngIf="ticket.responseSla || ticket.resolutionSla" class="sla-info mt-3 p-2 rounded">
+            <h6>Service Level Agreement</h6>
+            <p *ngIf="ticket.responseSla"><strong>Response SLA:</strong> {{ formatSLA(ticket.responseSla) }}</p>
+            <p *ngIf="ticket.resolutionSla"><strong>Resolution SLA:</strong> {{ formatSLA(ticket.resolutionSla) }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <h6 class="mt-4">Description</h6>
+      <div class="description-box p-3 bg-light rounded">
+        <p>{{ ticket.description }}</p>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn btn-primary me-2" (click)="onEdit()">Edit Ticket</button>
+      <button class="btn btn-outline-danger" (click)="onDelete()">Delete Ticket</button>
+    </div>
+  </div>
+</div> 

@@ -1,4 +1,4 @@
-import { Priority, Status } from '../models/ticket.model';
+import { CaseType, Priority, Status } from '../models/ticket.model';
 
 export interface UserInfo {
   name: string;
@@ -73,6 +73,61 @@ export function getStatusLabel(status: Status | string): string {
     case Status.CLOSED: return 'Closed';
     default: return 'Unknown';
   }
+}
+
+/**
+ * Gets a user-friendly display name for case type
+ * @param type The case type value
+ * @returns String with formatted type name
+ */
+export function getCaseTypeLabel(type: CaseType | string): string {
+  if (!type) return 'Unknown';
+  
+  // Convert enum string to readable format
+  return type.toString()
+    .replace(/_/g, ' ')
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
+/**
+ * Gets user-friendly SLA display
+ * @param duration Duration in ISO-8601 format
+ * @returns Formatted SLA string
+ */
+export function formatSLA(duration: number | string): string {
+  if (!duration) return 'Not set';
+  
+  // For number type (seconds), convert to human-readable format
+  if (typeof duration === 'number') {
+    const hours = Math.floor(duration / 3600);
+    const days = Math.floor(hours / 24);
+    
+    if (days > 0) {
+      return `${days} day${days > 1 ? 's' : ''}`;
+    } else {
+      return `${hours} hour${hours > 1 ? 's' : ''}`;
+    }
+  }
+  
+  // For ISO-8601 duration strings (PT24H)
+  try {
+    const hourMatch = duration.toString().match(/(\d+)H/);
+    const dayMatch = duration.toString().match(/(\d+)D/);
+    
+    if (dayMatch && dayMatch[1]) {
+      const days = parseInt(dayMatch[1]);
+      return `${days} day${days > 1 ? 's' : ''}`;
+    } else if (hourMatch && hourMatch[1]) {
+      const hours = parseInt(hourMatch[1]);
+      return `${hours} hour${hours > 1 ? 's' : ''}`;
+    }
+  } catch (e) {
+    return 'Invalid duration';
+  }
+  
+  return duration.toString();
 }
 
 /**

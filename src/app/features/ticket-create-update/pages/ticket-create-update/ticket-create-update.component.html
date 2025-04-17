@@ -1,39 +1,30 @@
 <div class="ticket-create-update-layout">
   <!-- Sidebar on the left -->
   <app-sidebar></app-sidebar>
-  
+ 
   <!-- Main content area on the right -->
   <div class="ticket-create-update-content">
     <div class="create-ticket-container container-fluid py-4">
       <!-- Header -->
-      <app-create-header 
+      <app-create-header
         [isEditMode]="isEditMode"
         (back)="onBackClick()">
       </app-create-header>
-    
+   
       <!-- Tip alert shown only in create mode and when showTip is true -->
-      <app-create-tip 
+      <app-create-tip
         *ngIf="!isEditMode && showTip"
         (dismiss)="dismissTip()">
       </app-create-tip>
-      
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        <!-- Ticket Form -->
-        <app-ticket-form 
-          [form]="form"
-          [isEditMode]="isEditMode"
-          [priorityOptions]="priorityOptions"
-          [statusOptions]="statusOptions"
-          [getPriorityDisplay]="getPriorityDisplay"
-          [getStatusDisplay]="getStatusDisplay">
-        </app-ticket-form>
-      
-        <!-- Form Actions -->
-        <app-form-actions 
-          [isEditMode]="isEditMode"
-          (cancel)="onCancel()">
-        </app-form-actions>
-      </form>
+     
+      <!-- Ticket Form Component -->
+      <app-ticket-form
+        [ticket]="ticket"
+        [editMode]="isEditMode"
+        (formSubmit)="onSubmit($event)"
+        (cancel)="onCancel()">
+      </app-ticket-form>
+     
     </div>
   </div>
 </div>

@@ -1,62 +1,121 @@
-<div class="card border-0 shadow-sm">
-  <div class="card-header bg-white border-bottom-0">
-    <h5 class="mb-0 d-flex align-items-center">
-      <i class="fas fa-ticket-alt text-primary me-2"></i>
-      Ticket Details
-    </h5>
-  </div>
-  <div class="card-body" [formGroup]="form">
-    <!-- Row 1: Subject & Acte Traitement -->
-    <div class="row g-3 mb-4">
-      <div class="col-md-8">
-        <label for="ticketSubject" class="form-label fw-semibold">
-          Subject <span class="text-danger">*</span>
-        </label>
-        <div class="input-group">
-          <span class="input-group-text bg-light text-muted">
-            <i class="fas fa-heading"></i>
-          </span>
-          <input type="text" class="form-control" id="ticketSubject" formControlName="subject" placeholder="Enter a brief, descriptive subject" />
+<form [formGroup]="ticketForm" (ngSubmit)="onSubmit()" class="ticket-form">
+  <div class="card">
+    <div class="card-header">
+      <h5>{{ editMode ? 'Edit Ticket' : 'Create New Ticket' }}</h5>
+    </div>
+    <div class="card-body">
+      <!-- Acte Traitement -->
+      <div class="mb-3">
+        <label for="acteTraitement" class="form-label">Treatment Act ID</label>
+        <input type="text" class="form-control" id="acteTraitement" formControlName="acteTraitement">
+        <div *ngIf="f.acteTraitement.errors && f.acteTraitement.touched" class="text-danger">
+          <small *ngIf="f.acteTraitement.errors.required">Treatment Act ID is required</small>
         </div>
       </div>
-      <div class="col-md-4">
-        <label for="acteTraitement" class="form-label fw-semibold">Acte Traitement</label>
-        <div class="input-group">
-          <span class="input-group-text bg-light text-muted" [class.bg-light-gray]="isEditMode">
-            <i class="fas fa-id-badge"></i>
-          </span>
-          <input type="text" class="form-control" id="acteTraitement" formControlName="acteTraitement" placeholder="Enter Acte Traitement ID" [class.bg-light-gray]="isEditMode" />
+
+      <!-- Subject -->
+      <div class="mb-3">
+        <label for="subject" class="form-label">Subject</label>
+        <input type="text" class="form-control" id="subject" formControlName="subject">
+        <div *ngIf="f.subject.errors && f.subject.touched" class="text-danger">
+          <small *ngIf="f.subject.errors.required">Subject is required</small>
         </div>
-        <small *ngIf="isEditMode" class="text-muted">This field cannot be modified in edit mode</small>
+      </div>
+
+      <!-- Description -->
+      <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <textarea class="form-control" id="description" rows="3" formControlName="description"></textarea>
+        <div *ngIf="f.description.errors && f.description.touched" class="text-danger">
+          <small *ngIf="f.description.errors.required">Description is required</small>
+        </div>
+      </div>
+
+      <!-- Type -->
+      <div class="mb-3">
+        <label for="type" class="form-label">Case Type</label>
+        <select class="form-select" id="type" formControlName="type" (change)="onTypeChange()">
+          <option value="">Select Type</option>
+          <option *ngFor="let type of caseTypes" [value]="type">{{ getCaseTypeLabel(type) }}</option>
+        </select>
+        <div *ngIf="f.type.errors && f.type.touched" class="text-danger">
+          <small *ngIf="f.type.errors.required">Type is required</small>
+        </div>
+      </div>
+
+      <!-- Step -->
+      <div class="mb-3">
+        <label for="step" class="form-label">Case Step</label>
+        <select class="form-select" id="step" formControlName="step" [disabled]="!validSteps.length">
+          <option value="">Select Step</option>
+          <option *ngFor="let step of validSteps" [value]="step">{{ getCaseTypeLabel(step) }}</option>
+        </select>
+        <div *ngIf="f.step.errors && f.step.touched" class="text-danger">
+          <small *ngIf="f.step.errors.required">Step is required</small>
+        </div>
+        <div *ngIf="stepValidationMessage" class="text-info">
+          <small>{{ stepValidationMessage }}</small>
+        </div>
+      </div>
+
+      <!-- Sub Status -->
+      <div class="mb-3">
+        <label for="subStatus" class="form-label">Sub Status</label>
+        <input type="text" class="form-control" id="subStatus" formControlName="subStatus">
+      </div>
+
+      <!-- Priority -->
+      <div class="mb-3">
+        <label for="priority" class="form-label">Priority</label>
+        <select class="form-select" id="priority" formControlName="priority">
+          <option value="">Select Priority</option>
+          <option *ngFor="let p of priorityOptions" [value]="p.value">{{ p.label }}</option>
+        </select>
+        <div *ngIf="f.priority.errors && f.priority.touched" class="text-danger">
+          <small *ngIf="f.priority.errors.required">Priority is required</small>
+        </div>
+      </div>
+
+      <!-- Status -->
+      <div class="mb-3">
+        <label for="status" class="form-label">Status</label>
+        <select class="form-select" id="status" formControlName="status">
+          <option value="">Select Status</option>
+          <option *ngFor="let s of statusOptions" [value]="s.value">{{ s.label }}</option>
+        </select>
+        <div *ngIf="f.status.errors && f.status.touched" class="text-danger">
+          <small *ngIf="f.status.errors.required">Status is required</small>
+        </div>
+      </div>
+
+      <!-- SLA Information (only in edit mode and if available) -->
+      <div *ngIf="editMode && (ticket?.responseSla || ticket?.resolutionSla)" class="mb-3 p-3 bg-light rounded">
+        <h6>Service Level Agreement</h6>
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Response SLA:</strong> {{ formatSLA(ticket?.responseSla) }}</p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Resolution SLA:</strong> {{ formatSLA(ticket?.resolutionSla) }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Issued By -->
+      <div class="mb-3">
+        <label for="issuedBy" class="form-label">Issued By</label>
+        <input type="text" class="form-control" id="issuedBy" formControlName="issuedBy" 
+               placeholder="format: firstname.lastname.role.team">
+        <div *ngIf="f.issuedBy.errors && f.issuedBy.touched" class="text-danger">
+          <small *ngIf="f.issuedBy.errors.required">Issued By is required</small>
+        </div>
       </div>
     </div>
-    
-    <!-- Row 2: Priority & Status -->
-    <div class="row g-3 mb-4">
-      <div class="col-md-6">
-        <label for="ticketPriority" class="form-label fw-semibold">Priority <span class="text-danger">*</span></label>
-        <select class="form-select" id="ticketPriority" formControlName="priority">
-          <option value="" disabled>Select Priority</option>
-          <option *ngFor="let priority of priorityOptions" [value]="priority">
-            {{getPriorityDisplay(priority)}}
-          </option>
-        </select>
-      </div>
-      <div class="col-md-6">
-        <label for="ticketStatus" class="form-label fw-semibold">Status <span class="text-danger">*</span></label>
-        <select class="form-select" id="ticketStatus" formControlName="status">
-          <option value="" disabled>Select Status</option>
-          <option *ngFor="let status of statusOptions" [value]="status">
-            {{getStatusDisplay(status)}}
-          </option>
-        </select>
-      </div>
-    </div>
-    
-    <!-- Row 3: Description -->
-    <div class="mb-4">
-      <label for="ticketDescription" class="form-label fw-semibold">Description</label>
-      <textarea class="form-control" id="ticketDescription" formControlName="description" rows="4" placeholder="Provide a detailed description or steps to reproduce..."></textarea>
+    <div class="card-footer">
+      <button type="submit" class="btn btn-primary" [disabled]="ticketForm.invalid">
+        <i class="fas fa-save me-1"></i> {{ editMode ? 'Update Ticket' : 'Create Ticket' }}
+      </button>
+      <button type="button" class="btn btn-secondary ms-2" (click)="onCancel()"><i class="fas fa-ban me-1"></i> Cancel</button>
     </div>
   </div>
-</div>
+</form> 

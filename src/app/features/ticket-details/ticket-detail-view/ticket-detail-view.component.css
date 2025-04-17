@@ -1,0 +1,66 @@
+.ticket-detail-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.card-header {
+  background-color: #f8f9fa;
+}
+
+.card-header h5 {
+  margin-bottom: 0;
+}
+
+.badge {
+  padding: 0.5rem 0.8rem;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 0.75rem;
+}
+
+.description-box {
+  min-height: 100px;
+  background-color: #f8f9fa;
+}
+
+.sla-info {
+  background-color: #e9ecef;
+  border-left: 4px solid #6c757d;
+}
+
+/* Bootstrap utilities for badge styling */
+.bg-info {
+  background-color: #0dcaf0 !important;
+}
+
+.bg-success {
+  background-color: #198754 !important;
+}
+
+.bg-warning {
+  background-color: #ffc107 !important;
+}
+
+.bg-danger {
+  background-color: #dc3545 !important;
+}
+
+.bg-dark {
+  background-color: #212529 !important;
+}
+
+.bg-secondary {
+  background-color: #6c757d !important;
+}
+
+.bg-primary {
+  background-color: #0d6efd !important;
+}
+
+.bg-light {
+  background-color: #f8f9fa !important;
+}
+
+.text-dark {
+  color: #212529 !important;
+} 

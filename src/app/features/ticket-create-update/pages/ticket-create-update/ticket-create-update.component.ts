@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TicketService } from 'src/app/core/services/ticket/ticket.service';
-import { Priority, Status } from 'src/app/core/models/ticket.model';
+import { Priority, Status, TicketResponse } from 'src/app/core/models/ticket.model';
 import { getPriorityLabel, getStatusLabel } from 'src/app/core/utils/ticket.util';
 
 @Component({
@@ -15,6 +15,7 @@ export class TicketCreateUpdateComponent implements OnInit {
   isEditMode = false;
   ticketId: string = null;
   showTip: boolean = true;
+  ticket: TicketResponse | null = null;
   
   // Define available options for dropdowns
   priorityOptions = [
@@ -57,6 +58,7 @@ export class TicketCreateUpdateComponent implements OnInit {
         this.ticketId = id;
         this.ticketService.getTicketById(id).subscribe(ticket => {
           if (ticket) {
+            this.ticket = ticket;
             this.form.patchValue({
               subject: ticket.subject,
               description: ticket.description,
@@ -74,21 +76,43 @@ export class TicketCreateUpdateComponent implements OnInit {
     });
   }
   
-  onSubmit(): void {
-    if (this.form.invalid) {
-      return;
-    }
+  // onSubmit(): void {
+  //   if (this.form.invalid) {
+  //     return;
+  //   }
     
-    // Create a copy of the form value for submission
-    const payload = {...this.form.value};
+  //   // Create a copy of the form value for submission
+  //   const payload = {...this.form.value};
     
-    // If acteTraitement is disabled (in edit mode), we need to include its value
-    if (this.form.get('acteTraitement').disabled) {
-      payload.acteTraitement = this.form.get('acteTraitement').value;
-    }
+  //   // If acteTraitement is disabled (in edit mode), we need to include its value
+  //   if (this.form.get('acteTraitement').disabled) {
+  //     payload.acteTraitement = this.form.get('acteTraitement').value;
+  //   }
     
+  //   if (this.isEditMode) {
+  //     this.ticketService.updateTicket(this.ticketId, payload).subscribe(
+  //       response => {
+  //         this.router.navigate(['/dashboard']);
+  //       },
+  //       error => {
+  //         console.error('Error updating ticket:', error);
+  //       }
+  //     );
+  //   } else {
+  //     this.ticketService.createTicket(payload).subscribe(
+  //       response => {
+  //         this.router.navigate(['/dashboard']);
+  //       },
+  //       error => {
+  //         console.error('Error creating ticket:', error);
+  //       }
+  //     );
+  //   }
+  // }
+
+  onSubmit(formData: any): void {
     if (this.isEditMode) {
-      this.ticketService.updateTicket(this.ticketId, payload).subscribe(
+      this.ticketService.updateTicket(this.ticketId, formData).subscribe(
         response => {
           this.router.navigate(['/dashboard']);
         },
@@ -97,7 +121,7 @@ export class TicketCreateUpdateComponent implements OnInit {
         }
       );
     } else {
-      this.ticketService.createTicket(payload).subscribe(
+      this.ticketService.createTicket(formData).subscribe(
         response => {
           this.router.navigate(['/dashboard']);
         },
