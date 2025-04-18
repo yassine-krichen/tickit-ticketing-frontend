@@ -1,0 +1,70 @@
+.timeline {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 2rem;
+    border-left: 2px solid #e9ecef;
+    padding-left: 20px;
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+    border-left-color: transparent;
+}
+
+.timeline-badge {
+    position: absolute;
+    left: -12px;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px #fff;
+}
+
+.timeline-content {
+    padding-left: 15px;
+}
+
+.fa-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 24px;
+    height: 24px;
+}
+
+.rounded-circle {
+    border-radius: 50% !important;
+}
+
+.smaller {
+    font-size: 80%;
+}
+
+h6 {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.bg-orange {
+    background-color: #f97316 !important;
+}
+
+.bg-purple {
+    background-color: #8b5cf6 !important;
+}
+
+.p-1 {
+    padding: 0.25rem !important;
+}
+
+.card-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}

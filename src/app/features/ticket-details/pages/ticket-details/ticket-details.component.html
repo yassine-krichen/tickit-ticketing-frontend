@@ -32,7 +32,10 @@
           <app-ticket-description [description]="ticket.description"></app-ticket-description>
           
           <!-- Treatment Act Card -->
-          <app-ticket-treatment-act [acteTraitement]="ticket.acteTraitement"></app-ticket-treatment-act>
+          <app-ticket-treatment-act 
+            [acteTraitement]="ticket.acteTraitement"
+            [treatmentAct]="treatmentAct">
+          </app-ticket-treatment-act>
           
           <!-- Activity Timeline -->
           <app-ticket-timeline [events]="timelineEvents"></app-ticket-timeline>
@@ -48,7 +51,7 @@
             </app-ticket-info>
             
             <!-- Case Tracker Card -->
-            <app-case-tracker [steps]="processSteps"></app-case-tracker>
+            <app-case-tracker [steps]="historyEntries"></app-case-tracker>
 
             <!-- AI Recommendations Card -->
             <app-ai-recommendations [recommendations]="recommendations"></app-ai-recommendations>

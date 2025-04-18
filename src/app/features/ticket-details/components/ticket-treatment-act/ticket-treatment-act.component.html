@@ -1,6 +1,225 @@
-<div class="card shadow-sm mb-4">
+<div class="card mb-3 shadow-sm">
+  <div class="card-header bg-white d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">
+      <i class="fas fa-file-medical me-2 text-primary"></i> Treatment Act
+    </h5>
+    <span class="badge" [ngClass]="getCaseStatusClass(treatmentAct?.caseStatus)" *ngIf="treatmentAct?.caseStatus">
+      {{ treatmentAct?.caseStatus }}
+    </span>
+  </div>
+
   <div class="card-body">
-    <h5 class="card-title">Treatment Act</h5>
-    <span class="badge bg-light text-dark font-monospace">{{ acteTraitement }}</span>
+    <!-- Loading state -->
+    <div *ngIf="!treatmentAct" class="text-center py-3">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="text-muted mt-2">Loading treatment act details...</p>
+    </div>
+
+    <!-- Content when loaded -->
+    <div *ngIf="treatmentAct">
+      <!-- Case Information -->
+      <div class="mb-4">
+        <h6 class="border-bottom pb-2 mb-3">
+          <i class="fas fa-folder-open me-2 text-primary"></i> Case Information
+        </h6>
+        
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Case ID</small>
+              <span class="badge bg-light text-dark font-monospace mb-2">{{ treatmentAct.caseId }}</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Case Name</small>
+              <span class="fw-bold">{{ treatmentAct.caseName }}</span>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Case Type</small>
+              <span>{{ treatmentAct.caseType }}</span>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Case Priority</small>
+              <span class="badge" [ngClass]="getPriorityClass(treatmentAct.casePriority)">
+                {{ treatmentAct.casePriority }}
+              </span>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Act ID</small>
+              <span class="badge bg-light text-dark font-monospace">{{ treatmentAct.idacte }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Task Details -->
+      <div class="mb-4">
+        <h6 class="border-bottom pb-2 mb-3">
+          <i class="fas fa-tasks me-2 text-primary"></i> Task Details
+        </h6>
+        
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Type</small>
+              <span>{{ treatmentAct.type_element }}</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Reference</small>
+              <span>{{ treatmentAct.refTacheBPU }}</span>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Quantity</small>
+              <span>{{ treatmentAct.quantite }}</span>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Duration (days)</small>
+              <span>{{ treatmentAct.duree }}</span>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Priority</small>
+              <span class="badge" [ngClass]="getPriorityClass(treatmentAct.priorite)">
+                {{ treatmentAct.priorite }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dates -->
+      <div class="mb-4">
+        <h6 class="border-bottom pb-2 mb-3">
+          <i class="fas fa-calendar-alt me-2 text-primary"></i> Important Dates
+        </h6>
+        
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Reception Date</small>
+              <span>{{ treatmentAct.dateReception | date:'mediumDate' }}</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Delivery Date</small>
+              <span>{{ treatmentAct.dateLivraison | date:'mediumDate' }}</span>
+            </div>
+          </div>
+          <div class="col-md-4" *ngIf="treatmentAct.dateValidation">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Validation Date</small>
+              <span>{{ treatmentAct.dateValidation | date:'mediumDate' }}</span>
+            </div>
+          </div>
+          <div class="col-md-4" *ngIf="treatmentAct.dateReprise">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Recovery Date</small>
+              <span>{{ treatmentAct.dateReprise | date:'mediumDate' }}</span>
+            </div>
+          </div>
+          <div class="col-md-4" *ngIf="treatmentAct.dateDeadline">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Deadline</small>
+              <span>{{ treatmentAct.dateDeadline | date:'mediumDate' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial Information -->
+      <div class="mb-4">
+        <h6 class="border-bottom pb-2 mb-3">
+          <i class="fas fa-dollar-sign me-2 text-primary"></i> Financial Information
+        </h6>
+        
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Billing Status</small>
+              <span class="badge" [ngClass]="getBillingStatusClass(treatmentAct.statutFacturation)">
+                {{ treatmentAct.statutFacturation }}
+              </span>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Tariff ID</small>
+              <span>{{ treatmentAct.tarifId }}</span>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Tariff Name</small>
+              <span>{{ treatmentAct.tarifName }}</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Classification</small>
+              <span>{{ treatmentAct.classification }}</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Billable Recovery</small>
+              <span>{{ treatmentAct.repriseFacturable !== null ? (treatmentAct.repriseFacturable ? 'Yes' : 'No') : 'N/A' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Information -->
+      <div>
+        <h6 class="border-bottom pb-2 mb-3">
+          <i class="fas fa-info-circle me-2 text-primary"></i> Additional Information
+        </h6>
+        
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Assigned To</small>
+              <span>{{ treatmentAct.affectation }}</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Prestation</small>
+              <span>{{ treatmentAct.prestationName }} ({{ treatmentAct.prestationId }})</span>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Reason</small>
+              <span>{{ treatmentAct.motif }}</span>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Comment</small>
+              <div class="border rounded p-3 bg-light">
+                {{ treatmentAct.commentaire }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
