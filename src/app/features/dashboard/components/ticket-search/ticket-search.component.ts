@@ -55,4 +55,9 @@ export class TicketSearchComponent {
     const category = this.searchCategories.find(c => c.value === this.searchCategory);
     return category ? category.label : 'Title';
   }
+
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.search.emit({ term: '', category: this.searchCategory });
+  }
 }

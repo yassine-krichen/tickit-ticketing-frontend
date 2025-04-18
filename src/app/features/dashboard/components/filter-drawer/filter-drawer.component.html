@@ -1,0 +1,78 @@
+<div class="offcanvas offcanvas-end" [class.show]="isOpen" tabindex="-1" id="filterDrawer">
+  <!-- Backdrop - don't use click handler on backdrop -->
+  <div class="offcanvas-backdrop fade show" *ngIf="isOpen"></div>
+  
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title">Filter Tickets</h5>
+    <button type="button" class="btn-close text-reset" (click)="closeDrawer()" aria-label="Close"></button>
+  </div>
+  
+  <div class="offcanvas-body">
+    <!-- Clear Filters Button -->
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+      <span class="text-muted small">
+        <i class="fas fa-filter me-1"></i> 
+        Selected filters: {{ selectedPriorities.length + selectedStatuses.length + selectedTypes.length + selectedSteps.length }}
+      </span>
+      <button class="btn btn-sm btn-outline-secondary" (click)="clearFilters()">
+        <i class="fas fa-times me-1"></i> Clear Filters
+      </button>
+    </div>
+    
+    <!-- Priority Filter -->
+    <div class="mb-4">
+      <h6 class="mb-3">Priority</h6>
+      <div class="d-flex flex-wrap gap-2">
+        <button *ngFor="let priority of priorities" 
+                class="btn btn-sm" 
+                [class.btn-outline-secondary]="!isPrioritySelected(priority)"
+                [class.btn-secondary]="isPrioritySelected(priority)"
+                (click)="togglePriority(priority)">
+          {{ getPriorityLabel(priority) }}
+        </button>
+      </div>
+    </div>
+    
+    <!-- Status Filter -->
+    <div class="mb-4">
+      <h6 class="mb-3">Status</h6>
+      <div class="d-flex flex-wrap gap-2">
+        <button *ngFor="let status of statuses" 
+                class="btn btn-sm" 
+                [class.btn-outline-secondary]="!isStatusSelected(status)"
+                [class.btn-secondary]="isStatusSelected(status)"
+                (click)="toggleStatus(status)">
+          {{ getStatusLabel(status) }}
+        </button>
+      </div>
+    </div>
+    
+    <!-- Type Filter -->
+    <div class="mb-4">
+      <h6 class="mb-3">Case Type</h6>
+      <div class="d-flex flex-wrap gap-2">
+        <button *ngFor="let type of caseTypes" 
+                class="btn btn-sm" 
+                [class.btn-outline-secondary]="!isTypeSelected(type)"
+                [class.btn-secondary]="isTypeSelected(type)"
+                (click)="toggleType(type)">
+          {{ getCaseTypeLabel(type) }}
+        </button>
+      </div>
+    </div>
+    
+    <!-- Step Filter -->
+    <div class="mb-4">
+      <h6 class="mb-3">Case Step</h6>
+      <div class="d-flex flex-wrap gap-2">
+        <button *ngFor="let step of stepOptions" 
+                class="btn btn-sm" 
+                [class.btn-outline-secondary]="!isStepSelected(step)"
+                [class.btn-secondary]="isStepSelected(step)"
+                (click)="toggleStep(step)">
+          {{ getCaseTypeLabel(step) }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 

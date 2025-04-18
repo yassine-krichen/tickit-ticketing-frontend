@@ -22,5 +22,8 @@
       (input)="onSearchChange($any($event.target).value)"
       [value]="searchTerm"
     >
+    <button class="btn btn-outline-secondary clear-search-btn" (click)="clearSearch()">
+      <i class="fas fa-times"></i>
+    </button>
   </div>
 </div>
