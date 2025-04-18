@@ -73,3 +73,19 @@
 .search-container {
   margin-bottom: 15px;
 }
+
+.clear-search-btn {
+  background-color: #f8f9fa;
+  border-color: #ced4da;
+  color: #495057;
+  border-left: 0;
+}
+
+.clear-search-btn:hover {
+  background-color: #e9ecef;
+  border-color: #ced4da;
+  color: #212529;
+}
+
+
+

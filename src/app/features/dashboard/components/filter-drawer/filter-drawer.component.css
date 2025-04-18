@@ -1,0 +1,66 @@
+.offcanvas-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.1); /* Lighter backdrop */
+  z-index: 1040;
+  /* Prevent clicks on backdrop */
+  pointer-events: none;
+}
+
+.offcanvas {
+  visibility: hidden;
+  width: 350px;
+  transform: translateX(100%);
+  transition: all 0.3s ease-in-out;
+  z-index: 1045;
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.offcanvas.show {
+  visibility: visible;
+  transform: translateX(0);
+}
+
+.offcanvas-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  flex-shrink: 0;
+  border-bottom: 1px solid #dee2e6;
+  background-color: #f8f9fa;
+}
+
+.offcanvas-body {
+  padding: 1rem;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+/* Styling for filter buttons in a selected state */
+.btn-secondary {
+  background-color: #0d6efd !important;
+  border-color: #0d6efd !important;
+  color: white !important;
+}
+
+/* Styling for filter buttons in unselected state */
+.btn-outline-secondary {
+  color: #6c757d !important;
+  border-color: #dee2e6 !important;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #f8f9fa !important;
+  color: #495057 !important;
+} 
