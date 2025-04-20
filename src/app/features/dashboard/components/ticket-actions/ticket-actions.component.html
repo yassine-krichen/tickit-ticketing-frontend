@@ -11,18 +11,19 @@
       [id]="'dropdown-menu-' + ticketId" 
       [class.show]="isOpen">
     <li>
-      <a class="dropdown-item" [routerLink]="['/ticket-details', ticketId]">
+      <a class="dropdown-item" 
+         (click)="navigateToDetails($event)">
         <i class="fas fa-eye me-2"></i>View Details
       </a>
     </li>
     <li>
-      <a class="dropdown-item" [routerLink]="['/ticket-create-update/ticket/edit', ticketId]">
+      <a class="dropdown-item" [routerLink]="['/ticket-create-update/ticket/edit', ticketId]" (click)="$event.stopPropagation()">
         <i class="fas fa-edit me-2"></i>Edit Ticket
       </a>
     </li>
     <li><hr class="dropdown-divider"></li>
     <li>
-      <a class="dropdown-item text-danger" (click)="onDelete()">
+      <a class="dropdown-item text-danger" (click)="onDelete(); $event.stopPropagation()">
         <i class="fas fa-trash-alt me-2"></i>Delete
       </a>
     </li>

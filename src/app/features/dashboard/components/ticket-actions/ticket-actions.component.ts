@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter, ElementRef, ViewChild, Renderer2, AfterViewInit } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-ticket-actions',
@@ -15,11 +16,28 @@ export class TicketActionsComponent implements AfterViewInit {
   isOpen = false;
   isNearBottom = false;
 
-  constructor(private elementRef: ElementRef, private renderer: Renderer2) {}
+  constructor(
+    private elementRef: ElementRef, 
+    private renderer: Renderer2,
+    private router: Router
+  ) {}
 
   ngAfterViewInit(): void {
     // Check position on init
     setTimeout(() => this.checkPosition(), 0);
+  }
+
+  navigateToDetails(event: Event): void {
+    event.stopPropagation();
+    event.preventDefault();
+    this.isOpen = false;
+    console.log('Navigating to ticket details from dropdown for ticket ID:', this.ticketId);
+    
+    // Document the current event for debugging
+    console.log('Event target:', event.target, 'Event type:', event.type);
+    
+    // Navigate directly without timeout
+    this.router.navigate(['/ticket-details', this.ticketId]);
   }
 
   onToggleDropdown(event: Event): void {

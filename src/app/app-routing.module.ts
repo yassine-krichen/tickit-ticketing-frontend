@@ -8,7 +8,7 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
-    path: 'ticket-details',
+    path: 'ticket-details/:id',
     loadChildren: () => import('./features/ticket-details/ticket-details.module').then(m => m.TicketDetailsModule)
   },
   {

@@ -17,7 +17,6 @@ import { TicketStatusBadgeComponent } from './components/ticket-status-badge/tic
 import { TicketSearchComponent } from './components/ticket-search/ticket-search.component';
 import { FilterDrawerComponent } from './components/filter-drawer/filter-drawer.component';
 import { CoreModule } from '../../core/core.module';
-import { ScrollToTopComponent } from '../../core/components/scroll-to-top/scroll-to-top.component';
 
 @NgModule({
   declarations: [
@@ -32,8 +31,7 @@ import { ScrollToTopComponent } from '../../core/components/scroll-to-top/scroll
     TicketPriorityBadgeComponent,
     TicketStatusBadgeComponent,
     TicketSearchComponent,
-    FilterDrawerComponent,
-    ScrollToTopComponent
+    FilterDrawerComponent
   ],
   imports: [
     CommonModule,

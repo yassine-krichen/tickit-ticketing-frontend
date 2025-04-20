@@ -120,3 +120,15 @@ export interface TypeStepValidation {
   type: CaseType;
   step: CaseType;
 }
+
+/**
+ * Generic wrapper for paginated API responses.
+ */
+export interface PaginatedResponse<T> {
+  content: T[];
+  pageNumber: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+  isLastPage: boolean;
+}

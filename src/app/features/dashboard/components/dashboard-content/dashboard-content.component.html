@@ -64,9 +64,14 @@
       <h5 class="mb-0">
         <i class="fas fa-clipboard-list me-2"></i> Recent Tickets
       </h5>
-      <a href="#" class="text-decoration-none">
-        View All <i class="fas fa-arrow-right ms-1"></i>
-      </a>
+      <div>
+        <span class="text-muted me-2" *ngIf="totalItems > 0">
+          Showing {{ tickets.length }} of {{ totalItems }} tickets
+        </span>
+        <a href="#" class="text-decoration-none">
+          View All <i class="fas fa-arrow-right ms-1"></i>
+        </a>
+      </div>
     </div>
 
     <!-- Ticket Search -->
@@ -77,30 +82,54 @@
       </app-ticket-search>
     </div>
     
-    <!-- Ticket Items -->
-    <div class="list-group list-group-flush">
-      <app-ticket-item 
-        *ngFor="let ticket of filteredTickets()"
-        [ticket]="ticket"
-        (delete)="deleteTicket($event)"
-        (toggleDropdown)="toggleDropdown($event.event, $event.ticketId)">
-      </app-ticket-item>
+    <!-- Ticket Items Container with Scroll Event -->
+    <div 
+      class="ticket-list-container" 
+      #ticketListContainer
+      (scroll)="onScroll($event)"
+      style="max-height: 600px; overflow-y: auto;">
+      
+      <!-- Ticket Items -->
+      <div class="list-group list-group-flush">
+        <app-ticket-item 
+          *ngFor="let ticket of tickets"
+          [ticket]="ticket"
+          (delete)="deleteTicket($event)"
+          (toggleDropdown)="toggleDropdown($event.event, $event.ticketId)">
+        </app-ticket-item>
 
-      <!-- Loading state when fetching tickets -->
-      <div class="p-5 text-center text-muted" *ngIf="loading && tickets?.length === 0">
-        <div class="spinner-border text-primary mb-3" role="status">
-          <span class="visually-hidden">Loading...</span>
+        <!-- Loading state when fetching initial tickets -->
+        <div class="p-5 text-center text-muted" *ngIf="loading && tickets?.length === 0">
+          <div class="spinner-border text-primary mb-3" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p>Loading ticket data...</p>
         </div>
-        <p>Loading ticket data...</p>
-      </div>
 
-      <!-- Empty state when no tickets match filter -->
-      <div class="p-5 text-center text-muted" *ngIf="!loading && filteredTickets().length === 0">
-        <i class="fas fa-search fa-3x mb-3 text-light"></i>
-        <p>No tickets match your current filter.</p>
-        <button class="btn btn-sm btn-outline-secondary mt-2" (click)="clearFilter()">
-          <i class="fas fa-redo me-1"></i> Clear All Filters
-        </button>
+        <!-- Loading more tickets indicator -->
+        <div class="p-3 text-center text-muted" *ngIf="loadingMore">
+          <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+            <span class="visually-hidden">Loading more tickets...</span>
+          </div>
+          <span>Loading more tickets...</span>
+        </div>
+
+        <!-- End of results message -->
+        <div class="p-3 text-center text-muted end-of-results" 
+             *ngIf="isLastPage && !loadingMore && tickets.length > 0"
+             style="background-color: #f8f9fa; border-top: 1px solid #eee; margin-top: 10px;">
+          <i class="fas fa-check-circle me-2 text-success"></i>
+          <span><strong>You've reached the end of the list.</strong> No more tickets to load.</span>
+        </div>
+
+        <!-- Empty state when no tickets match filter -->
+        <div class="p-5 text-center text-muted" *ngIf="!loading && tickets.length === 0">
+          <i class="fas fa-search fa-3x mb-3 text-light"></i>
+          <p>No tickets match your current filter.</p>
+          <button class="btn btn-sm btn-outline-secondary mt-2" (click)="clearAllFilters()">
+            <i class="fas fa-redo me-1"></i> Clear All Filters
+          </button>
+        </div>
       </div>
     </div>
   </div>

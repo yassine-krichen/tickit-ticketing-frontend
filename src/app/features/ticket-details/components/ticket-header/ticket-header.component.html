@@ -1,8 +1,6 @@
 <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4" *ngIf="ticket">
   <div class="d-flex align-items-center gap-3 gx-5">
-    <button class="btn btn-link text-secondary p-0" (click)="back.emit()">
-      <i class="fas fa-arrow-left"></i> Back
-    </button>
+    <app-back-button (onClick)="goBack()"></app-back-button>
     <h1 class="h3 mb-0">{{ ticket.subject }}</h1>
     <!-- Status Badge -->
     <span class="badge rounded-pill d-flex justify-content-center align-items-center" 

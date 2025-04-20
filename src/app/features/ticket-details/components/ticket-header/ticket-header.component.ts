@@ -21,4 +21,10 @@ export class TicketHeaderComponent {
       default: return 'Unknown';
     }
   }
+
+  goBack(): void {
+    // Emit the back event so the parent component can handle it
+    this.back.emit();
+    // Don't call window.history.back() here, let parent handle navigation
+  }
 }

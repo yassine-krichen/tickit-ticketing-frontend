@@ -93,19 +93,31 @@ export class TicketDetailsComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        this.loadTicketData();
+        console.log("TicketDetailsComponent initialized");
+        // Get the ticketId from the route parameters
+        this.route.paramMap.subscribe(params => {
+            this.ticketId = params.get('id');
+            console.log("Route parameter ticketId:", this.ticketId);
+            if (this.ticketId) {
+                this.loadTicketData();
+            } else {
+                this.error = "Invalid ticket ID";
+                console.error("No ticket ID found in route parameters");
+            }
+        });
     }
 
     loadTicketData(): void {
-        this.ticketId = this.route.snapshot.paramMap.get("id");
         if (!this.ticketId) {
             this.error = "Invalid ticket ID";
             return;
         }
         
+        console.log("Loading ticket data for ID:", this.ticketId);
         this.loading = true;
         this.ticketService.getTicketById(this.ticketId).subscribe(
             (ticket) => {
+                console.log("Ticket data loaded successfully:", ticket);
                 this.ticket = ticket;
                 const userInfo = extractUserInfo(ticket.issuedBy);
                 this.assignee = {

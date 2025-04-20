@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { 
@@ -12,16 +12,46 @@ import {
   Status,
   Priority,
   CaseType,
-  TypeStepValidation
+  TypeStepValidation,
+  PaginatedResponse
 } from '../../models/ticket.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TicketService {
-  private baseUrl = 'http://localhost:8080/tickets';
+  private baseUrl = 'http://localhost:8080/api/v1/tickets';
 
   constructor(private http: HttpClient) { }
+
+  // Get paginated tickets
+  getPaginatedTickets(
+    page: number = 0,
+    size: number = 10,
+    sortField: string = "timestamp",
+    sortDir: string = "desc",
+    q?: string,
+    status?: Status,
+    priority?: Priority
+  ): Observable<PaginatedResponse<TicketResponse>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sortField', sortField)
+      .set('sortDir', sortDir);
+    
+    if (q) params = params.set('q', q);
+    if (status) params = params.set('status', status);
+    if (priority) params = params.set('priority', priority);
+    
+    return this.http.get<PaginatedResponse<TicketResponse>>(this.baseUrl, { params })
+      .pipe(
+        catchError(error => {
+          console.error('Error fetching paginated tickets:', error);
+          throw error;
+        })
+      );
+  }
 
   // Get all ticket statistics in a single call
   getAllTicketStats(): Observable<any> {

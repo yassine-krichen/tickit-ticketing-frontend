@@ -3,7 +3,7 @@ import { TicketDetailsComponent } from './pages/ticket-details/ticket-details.co
 
 export const TICKET_DETAILS_ROUTES: Routes = [
   {
-    path: ':id',
+    path: '',
     component: TicketDetailsComponent
   }
 ];

@@ -1,5 +1,5 @@
-<div class="list-group-item border-0 border-bottom py-3"
-[routerLink]="['/ticket-details', ticket.id]">
+<div class="list-group-item border-0 border-bottom py-3 ticket-item"
+(click)="navigateToDetails(ticket.id, $event)">
   <div class="d-flex justify-content-between align-items-center mb-2">
     <div class="fw-monospace text-muted small">
       <i class="fas fa-hashtag fa-xs me-1"></i>{{ ticket.id }}
@@ -8,9 +8,10 @@
       <app-ticket-status-badge [status]="ticket.status"></app-ticket-status-badge>
       <app-ticket-priority-badge [priority]="ticket.priority"></app-ticket-priority-badge>
       <app-ticket-actions 
+        class="ticket-actions"
         [ticketId]="ticket.id"
         (toggleDropdown)="onToggleDropdown($event, ticket.id)"
-        (delete)="onDelete(ticket)">
+        (delete)="onDelete(ticket, $event)">
       </app-ticket-actions>
     </div>
   </div>
