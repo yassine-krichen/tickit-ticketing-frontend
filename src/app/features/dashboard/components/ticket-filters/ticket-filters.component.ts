@@ -23,7 +23,7 @@ export class TicketFiltersComponent {
   isOrderByDropdownOpen = false;
   isDirectionDropdownOpen = false;
   orderByDirection: 'asc' | 'desc' = 'desc';
-  selectedOrderBy: string = 'created';
+  selectedOrderBy: string = 'timestamp';
 
   tabs = [
     { id: 'All Tickets', label: 'All Tickets', icon: 'fas fa-list-ul' },
@@ -34,7 +34,7 @@ export class TicketFiltersComponent {
   ];
 
   orderByOptions: OrderByOption[] = [
-    { value: 'created', label: 'Recent' },
+    { value: 'timestamp', label: 'Recent' },
     { value: 'title', label: 'Title' },
     { value: 'priority', label: 'Priority' },
     { value: 'status', label: 'Status' }
