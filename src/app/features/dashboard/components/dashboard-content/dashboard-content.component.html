@@ -32,15 +32,6 @@
     </div>
   </div>
 
-  <!-- Loading and error messages -->
-  <div class="alert alert-info" *ngIf="loading">
-    <i class="fas fa-spinner fa-spin me-2"></i> Loading tickets...
-  </div>
-  
-  <div class="alert alert-danger" *ngIf="error">
-    <i class="fas fa-exclamation-triangle me-2"></i> {{ error }}
-  </div>
-
   <!-- KPI Cards Section -->
   <app-kpis-metrics 
     [totalTicketsCount]="totalTicketsCount"
@@ -68,7 +59,6 @@
         <span class="text-muted me-2" *ngIf="totalItems > 0">
           Showing {{ tickets.length }} of {{ totalItems }} tickets
         </span>
-        
       </div>
     </div>
 

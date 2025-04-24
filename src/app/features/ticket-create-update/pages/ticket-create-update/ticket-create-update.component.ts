@@ -133,7 +133,7 @@ export class TicketCreateUpdateComponent implements OnInit, OnDestroy {
     onSubmit(formData: any): void {
         console.log("Parent component received form data:", formData);
         
-        if (!this.form.valid) {
+        if (!this.form.valid && this.form.errors !== null) {
             // Mark all fields as touched to trigger validation messages
             Object.keys(this.form.controls).forEach(key => {
                 const control = this.form.get(key);
@@ -141,6 +141,7 @@ export class TicketCreateUpdateComponent implements OnInit, OnDestroy {
                     control.markAsTouched();
                 }
             });
+            console.log("Form is invalid", this.form.errors);
             return;
         }
 

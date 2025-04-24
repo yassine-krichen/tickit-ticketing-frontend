@@ -11,6 +11,9 @@ import {
   PaginatedResponse 
 } from 'src/app/core/models/ticket.model';
 
+// Declare Notify for TypeScript
+declare const Notify: any;
+
 @Component({
   selector: 'app-dashboard-content',
   templateUrl: './dashboard-content.component.html',
@@ -22,6 +25,10 @@ export class DashboardContentComponent implements OnInit {
   tickets: TicketResponse[] = [];
   loading = true;
   error = null;
+  
+  // Notification references
+  private _loadingNotification: any = null;
+  private _errorNotification: any = null;
   
   // Pagination properties
   currentPage = 0;
@@ -67,6 +74,69 @@ export class DashboardContentComponent implements OnInit {
   }
   
   /**
+   * Shows a loading notification
+   */
+  private _showLoadingNotification(): void {
+    // Close any existing loading notification
+    this._closeNotification(this._loadingNotification);
+    
+    // Create a new loading notification
+    this._loadingNotification = new Notify({
+      status: 'info',
+      title: 'Loading Tickets',
+      text: '<i class="fas fa-spinner fa-spin me-2"></i> Retrieving ticket data...',
+      effect: 'fade',
+      speed: 300,
+      showCloseButton: false,
+      autoclose: false,
+      position: 'right top'
+    });
+    
+    this.loading = true;
+  }
+  
+  /**
+   * Hides the loading notification
+   */
+  private _hideLoadingNotification(): void {
+    this._closeNotification(this._loadingNotification);
+    this.loading = false;
+  }
+  
+  /**
+   * Shows an error notification
+   * @param errorMessage - The error message to display
+   */
+  private _showErrorNotification(errorMessage: string): void {
+    // Close any existing error notification
+    this._closeNotification(this._errorNotification);
+    
+    // Create a new error notification
+    this._errorNotification = new Notify({
+      status: 'error',
+      title: 'Error',
+      text: `<i class="fas fa-exclamation-triangle me-2"></i> ${errorMessage}`,
+      effect: 'fade',
+      speed: 300,
+      autoclose: true,
+      autotimeout: 5000,
+      position: 'right top'
+    });
+    
+    this.error = errorMessage;
+  }
+  
+  /**
+   * Closes the given notification if it exists
+   * @param notification - The notification to close
+   */
+  private _closeNotification(notification: any): void {
+    if (notification) {
+      notification.close();
+    }
+  }
+  
+  /**
    * Loads tickets with pagination and the current filter settings
    */
   loadTickets(loadMore: boolean = false): void {
@@ -77,7 +147,10 @@ export class DashboardContentComponent implements OnInit {
       this.loadingMore = true;
       this.currentPage++;
     } else {
-      this.loading = true;
+      // Show loading notification for initial load
+      if (!loadMore) {
+        this._showLoadingNotification();
+      }
       this.error = null;
       this.tickets = [];
       this.currentPage = 0;
@@ -113,46 +186,79 @@ export class DashboardContentComponent implements OnInit {
           this.tickets = [...this.tickets, ...response.content];
         } else {
           this.tickets = response.content;
+          
+          // Hide the loading notification when we get the initial data
+          this._hideLoadingNotification();
         }
         
         // Update pagination info
         this.totalPages = response.totalPages;
         this.totalItems = response.totalItems;
         
-        // Fix for isLastPage being undefined - use the returned value or determine from page numbers
+        // Fix for isLastPage being undefined
         if (response.isLastPage !== undefined) {
           this.isLastPage = response.isLastPage;
         } else {
-          // Fallback calculation if isLastPage is not provided by the API
           this.isLastPage = response.pageNumber >= response.totalPages - 1 || response.content.length === 0;
         }
-        
-        console.log('Pagination data:', {
-          pageNumber: response.pageNumber,
-          pageSize: response.pageSize,
-          totalItems: response.totalItems,
-          totalPages: response.totalPages,
-          isLastPage: this.isLastPage,
-          contentLength: response.content.length
-        });
         
         // If we received an empty array and it's not the first page, we've hit the end
         if (response.content.length === 0 && this.currentPage > 0) {
           this.isLastPage = true;
         }
         
-        console.log('Loaded tickets:', this.tickets.length, 'Total:', this.totalItems, 'Last page:', this.isLastPage);
-        
         this.loading = false;
         this.loadingMore = false;
       },
       (error) => {
-        this.error = 'Failed to load tickets. Please try again later.';
+        const errorMessage = 'Failed to load tickets. Please try again later.';
+        this._showErrorNotification(errorMessage);
+        this._hideLoadingNotification(); // Hide loading notification
         this.loading = false;
         this.loadingMore = false;
         console.error('Error loading tickets:', error);
       }
     );
+  }
+
+  /**
+   * Deletes a ticket
+   */
+  deleteTicket(ticket: any): void {
+    if (confirm(`Are you sure you want to delete ticket #${ticket.id}?`)) {
+      this.ticketService.deleteTicket(ticket.id).subscribe({
+        next: (response) => {
+          // Filter out the deleted ticket
+          this.tickets = this.tickets.filter(t => t.id !== ticket.id);
+          this.loadTicketStats(); // Reload statistics
+          
+          // Show success notification
+          new Notify({
+            status: 'success',
+            title: 'Success',
+            text: response.message || 'Ticket deleted successfully',
+            effect: 'slide',
+            speed: 300,
+            autoclose: true,
+            position: 'right top'
+          });
+        },
+        error: (error) => {
+          console.error('Error deleting ticket:', error);
+          
+          // Show error notification
+          new Notify({
+            status: 'error',
+            title: 'Error',
+            text: 'Failed to delete ticket. Please try again.',
+            effect: 'slide',
+            speed: 300,
+            autoclose: true,
+            position: 'right top'
+          });
+        }
+      });
+    }
   }
 
   loadTicketStats(): void {
@@ -249,27 +355,7 @@ export class DashboardContentComponent implements OnInit {
     this.loadTickets(); // Reload with new advanced filters
   }
 
-  deleteTicket(ticket: any): void {
-    if (confirm(`Are you sure you want to delete ticket #${ticket.id}?`)) {
-      this.ticketService.deleteTicket(ticket.id).subscribe({
-        next: (response) => {
-          // Filter out the deleted ticket
-          this.tickets = this.tickets.filter(t => t.id !== ticket.id);
-          this.loadTicketStats(); // Reload statistics
-          // Show success message
-          alert(response.message || 'Ticket deleted successfully');
-        },
-        error: (error) => {
-          console.error('Error deleting ticket:', error);
-          alert('Failed to delete ticket. Please try again.');
-        }
-      });
-    }
-  }
-
   toggleDropdown(event: Event, ticketId: string): void {
-    // This method is no longer needed as dropdown is managed by ticket-actions component
-    // We keep it for compatibility but don't need to do anything
     console.log('Dropdown toggle event received for ticket', ticketId);
   }
 

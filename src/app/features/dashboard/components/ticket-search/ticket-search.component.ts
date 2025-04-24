@@ -19,11 +19,13 @@ export class TicketSearchComponent {
   searchCategory: SearchCategory = 'title';
   isDropdownOpen = false;
   
+  // Disable the dropdown for 'id' and 'assignee' since they are not used in the current implementation
+  // requires a backend change to support searching by ID and Assignee
   searchCategories: CategoryOption[] = [
     { value: 'title', label: 'Title' },
     { value: 'description', label: 'Description' },
-    { value: 'id', label: 'ID' },
-    { value: 'assignee', label: 'Assignee' }
+    // { value: 'id', label: 'ID' },
+    // { value: 'assignee', label: 'Assignee' }
   ];
 
   constructor(private elementRef: ElementRef) {}
