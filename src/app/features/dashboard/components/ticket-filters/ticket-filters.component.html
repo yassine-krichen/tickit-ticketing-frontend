@@ -12,16 +12,16 @@
   
   <div class="d-flex align-items-center">
     <!-- Combined Order By Dropdown with Direction -->
-    <div class="dropdown" (click)="$event.stopPropagation()">
+    <div class="dropdown pt-0 mt-0" (click)="$event.stopPropagation()">
       <button class="btn btn-sm btn-light" (click)="toggleOrderByDropdown($event)" style="min-width: 140px">
         <i class="fas fa-sort me-1"></i> 
         Order by: {{ getOrderByLabel() }} 
         <i class="fas ms-1" [ngClass]="getDirectionIcon()"></i>
       </button>
-      <div class="dropdown-menu dropdown-menu-end" [class.show]="isOrderByDropdownOpen">
+      <div class="dropdown-menu dropdown-menu-end pt-0 mt-0" [class.show]="isOrderByDropdownOpen">
         <!-- Sorting options -->
-        <div class="px-3 py-2 border-bottom">
-          <div class="d-flex justify-content-between align-items-center">
+        <div class="px-3 pb-2 border-bottom">
+          <div class="d-flex justify-content-between align-items-center pt-0 mt-1">
             <span class="fw-semibold">Sort</span>
             <button class="btn btn-sm btn-link p-0 text-decoration-none" (click)="toggleDirection($event)">
               {{ orderByDirection === 'asc' ? 'Ascending' : 'Descending' }}

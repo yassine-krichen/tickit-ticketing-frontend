@@ -19,9 +19,28 @@
   background-color: #e9ecef;
 }
 
+/* Remove unnecessary padding from the filter controls container */
 .d-flex {
-  padding-top: 10px;
   margin-top: 15px;
+}
+
+/* Fix dropdown menu padding */
+.dropdown-menu {
+  padding-top: 0;
+  margin-top: 0;
+  padding-bottom: 0;
+}
+
+/* Fix selected item text color */
+.dropdown-item.active {
+  color: white !important;
+  background-color: #007bff;
+}
+
+.dropdown-item:active, 
+.dropdown-item:focus {
+  color: white;
+  background-color: #007bff;
 }
 
 /* For mobile screens */

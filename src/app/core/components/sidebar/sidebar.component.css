@@ -19,6 +19,15 @@
     background-color: rgba(249, 115, 22, 0.1);
 }
 
+/* Add these styles to ensure text remains visible on active nav links when hovering */
+.nav-link.active {
+    color: white;
+}
+
+.nav-link.active:hover {
+    color: white !important;
+}
+
 /* Sub-navigation styling */
 .sub-nav-link {
     font-size: 0.85rem;
@@ -27,6 +36,11 @@
 
 .sub-nav-link.active {
     background-color: rgba(249, 115, 22, 0.8) !important;
+}
+
+/* For sub-navigation active links as well */
+.sub-nav-link.active:hover {
+    color: white !important;
 }
 
 .user-avatar {

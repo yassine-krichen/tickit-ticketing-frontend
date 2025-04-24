@@ -2,19 +2,12 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TicketService } from "src/app/core/services/ticket/ticket.service";
 import { TreatmentActService } from "src/app/core/services/treatment-act/treatment-act.service";
+import { TicketActivityService } from "src/app/core/services/ticket-activity/ticket-activity.service";
 import { TicketResponse } from "src/app/core/models/ticket.model";
 import { TreatmentAct, TreatmentActHistoryEntry } from "src/app/core/models/treatment-act.model";
-import { extractUserInfo, getInitials, getPriorityLabel, getActionColor, getActionIcon } from "../../../../core/utils/ticket.util";
-
-interface TimelineEvent {
-  type: 'creation' | 'status-change' | 'ai-insight';
-  title: string;
-  time: string;
-  description: string;
-  icon: string;
-  additionalData?: any;
-  action?: string;
-}
+import { TimelineEvent, TicketActivityDto } from "src/app/core/models/ticket-activity.model";
+import { extractUserInfo, getInitials } from "../../../../core/utils/ticket.util";
+import { getTimeAgo, formatDuration } from "src/app/shared/utils/date-utils";
 
 @Component({
     selector: "app-ticket-details",
@@ -27,82 +20,41 @@ export class TicketDetailsComponent implements OnInit {
     loading: boolean = false;
     error: string = "";
     assignee: any = {};
-    
-    // New properties for treatment act
     treatmentAct: TreatmentAct;
     historyEntries: TreatmentActHistoryEntry[] = [];
     treatmentActLoading: boolean = false;
     treatmentActError: string = "";
+    timelineEvents: TimelineEvent[] = [];
+    recommendations: any[] = [];
     
-    timelineEvents: TimelineEvent[] = [
-        {
-            type: 'creation',
-            title: 'Ticket Created',
-            time: '39 days ago',
-            description: 'Jane Smith created this ticket',
-            icon: 'ticket-icon',
-            action: 'POST'
-        },
-        {
-            type: 'status-change',
-            title: 'Status Changed',
-            time: '1 hour after creation',
-            description: 'Status changed from Open to In Progress',
-            icon: 'status-icon',
-            additionalData: { from: 'Open', to: 'In Progress' },
-            action: 'PUT'
-        },
-        {
-            type: 'status-change',
-            title: 'Status Changed',
-            time: '38 days ago',
-            description: 'Status changed to Waiting for Info',
-            icon: 'waiting-icon',
-            additionalData: { to: 'Waiting for Info' },
-            action: 'PUT'
-        },
-        {
-            type: 'ai-insight',
-            title: 'AI Insight Added',
-            time: '15 minutes ago',
-            description: 'BOTool AI detected a similar issue was resolved last month. Suggested solution available.',
-            icon: 'ai-icon',
-            action: 'AI'
-        }
-    ];
+    // Activity timeline properties
+    activities: TimelineEvent[] = [];
+    activityLoading: boolean = false;
+    activityError: string | null = null;
+    activityPage: number = 0;
+    activityPageSize: number = 5; // Changed from 10 to 5 as requested
+    activityTotalPages: number = 0;
+    activityQuery: string = "";
+    activityType: string = "";
+    activityUsername: string = "";
+    activitySortField: string = "startTime";
+    activitySortDir: string = "desc";
     
-    recommendations = [
-        {
-            title: 'Similar Issue Found',
-            description: 'This appears similar to a previous case that was resolved successfully.',
-            icon: 'similar-icon',
-            link: 'View Similar Case'
-        },
-        {
-            title: 'Suggested Action',
-            description: 'Send an automated reminder to the customer for the required information.',
-            icon: 'action-icon'
-        }
-    ];
-
     constructor(
-        private route: ActivatedRoute,
-        private router: Router,
-        private ticketService: TicketService,
-        private treatmentActService: TreatmentActService
+        private _route: ActivatedRoute,
+        private _router: Router,
+        private _ticketService: TicketService,
+        private _treatmentActService: TreatmentActService,
+        private _activityService: TicketActivityService
     ) {}
 
     ngOnInit(): void {
-        console.log("TicketDetailsComponent initialized");
-        // Get the ticketId from the route parameters
-        this.route.paramMap.subscribe(params => {
-            this.ticketId = params.get('id');
-            console.log("Route parameter ticketId:", this.ticketId);
+        this._route.paramMap.subscribe(params => {
+            this.ticketId = params.get("id");
             if (this.ticketId) {
                 this.loadTicketData();
             } else {
                 this.error = "Invalid ticket ID";
-                console.error("No ticket ID found in route parameters");
             }
         });
     }
@@ -113,11 +65,9 @@ export class TicketDetailsComponent implements OnInit {
             return;
         }
         
-        console.log("Loading ticket data for ID:", this.ticketId);
         this.loading = true;
-        this.ticketService.getTicketById(this.ticketId).subscribe(
+        this._ticketService.getTicketById(this.ticketId).subscribe(
             (ticket) => {
-                console.log("Ticket data loaded successfully:", ticket);
                 this.ticket = ticket;
                 const userInfo = extractUserInfo(ticket.issuedBy);
                 this.assignee = {
@@ -130,6 +80,7 @@ export class TicketDetailsComponent implements OnInit {
                     this.loadTreatmentActData(ticket.acteTraitement);
                 }
                 this.loading = false;
+                this.loadTicketActivities();
             },
             (error) => {
                 this.error = "Failed to load ticket details";
@@ -141,25 +92,23 @@ export class TicketDetailsComponent implements OnInit {
 
     loadTreatmentActData(treatmentActId: string): void {
         this.treatmentActLoading = true;
-        this.treatmentActService.getTreatmentAct(treatmentActId).subscribe(
+        this._treatmentActService.getTreatmentAct(treatmentActId).subscribe(
             (treatmentAct) => {
                 this.treatmentAct = treatmentAct;
                 if (treatmentAct && treatmentAct.caseId) {
                     this.loadTreatmentActHistory(treatmentAct.caseId);
                 }
                 this.treatmentActLoading = false;
-                console.log("Treatment Act Data:", treatmentAct);
             },
             (error) => {
                 this.treatmentActError = "Failed to load treatment act details";
                 this.treatmentActLoading = false;
-                console.error("Error loading treatment act:", error);
             }
         );
     }
 
     loadTreatmentActHistory(caseId: string): void {
-        this.treatmentActService.getTreatmentActHistory(caseId).subscribe(
+        this._treatmentActService.getTreatmentActHistory(caseId).subscribe(
             (historyEntries) => {
                 this.historyEntries = historyEntries;
             },
@@ -169,38 +118,157 @@ export class TicketDetailsComponent implements OnInit {
         );
     }
 
+    /**
+     * Loads ticket activity data with pagination and filtering
+     */
+    loadTicketActivities(page: number = 0): void {
+        console.log("Loading ticket activities for page:", page);
+        this.activityLoading = true;
+        this.activityError = null;
+        this.activityPage = page;
+        // console log all the params
+        console.log("Loading ticket activities with params:", {
+            ticketId: this.ticketId,
+            page: this.activityPage,
+            size: this.activityPageSize,
+            sortField: this.activitySortField,
+            sortDir: this.activitySortDir,
+            q: this.activityQuery,
+            type: this.activityType,
+            username: this.activityUsername
+        });
+        this._activityService.getTicketActivities(
+            this.ticketId,
+            page,
+            this.activityPageSize,
+            this.activitySortField,
+            this.activitySortDir,
+            this.activityQuery,
+            this.activityType,
+            this.activityUsername
+        ).subscribe(
+            (response) => {
+                this.activityLoading = false;
+                this.activities = this._mapActivitiesToTimelineEvents(response.content);
+                this.activityTotalPages = response.totalPages;
+            },
+            (error) => {
+                this.activityLoading = false;
+                this.activityError = "Failed to load ticket activities";
+                console.error("Error loading ticket activities:", error);
+            }
+        );
+    }
+
+    /**
+     * Maps raw activity DTOs to formatted timeline events for display
+     */
+    private _mapActivitiesToTimelineEvents(activities: TicketActivityDto[]): TimelineEvent[] {
+        return activities.map(activity => {
+            const timelineEvent: TimelineEvent = {
+                id: activity.id,
+                type: activity.type,
+                title: this._getActivityTitle(activity),
+                timeDisplay: getTimeAgo(activity.startTime),
+                description: activity.description || "",
+                iconClass: this._getActivityIconClass(activity.type),
+                colorClass: this._getActivityColorClass(activity.type),
+                timestamp: new Date(activity.startTime),
+                username: activity.username
+            };
+
+            if (activity.type === "UPDATE" && activity.description?.includes("status")) {
+                const statusMatch = activity.description.match(/from '(.+)' to '(.+)'/i);
+                if (statusMatch && statusMatch.length === 3) {
+                    timelineEvent.metadata = {
+                        oldStatus: statusMatch[1],
+                        newStatus: statusMatch[2]
+                    };
+                }
+            }
+
+            return timelineEvent;
+        });
+    }
+
+    /**
+     * Generates a human-readable title based on activity type
+     */
+    private _getActivityTitle(activity: TicketActivityDto): string {
+        switch (activity.type) {
+            case "OPEN": return "Ticket Opened";
+            case "CLOSE": return "Ticket Closed";
+            case "UPDATE": return "Ticket Updated";
+            case "EMAIL": return "Email Sent";
+            case "CALL": return `Call (${formatDuration(activity.duration) || "N/A"})`;
+            case "RESEARCH": return "Research Conducted";
+            case "ASSIGNMENT": return "Ticket Assigned";
+            case "OTHER":
+            default: return "Activity Recorded";
+        }
+    }
+
+    /**
+     * Returns FontAwesome icon class based on activity type
+     */
+    private _getActivityIconClass(type: string): string {
+        switch (type) {
+            case "OPEN": return "fa-folder-open";
+            case "CLOSE": return "fa-folder";
+            case "UPDATE": return "fa-pen";
+            case "EMAIL": return "fa-envelope";
+            case "CALL": return "fa-phone";
+            case "RESEARCH": return "fa-search";
+            case "ASSIGNMENT": return "fa-user-plus";
+            case "OTHER":
+            default: return "fa-clipboard-list";
+        }
+    }
+
+    /**
+     * Returns color class based on activity type
+     */
+    private _getActivityColorClass(type: string): string {
+        switch (type) {
+            case "OPEN": return "primary";
+            case "CLOSE": return "secondary";
+            case "UPDATE": return "warning";
+            case "EMAIL": return "info";
+            case "CALL": return "success";
+            case "RESEARCH": return "purple";
+            case "ASSIGNMENT": return "indigo";
+            case "OTHER":
+            default: return "dark";
+        }
+    }
+
+    /**
+     * Handles page change events from the timeline component
+     */
+    onActivityPageChange(page: number): void {
+        this.loadTicketActivities(page);
+    }
+
+    /**
+     * Handles filter change events from the timeline component
+     * 
+     * @param filters - Object containing filter parameters
+     */
+    onActivityFilterChange(filters: { q?: string; type?: string; username?: string; sortField?: string; sortDir?: string; }): void {
+        console.log("Filters changed:", filters);
+        
+        // Update filter state
+        this.activityQuery = filters.q || "";
+        this.activityType = filters.type || "";
+        this.activityUsername = filters.username || "";
+        this.activitySortField = filters.sortField || "startTime";
+        this.activitySortDir = filters.sortDir || "desc";
+        
+        // Reset to first page and reload activities with new filters
+        this.loadTicketActivities(0);
+    }
+
     navigateBack(): void {
-        this.router.navigate(["/dashboard"]);
-    }
-
-    getPriorityLabel(priority: string): string {
-        switch(priority) {
-            case 'P1': return 'Very-Low';
-            case 'P2': return 'Low';
-            case 'P3': return 'Medium';
-            case 'P4': return 'High';
-            case 'P5': return 'Critical';
-            default: return 'Unknown';
-        }
-    }
-
-    getActionColor(action: string): string {
-        switch (action) {
-            case 'POST': return '#10b981';    // green
-            case 'PUT': return '#3b82f6';     // blue
-            case 'AI': return '#f97316';      // orange
-            case 'DELETE': return '#ef4444';  // red
-            default: return '#6b7280';
-        }
-    }
-
-    getActionIcon(action: string): string {
-        switch (action) {
-            case 'POST': return 'fa-plus-circle';
-            case 'PUT': return 'fa-edit';
-            case 'AI': return 'fa-robot';
-            case 'DELETE': return 'fa-trash';
-            default: return 'fa-info-circle';
-        }
+        this._router.navigate(["/dashboard"]);
     }
 }

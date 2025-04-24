@@ -1,0 +1,107 @@
+.timeline {
+    position: relative;
+    padding-left: 1.5rem;
+    margin: 0 0 0 30px;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 1.5rem;
+    border-left: 2px solid #e9ecef;
+    padding-left: 20px;
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+    border-left-color: transparent;
+}
+
+.timeline-badge {
+    position: absolute;
+    left: -12px;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px #fff;
+    z-index: 1;
+}
+
+.timeline-badge i {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+}
+
+.timeline-content {
+    padding-left: 15px;
+}
+
+h6 {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.smaller {
+    font-size: 80%;
+    color: #6c757d;
+}
+
+.status-change {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+}
+
+/* Color variables for activity types */
+:root {
+    --bs-primary: #0d6efd;
+    --bs-secondary: #6c757d;
+    --bs-success: #198754;
+    --bs-info: #0dcaf0;
+    --bs-warning: #ffc107;
+    --bs-danger: #dc3545;
+    --bs-light: #f8f9fa;
+    --bs-dark: #212529;
+    --bs-purple: #6f42c1;
+    --bs-indigo: #6610f2;
+}
+
+/* Update pagination styling with higher specificity and stronger overrides */
+.pagination .page-item.active .page-link {
+    background-color: #f97316 !important;
+    border-color: #f97316 !important;
+    color: #ffffff !important;  /* Force white text */
+    font-weight: 500 !important; /* Make text slightly bolder */
+}
+
+.pagination .page-item.active:hover .page-link,
+.pagination .page-item.active .page-link:hover,
+.pagination .page-item.active .page-link:focus {
+    background-color: #ea580c !important; /* Darker shade of orange */
+    border-color: #ea580c !important;
+    color: #ffffff !important; /* Keep text white on hover */
+}
+
+/* Regular page links */
+.pagination .page-link {
+    color: #0d6efd;
+}
+
+.pagination .page-link:hover {
+    color: #0a58ca;
+}
+
+/* Custom styling for filter form */
+.form-label.small {
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+    color: #6c757d;
+}

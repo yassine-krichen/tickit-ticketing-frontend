@@ -37,8 +37,24 @@
             [treatmentAct]="treatmentAct">
           </app-ticket-treatment-act>
           
-          <!-- Activity Timeline -->
-          <app-ticket-timeline [events]="timelineEvents"></app-ticket-timeline>
+          <!-- New Ticket Activity Timeline -->
+          <app-ticket-activity-timeline
+            [events]="activities"
+            [loading]="activityLoading"
+            [error]="activityError"
+            [currentPage]="activityPage"
+            [totalPages]="activityTotalPages"
+            [type]="activityType"
+            [username]="activityUsername" 
+            [query]="activityQuery"
+            [sortField]="activitySortField"
+            [sortDir]="activitySortDir"
+            (pageChange)="onActivityPageChange($event)"
+            (filterChange)="onActivityFilterChange($event)">
+          </app-ticket-activity-timeline>
+          
+          <!-- Ticket Activities Timeline -->
+          <!-- <app-ticket-timeline [events]="timelineEvents"></app-ticket-timeline> -->
         </div>
         
         <!-- Right Column: Sidebar -->

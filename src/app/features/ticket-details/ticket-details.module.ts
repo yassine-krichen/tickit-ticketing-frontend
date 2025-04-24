@@ -15,6 +15,8 @@ import { TicketInfoComponent } from './components/ticket-info/ticket-info.compon
 import { CaseTrackerComponent } from './components/case-tracker/case-tracker.component';
 import { AiRecommendationsComponent } from './components/ai-recommendations/ai-recommendations.component';
 import { TicketMetadataComponent } from './components/ticket-metadata/ticket-metadata.component';
+import { TicketActivityTimelineComponent } from './components/ticket-activity-timeline/ticket-activity-timeline.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -27,12 +29,14 @@ import { TicketMetadataComponent } from './components/ticket-metadata/ticket-met
     TicketInfoComponent,
     CaseTrackerComponent,
     AiRecommendationsComponent,
-    TicketMetadataComponent
+    TicketMetadataComponent,
+    TicketActivityTimelineComponent
   ],
   imports: [
     CommonModule,
     RouterModule.forChild(TICKET_DETAILS_ROUTES),
-    CoreModule
+    CoreModule,
+    ReactiveFormsModule
   ]
 })
 export class TicketDetailsModule { } 

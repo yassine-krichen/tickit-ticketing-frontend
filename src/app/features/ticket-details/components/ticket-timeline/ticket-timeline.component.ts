@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ViewEncapsulation } from '@angular/core';
 import { getActionColor, getActionIcon } from 'src/app/core/utils/ticket.util';
 
 interface TimelineEvent {
@@ -14,10 +14,12 @@ interface TimelineEvent {
 @Component({
   selector: 'app-ticket-timeline',
   templateUrl: './ticket-timeline.component.html',
-  styleUrls: ['./ticket-timeline.component.css']
+  styleUrls: ['./ticket-timeline.component.css'],
+  // Disable view encapsulation to allow our styles to affect the icon properly
+  encapsulation: ViewEncapsulation.None
 })
 export class TicketTimelineComponent {
-  @Input() events: TimelineEvent[];
+  @Input() events: TimelineEvent[] = [];
 
   getActionColor = getActionColor;
   getActionIcon = getActionIcon;
