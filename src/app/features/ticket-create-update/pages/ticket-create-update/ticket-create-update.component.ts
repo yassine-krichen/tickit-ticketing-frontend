@@ -131,6 +131,8 @@ export class TicketCreateUpdateComponent implements OnInit, OnDestroy {
      * @param formData - Form data to submit
      */
     onSubmit(formData: any): void {
+        console.log("Parent component received form data:", formData);
+        
         if (!this.form.valid) {
             // Mark all fields as touched to trigger validation messages
             Object.keys(this.form.controls).forEach(key => {
@@ -152,9 +154,11 @@ export class TicketCreateUpdateComponent implements OnInit, OnDestroy {
         }
         
         if (this.isEditMode && this.ticketId) {
-            this.ticketService.updateTicket(this.ticketId, payload).subscribe(
-                () => {
-                    this.router.navigate(["/dashboard"]);
+            // Update existing ticket
+            this.ticketService.updateTicket(this.ticketId, formData).subscribe(
+                (response) => {
+                    console.log("Ticket updated successfully:", response);
+                    this.router.navigate(["/ticket-details", this.ticketId]);
                 },
                 (error) => {
                     console.error("Error updating ticket:", error);
@@ -162,8 +166,11 @@ export class TicketCreateUpdateComponent implements OnInit, OnDestroy {
                 }
             );
         } else {
-            this.ticketService.createTicket(payload).subscribe(
-                () => {
+            // Create new ticket
+            console.log("Creating new ticket with payload:", formData);
+            this.ticketService.createTicket(formData).subscribe(
+                (response) => {
+                    console.log("Ticket created successfully:", response);
                     this.router.navigate(["/dashboard"]);
                 },
                 (error) => {
@@ -189,11 +196,19 @@ export class TicketCreateUpdateComponent implements OnInit, OnDestroy {
     }
     
     /**
-     * Navigate back to previous page
-     */
-    onBackClick(): void {
+ * Navigate back to previous page based on context
+ * - Returns to ticket details when in edit mode
+ * - Returns to dashboard when creating new ticket
+ */
+onBackClick(): void {
+    if (this.isEditMode && this.ticketId) {
+        // Navigate back to the ticket details page when editing
+        this.router.navigate(["/ticket-details", this.ticketId]);
+    } else {
+        // Navigate to dashboard when creating new ticket
         this.router.navigate(["/dashboard"]);
     }
+}
     
     /**
      * Handle cancel button click

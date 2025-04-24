@@ -144,9 +144,22 @@ export class TicketFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.ticketForm.invalid) return;
+    console.log("Form submission triggered");
+    
+    if (this.ticketForm.invalid) {
+        console.log("Form validation failed", this.ticketForm.errors);
+        
+        // Mark all form controls as touched to show validation errors
+        Object.keys(this.ticketForm.controls).forEach(key => {
+            const control = this.ticketForm.controls[key];
+            control.markAsTouched();
+            console.log(`Control ${key} errors:`, control.errors);
+        });
+        return;
+    }
 
     const formData = this.ticketForm.value;
+    console.log("Form data being emitted:", formData);
     this.formSubmit.emit(formData);
   }
 
@@ -162,4 +175,4 @@ export class TicketFormComponent implements OnInit {
   formatSLA(duration: any): string {
     return formatSLA(duration);
   }
-} 
+}
