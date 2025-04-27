@@ -21,7 +21,7 @@ export class DashboardContentComponent implements OnInit {
   
   tickets: TicketResponse[] = [];
   loading = true;
-  error = null;
+  error: string = null;
   
   // Pagination properties
   currentPage = 0;
@@ -106,8 +106,8 @@ export class DashboardContentComponent implements OnInit {
       this.searchTerm,
       statusFilter,
       priorityFilter
-    ).subscribe(
-      (response: PaginatedResponse<TicketResponse>) => {
+    ).subscribe({
+      next: (response: PaginatedResponse<TicketResponse>) => {
         // Append or replace tickets
         if (loadMore) {
           this.tickets = [...this.tickets, ...response.content];
@@ -146,18 +146,18 @@ export class DashboardContentComponent implements OnInit {
         this.loading = false;
         this.loadingMore = false;
       },
-      (error) => {
+      error: (error) => {
         this.error = 'Failed to load tickets. Please try again later.';
         this.loading = false;
         this.loadingMore = false;
         console.error('Error loading tickets:', error);
       }
-    );
+    });
   }
 
   loadTicketStats(): void {
-    this.ticketService.getAllTicketStats().subscribe(
-      (stats) => {
+    this.ticketService.getAllTicketStats().subscribe({
+      next: (stats) => {
         this.totalTicketsCount = stats.totalTickets || 0;
         // Count tickets by status
         const countsByStatus = stats.countsByStatus || [];
@@ -165,10 +165,10 @@ export class DashboardContentComponent implements OnInit {
         this.blockedCount = this.getCountForCategory(countsByStatus, 'BLOCKED');
         this.resolvedCount = this.getCountForCategory(countsByStatus, 'RESOLVED');
       },
-      (error) => {
+      error: (error) => {
         console.error('Error loading ticket statistics:', error);
       }
-    );
+    });
   }
 
   getCountForCategory(counts: any[], category: string): number {
@@ -249,7 +249,7 @@ export class DashboardContentComponent implements OnInit {
     this.loadTickets(); // Reload with new advanced filters
   }
 
-  deleteTicket(ticket: any): void {
+  deleteTicket(ticket: TicketResponse): void {
     if (confirm(`Are you sure you want to delete ticket #${ticket.id}?`)) {
       this.ticketService.deleteTicket(ticket.id).subscribe({
         next: (response) => {

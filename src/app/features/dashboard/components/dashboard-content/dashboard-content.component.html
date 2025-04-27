@@ -87,7 +87,10 @@
       class="ticket-list-container" 
       #ticketListContainer
       (scroll)="onScroll($event)"
-      style="max-height: 600px; overflow-y: auto;">
+      style="max-height: 600px; overflow-y: auto;"
+      role="region"
+      aria-live="polite"
+      aria-label="Ticket list with infinite scrolling">
       
       <!-- Ticket Items -->
       <div class="list-group list-group-flush">
@@ -99,15 +102,15 @@
         </app-ticket-item>
 
         <!-- Loading state when fetching initial tickets -->
-        <div class="p-5 text-center text-muted" *ngIf="loading && tickets?.length === 0">
+        <div class="p-5 text-center text-muted" *ngIf="loading && tickets?.length === 0" aria-live="assertive">
           <div class="spinner-border text-primary mb-3" role="status">
-            <span class="visually-hidden">Loading...</span>
+            <span class="visually-hidden">Loading tickets...</span>
           </div>
           <p>Loading ticket data...</p>
         </div>
 
         <!-- Loading more tickets indicator -->
-        <div class="p-3 text-center text-muted" *ngIf="loadingMore">
+        <div class="p-3 text-center text-muted" *ngIf="loadingMore" aria-live="polite">
           <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
             <span class="visually-hidden">Loading more tickets...</span>
           </div>
@@ -117,17 +120,18 @@
         <!-- End of results message -->
         <div class="p-3 text-center text-muted end-of-results" 
              *ngIf="isLastPage && !loadingMore && tickets.length > 0"
-             style="background-color: #f8f9fa; border-top: 1px solid #eee; margin-top: 10px;">
-          <i class="fas fa-check-circle me-2 text-success"></i>
+             style="background-color: #f8f9fa; border-top: 1px solid #eee; margin-top: 10px;"
+             aria-live="polite">
+          <i class="fas fa-check-circle me-2 text-success" aria-hidden="true"></i>
           <span><strong>You've reached the end of the list.</strong> No more tickets to load.</span>
         </div>
 
         <!-- Empty state when no tickets match filter -->
-        <div class="p-5 text-center text-muted" *ngIf="!loading && tickets.length === 0">
-          <i class="fas fa-search fa-3x mb-3 text-light"></i>
+        <div class="p-5 text-center text-muted" *ngIf="!loading && tickets.length === 0" aria-live="assertive">
+          <i class="fas fa-search fa-3x mb-3 text-light" aria-hidden="true"></i>
           <p>No tickets match your current filter.</p>
           <button class="btn btn-sm btn-outline-secondary mt-2" (click)="clearAllFilters()">
-            <i class="fas fa-redo me-1"></i> Clear All Filters
+            <i class="fas fa-redo me-1" aria-hidden="true"></i> Clear All Filters
           </button>
         </div>
       </div>

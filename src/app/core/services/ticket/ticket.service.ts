@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { 
   Ticket, 
@@ -54,8 +54,28 @@ export class TicketService {
   }
 
   // Get all ticket statistics in a single call
-  getAllTicketStats(): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/stats/all`);
+  getAllTicketStats(): Observable<{
+    totalTickets?: number;
+    countsByStatus?: TicketCount[];
+    countsByType?: TicketCount[];
+    countsByStep?: TicketCount[];
+    countsBySubStatus?: TicketCount[];
+  }> {
+    return this.http.get<any>(`${this.baseUrl}/stats/all`)
+      .pipe(
+        map(response => response || {}),
+        catchError(error => {
+          console.error('Error fetching ticket statistics:', error);
+          // Return empty object with the expected structure instead of empty array
+          return of({
+            totalTickets: 0,
+            countsByStatus: [],
+            countsByType: [],
+            countsByStep: [],
+            countsBySubStatus: []
+          });
+        })
+      );
   }
 
   // Create a new ticket
@@ -206,7 +226,7 @@ export class TicketService {
   }
 
   // Delete a ticket - Updated to handle plain text responses
-  deleteTicket(ticketId: string): Observable<any> {
+  deleteTicket(ticketId: string): Observable<{ success: boolean, message: string }> {
     const headers = new HttpHeaders().set('Accept', 'text/plain');
     return this.http.delete(`${this.baseUrl}/${ticketId}`, { 
       headers,
@@ -214,7 +234,11 @@ export class TicketService {
     }).pipe(
       map(response => {
         // Return success object with the response message
-        return { success: true, message: response };
+        return { success: true, message: response as string };
+      }),
+      catchError(error => {
+        console.error('Error deleting ticket:', error);
+        return of({ success: false, message: error?.message || 'Failed to delete ticket' });
       })
     );
   }

@@ -115,8 +115,8 @@ export class TicketDetailsComponent implements OnInit {
         
         console.log("Loading ticket data for ID:", this.ticketId);
         this.loading = true;
-        this.ticketService.getTicketById(this.ticketId).subscribe(
-            (ticket) => {
+        this.ticketService.getTicketById(this.ticketId).subscribe({
+            next: (ticket) => {
                 console.log("Ticket data loaded successfully:", ticket);
                 this.ticket = ticket;
                 const userInfo = extractUserInfo(ticket.issuedBy);
@@ -131,18 +131,18 @@ export class TicketDetailsComponent implements OnInit {
                 }
                 this.loading = false;
             },
-            (error) => {
+            error: (error) => {
                 this.error = "Failed to load ticket details";
                 this.loading = false;
                 console.error("Error loading ticket:", error);
             }
-        );
+        });
     }
 
     loadTreatmentActData(treatmentActId: string): void {
         this.treatmentActLoading = true;
-        this.treatmentActService.getTreatmentAct(treatmentActId).subscribe(
-            (treatmentAct) => {
+        this.treatmentActService.getTreatmentAct(treatmentActId).subscribe({
+            next: (treatmentAct) => {
                 this.treatmentAct = treatmentAct;
                 if (treatmentAct && treatmentAct.caseId) {
                     this.loadTreatmentActHistory(treatmentAct.caseId);
@@ -150,23 +150,23 @@ export class TicketDetailsComponent implements OnInit {
                 this.treatmentActLoading = false;
                 console.log("Treatment Act Data:", treatmentAct);
             },
-            (error) => {
+            error: (error) => {
                 this.treatmentActError = "Failed to load treatment act details";
                 this.treatmentActLoading = false;
                 console.error("Error loading treatment act:", error);
             }
-        );
+        });
     }
 
     loadTreatmentActHistory(caseId: string): void {
-        this.treatmentActService.getTreatmentActHistory(caseId).subscribe(
-            (historyEntries) => {
+        this.treatmentActService.getTreatmentActHistory(caseId).subscribe({
+            next: (historyEntries) => {
                 this.historyEntries = historyEntries;
             },
-            (error) => {
+            error: (error) => {
                 console.error("Error loading treatment act history:", error);
             }
-        );
+        });
     }
 
     navigateBack(): void {
