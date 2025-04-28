@@ -26,6 +26,7 @@ export interface TimelineEvent {
         changedFields?: string[];
     };
     username: string;
+    duration: string; // Duration in ISO 8601 format (e.g., "PT1H30M")
 }
 
 export interface PaginatedResponse<T> {

@@ -9,6 +9,8 @@ import { TimelineEvent, TicketActivityDto } from "src/app/core/models/ticket-act
 import { extractUserInfo, getInitials } from "../../../../core/utils/ticket.util";
 import { getTimeAgo, formatDuration } from "src/app/shared/utils/date-utils";
 
+declare var Notify: any;
+
 @Component({
     selector: "app-ticket-details",
     templateUrl: "./ticket-details.component.html",
@@ -174,7 +176,8 @@ export class TicketDetailsComponent implements OnInit {
                 iconClass: this._getActivityIconClass(activity.type),
                 colorClass: this._getActivityColorClass(activity.type),
                 timestamp: new Date(activity.startTime),
-                username: activity.username
+                username: activity.username,
+                duration: activity.duration || "N/A",
             };
 
             if (activity.type === "UPDATE" && activity.description?.includes("status")) {
@@ -268,7 +271,130 @@ export class TicketDetailsComponent implements OnInit {
         this.loadTicketActivities(0);
     }
 
+    /**
+     * Handles creation of a new activity
+     */
+    onActivityCreated(activityData: any): void {
+        this._activityService.createActivity(this.ticketId, activityData).subscribe(
+            () => {
+                // Reload activities to show the new one
+                this.loadTicketActivities(this.activityPage);
+            },
+            (error) => {
+                console.error("Error creating activity:", error);
+                // Error handling could be improved with a notification
+                if (typeof Notify !== 'undefined') {
+                    new Notify({
+                        status: 'error',
+                        title: 'Error',
+                        text: 'Failed to create activity. Please try again.',
+                        effect: 'slide',
+                        speed: 300,
+                        position: 'right top'
+                    });
+                }
+            }
+        );
+    }
+
+    /**
+     * Handles updating an existing activity
+     */
+    onActivityUpdated(activityData: any): void {
+        this._activityService.updateActivity(
+            this.ticketId, 
+            activityData.id, 
+            {
+                description: activityData.description
+            }
+        ).subscribe(
+            () => {
+                // Reload activities to show the update
+                this.loadTicketActivities(this.activityPage);
+            },
+            (error) => {
+                console.error("Error updating activity:", error);
+                if (typeof Notify !== "undefined") {
+                    new Notify({
+                        status: "error",
+                        title: "Error",
+                        text: "Failed to update activity. Please try again.",
+                        effect: "slide",
+                        speed: 300,
+                        position: "right top"
+                    });
+                }
+            }
+        );
+    }
+
+    /**
+     * Handles completing an activity
+     */
+    onActivityCompleted(activityId: number): void {
+        this._activityService.completeActivity(this.ticketId, activityId).subscribe(
+            () => {
+                // Reload activities to show the completion
+                this.loadTicketActivities(this.activityPage);
+            },
+            (error) => {
+                console.error("Error completing activity:", error);
+                if (typeof Notify !== 'undefined') {
+                    new Notify({
+                        status: 'error',
+                        title: 'Error',
+                        text: 'Failed to complete activity. Please try again.',
+                        effect: 'slide',
+                        speed: 300,
+                        position: 'right top'
+                    });
+                }
+            }
+        );
+    }
+
+    /**
+     * Handles deleting an activity
+     */
+    onActivityDeleted(activityId: number): void {
+        this._activityService.deleteActivity(this.ticketId, activityId).subscribe(
+            () => {
+                // Reload activities to reflect deletion
+                this.loadTicketActivities(this.activityPage);
+                
+                // Show success notification
+                if (typeof Notify !== 'undefined') {
+                    new Notify({
+                        status: 'success',
+                        title: 'Success',
+                        text: 'Activity deleted successfully',
+                        effect: 'slide',
+                        speed: 300,
+                        position: 'right top',
+                        autoclose: true
+                    });
+                }
+            },
+            (error) => {
+                console.error("Error deleting activity:", error);
+                if (typeof Notify !== 'undefined') {
+                    new Notify({
+                        status: 'error',
+                        title: 'Error',
+                        text: 'Failed to delete activity. Please try again.',
+                        effect: 'slide',
+                        speed: 300,
+                        position: 'right top',
+                        autoclose: true
+                    });
+                }
+            }
+        );
+    }
+
     navigateBack(): void {
         this._router.navigate(["/dashboard"]);
     }
+
+    
 }
