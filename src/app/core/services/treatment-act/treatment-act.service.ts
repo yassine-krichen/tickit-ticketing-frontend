@@ -18,7 +18,8 @@ export class TreatmentActService {
      * @param id The treatment act ID
      */
     getTreatmentAct(id: string): Observable<TreatmentAct> {
-        return this.http.get<TreatmentAct>(`${this.apiUrl}/api/acte-traitements/${id}/populated`);
+        // Updated to v1 API path and match ActeTraitementController
+        return this.http.get<TreatmentAct>(`${this.apiUrl}/api/v1/treatments/${id}/populated`);
     }
 
     /**
@@ -26,7 +27,8 @@ export class TreatmentActService {
      * @param caseId The case ID
      */
     getTreatmentActHistory(caseId: string): Observable<TreatmentActHistoryEntry[]> {
-        return this.http.get<RawHistoryEntry[]>(`${this.apiUrl}/ledger/treatment-act/${caseId}/ordered`)
+        // Updated to match LedgerController
+        return this.http.get<RawHistoryEntry[]>(`${this.apiUrl}/api/v1/ledger-entries/treatment-acts?caseId=${caseId}`)
             .pipe(
                 map(entries => {
                     // Convert string timestamps to Date objects and sort by date (oldest first)
@@ -36,12 +38,12 @@ export class TreatmentActService {
                             timestamp: new Date(entry.timestamp)
                         }) as TreatmentActHistoryEntry)
                         .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
-                    
+
                     // Mark the most recent entry as the latest
                     if (mappedEntries.length > 0) {
                         mappedEntries[mappedEntries.length - 1].isLatest = true;
                     }
-                    
+
                     return mappedEntries;
                 })
             );
