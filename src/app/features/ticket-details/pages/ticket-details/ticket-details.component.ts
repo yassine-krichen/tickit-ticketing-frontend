@@ -68,7 +68,7 @@ export class TicketDetailsComponent implements OnInit {
         }
 
         this.loading = true;
-        this.ticketService.getTicketById(this.ticketId).subscribe({
+        this._ticketService.getTicketById(this.ticketId).subscribe({
             next: (ticket) => {
                 console.log("Ticket data loaded successfully:", ticket);
                 this.ticket = ticket;
@@ -95,7 +95,7 @@ export class TicketDetailsComponent implements OnInit {
 
     loadTreatmentActData(treatmentActId: string): void {
         this.treatmentActLoading = true;
-        this.treatmentActService.getTreatmentAct(treatmentActId).subscribe({
+        this._treatmentActService.getTreatmentAct(treatmentActId).subscribe({
             next: (treatmentAct) => {
                 this.treatmentAct = treatmentAct;
                 if (treatmentAct && treatmentAct.caseId) {
@@ -111,7 +111,7 @@ export class TicketDetailsComponent implements OnInit {
     }
 
     loadTreatmentActHistory(caseId: string): void {
-        this.treatmentActService.getTreatmentActHistory(caseId).subscribe({
+        this._treatmentActService.getTreatmentActHistory(caseId).subscribe({
             next: (historyEntries) => {
                 this.historyEntries = historyEntries;
             },
@@ -303,8 +303,8 @@ export class TicketDetailsComponent implements OnInit {
      */
     onActivityUpdated(activityData: any): void {
         this._activityService.updateActivity(
-            this.ticketId, 
-            activityData.id, 
+            this.ticketId,
+            activityData.id,
             {
                 description: activityData.description
             }
@@ -362,7 +362,7 @@ export class TicketDetailsComponent implements OnInit {
             () => {
                 // Reload activities to reflect deletion
                 this.loadTicketActivities(this.activityPage);
-                
+
                 // Show success notification
                 if (typeof Notify !== 'undefined') {
                     new Notify({
@@ -397,5 +397,5 @@ export class TicketDetailsComponent implements OnInit {
         this._router.navigate(["/dashboard"]);
     }
 
-    
+
 }
