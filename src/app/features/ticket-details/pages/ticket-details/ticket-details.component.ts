@@ -125,42 +125,43 @@ export class TicketDetailsComponent implements OnInit {
      * Loads ticket activity data with pagination and filtering
      */
     loadTicketActivities(page: number = 0): void {
-        console.log("Loading ticket activities for page:", page);
-        this.activityLoading = true;
-        this.activityError = null;
-        this.activityPage = page;
-        // console log all the params
-        console.log("Loading ticket activities with params:", {
-            ticketId: this.ticketId,
-            page: this.activityPage,
-            size: this.activityPageSize,
-            sortField: this.activitySortField,
-            sortDir: this.activitySortDir,
-            q: this.activityQuery,
-            type: this.activityType,
-            username: this.activityUsername
-        });
-        this._activityService.getTicketActivities(
-            this.ticketId,
-            page,
-            this.activityPageSize,
-            this.activitySortField,
-            this.activitySortDir,
-            this.activityQuery,
-            this.activityType,
-            this.activityUsername
-        ).subscribe(
-            (response) => {
-                this.activityLoading = false;
-                this.activities = this._mapActivitiesToTimelineEvents(response.content);
-                this.activityTotalPages = response.totalPages;
-            },
-            (error) => {
-                this.activityLoading = false;
-                this.activityError = "Failed to load ticket activities";
-                console.error("Error loading ticket activities:", error);
-            }
-        );
+      console.log("Loading ticket activities for page:", page);
+      this.activityLoading = true;
+      this.activityError = null;
+      this.activityPage = page;
+
+      const filters = {
+        q: this.activityQuery,
+        type: this.activityType,
+        username: this.activityUsername
+      };
+
+      console.log("Loading ticket activities with params:", {
+        ticketId: this.ticketId,
+        page: this.activityPage,
+        size: this.activityPageSize,
+        sort: `${this.activitySortField},${this.activitySortDir}`,
+        filters
+      });
+
+      this._activityService.getActivities(
+        this.ticketId,
+        page,
+        this.activityPageSize,
+        `${this.activitySortField},${this.activitySortDir}`,
+        filters
+      ).subscribe(
+        (response) => {
+          this.activityLoading = false;
+          this.activities = this._mapActivitiesToTimelineEvents(response.content);
+          this.activityTotalPages = response.totalPages;
+        },
+        (error) => {
+          this.activityLoading = false;
+          this.activityError = "Failed to load ticket activities";
+          console.error("Error loading ticket activities:", error);
+        }
+      );
     }
 
     /**
@@ -333,7 +334,7 @@ export class TicketDetailsComponent implements OnInit {
      * Handles completing an activity
      */
     onActivityCompleted(activityId: number): void {
-        this._activityService.completeActivity(this.ticketId, activityId).subscribe(
+        this._activityService.completeActivity(this.ticketId, activityId.toString()).subscribe(
             () => {
                 // Reload activities to show the completion
                 this.loadTicketActivities(this.activityPage);
@@ -358,7 +359,7 @@ export class TicketDetailsComponent implements OnInit {
      * Handles deleting an activity
      */
     onActivityDeleted(activityId: number): void {
-        this._activityService.deleteActivity(this.ticketId, activityId).subscribe(
+        this._activityService.deleteActivity(this.ticketId, activityId.toString()).subscribe(
             () => {
                 // Reload activities to reflect deletion
                 this.loadTicketActivities(this.activityPage);

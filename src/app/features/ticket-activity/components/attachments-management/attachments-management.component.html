@@ -1,0 +1,106 @@
+<div class="attachments-container">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Manage Attachments</h2>
+    <button class="btn btn-link" routerLink="../">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <a class="nav-link"
+         [class.active]="activeTab === 'list'"
+         (click)="onTabChange('list')">
+        <i class="fas fa-list me-2"></i>Attachments List
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link"
+         [class.active]="activeTab === 'upload'"
+         (click)="onTabChange('upload')">
+        <i class="fas fa-upload me-2"></i>Upload Files
+      </a>
+    </li>
+  </ul>
+
+  <!-- List Tab Content -->
+  <div class="tab-content" *ngIf="activeTab === 'list'">
+    <div class="row g-4">
+      <div class="col-md-4" *ngFor="let attachment of attachments">
+        <div class="attachment-card">
+          <!-- Image Preview -->
+          <div class="preview-area" *ngIf="attachment.type.startsWith('image/')">
+            <img [src]="attachment.url" [alt]="attachment.filename" class="img-fluid">
+          </div>
+          <!-- File Preview -->
+          <div class="preview-area file-preview" *ngIf="!attachment.type.startsWith('image/')">
+            <i class="fas fa-3x"
+               [class.fa-file-pdf]="attachment.type.includes('pdf')"
+               [class.fa-file-word]="attachment.type.includes('word')"
+               [class.fa-file-text]="attachment.type.includes('text')"
+               [class.fa-file]="!attachment.type.includes('pdf') && !attachment.type.includes('word') && !attachment.type.includes('text')">
+            </i>
+          </div>
+          <!-- File Info -->
+          <div class="attachment-info">
+            <h6 class="filename">{{attachment.filename}}</h6>
+            <p class="text-muted mb-2">{{attachment.size | number}} bytes</p>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-outline-primary" (click)="downloadAttachment(attachment.id, attachment.filename)">
+                <i class="fas fa-download me-1"></i>Download
+              </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="deleteAttachment(attachment.id)">
+                <i class="fas fa-trash me-1"></i>Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Empty State -->
+      <div class="text-center py-5" *ngIf="attachments.length === 0">
+        <i class="fas fa-file-upload fa-3x text-muted mb-3"></i>
+        <p class="text-muted">No attachments found. Upload some files to get started.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload Tab Content -->
+  <div class="tab-content" *ngIf="activeTab === 'upload'">
+    <div class="upload-area"
+         [class.drag-over]="dragOver"
+         (dragover)="onDragOver($event)"
+         (dragleave)="onDragLeave($event)"
+         (drop)="onDrop($event)">
+      <input type="file"
+             #fileInput
+             (change)="onFileSelected($event)"
+             multiple
+             style="display: none">
+
+      <div class="upload-content">
+        <i class="fas fa-cloud-upload-alt fa-4x text-muted mb-3"></i>
+        <h4>Drag and drop files here</h4>
+        <p class="text-muted mb-4">or</p>
+        <button class="btn btn-outline-primary" (click)="fileInput.click()">
+          Browse Files
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div class="loading-overlay" *ngIf="uploading">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Uploading files...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div class="alert alert-danger mt-3" *ngIf="error">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    {{error}}
+  </div>
+</div>

@@ -29,31 +29,40 @@ export interface TimelineEvent {
     duration: string; // Duration in ISO 8601 format (e.g., "PT1H30M")
 }
 
+export interface CommentDto {
+    id: number;
+    activityId: number;
+    content: string;
+    username: string;
+    createdAt: string;    // ISO timestamp
+    updatedAt?: string;   // ISO timestamp
+    canDelete?: boolean;  // Whether current user can delete this comment
+    canEdit?: boolean;    // Whether current user can edit this comment
+    isEditing?: boolean;  // UI state for edit mode
+}
+
+export interface AttachmentDto {
+    id: number;
+    activityId: number;
+    filename: string;
+    contentType: string;
+    type: string;        // Mime type (e.g., 'image/jpeg')
+    size: number;        // Size in bytes
+    url?: string;        // URL to access the file (for images)
+    thumbnailUrl?: string; // URL for thumbnail preview
+    createdAt: string;   // ISO timestamp
+    updatedAt: string;   // ISO timestamp
+    createdBy?: string;  // Username of uploader
+    canDelete?: boolean; // Whether current user can delete this attachment
+}
+
 export interface PaginatedResponse<T> {
     content: T[];
-    pageable: {
-        pageNumber: number;
-        pageSize: number;
-        sort: {
-            sorted: boolean;
-            unsorted: boolean;
-            empty: boolean;
-        };
-        offset: number;
-        unpaged: boolean;
-        paged: boolean;
-    };
     totalElements: number;
     totalPages: number;
-    last: boolean;
     size: number;
-    number: number;
-    sort: {
-        sorted: boolean;
-        unsorted: boolean;
-        empty: boolean;
-    };
-    numberOfElements: number;
-    first: boolean;
-    empty: boolean;
+    number: number;      // Current page number (0-based)
+    first: boolean;      // Whether this is the first page
+    last: boolean;       // Whether this is the last page
+    empty: boolean;      // Whether the page is empty
 }

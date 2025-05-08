@@ -1,15 +1,15 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FileToUrlPipe } from './pipes/file-to-url.pipe';
 
-// Import shared components, directives, pipes here
 @NgModule({
   declarations: [
-    // shared components, directives, pipes
+    FileToUrlPipe
   ],
   imports: [CommonModule],
   exports: [
-    // export shared components, directives, pipes
-    CommonModule
+    CommonModule,
+    FileToUrlPipe
   ]
 })
 export class SharedModule { }

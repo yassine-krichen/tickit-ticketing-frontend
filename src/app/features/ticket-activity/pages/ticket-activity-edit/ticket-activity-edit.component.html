@@ -1,0 +1,72 @@
+<!-- Sidebar layout -->
+<div class="ticket-activity-edit-layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="content-area p-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">Edit Activity</h5>
+      </div>
+      <div class="card-body">
+        <!-- Loading state -->
+        <div *ngIf="loading" class="text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="text-muted mt-2">Loading activity details...</p>
+        </div>
+
+        <!-- Error state -->
+        <div *ngIf="error" class="alert alert-danger" role="alert">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          {{ error }}
+        </div>
+
+        <!-- Edit form -->
+        <form [formGroup]="activityForm" (ngSubmit)="onSubmit()" *ngIf="!loading">
+          <!-- Activity Type -->
+          <div class="mb-3">
+            <label for="type" class="form-label">Activity Type</label>
+            <select class="form-select" id="type" formControlName="type">
+              <option value="">Select Type</option>
+              <option value="OPEN">Open</option>
+              <option value="CLOSE">Close</option>
+              <option value="UPDATE">Update</option>
+              <option value="EMAIL">Email</option>
+              <option value="CALL">Call</option>
+              <option value="RESEARCH">Research</option>
+              <option value="ASSIGNMENT">Assignment</option>
+              <option value="OTHER">Other</option>
+            </select>
+            <div class="invalid-feedback" *ngIf="activityForm.get('type').touched && activityForm.get('type').errors?.required">
+              Activity type is required
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea
+              class="form-control"
+              id="description"
+              rows="4"
+              formControlName="description"
+              placeholder="Enter activity description..."></textarea>
+            <div class="invalid-feedback" *ngIf="activityForm.get('description').touched && activityForm.get('description').errors?.required">
+              Description is required
+            </div>
+          </div>
+
+
+          <!-- Form Actions -->
+          <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!activityForm.valid || loading">
+              <i class="fas fa-save me-1"></i> Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

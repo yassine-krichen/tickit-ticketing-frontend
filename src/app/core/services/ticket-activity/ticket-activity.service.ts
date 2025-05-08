@@ -1,99 +1,184 @@
 import { Injectable } from "@angular/core";
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { HttpClient, HttpParams, HttpHeaders } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { environment } from "src/environments/environment";
-import { PaginatedResponse, TicketActivityDto } from "../../models/ticket-activity.model";
+import { PaginatedResponse, TicketActivityDto, CommentDto, AttachmentDto } from "../../models/ticket-activity.model";
 
 @Injectable({
     providedIn: "root"
 })
 export class TicketActivityService {
-    private readonly _BASE_URL = `${environment.apiUrl}/api/v1/tickets`;
+    private readonly _BASE_URL = `${environment.apiUrl}/api/v1`;
 
     constructor(private _http: HttpClient) {}
 
     /**
-     * Fetches paginated activities for a specific ticket
+     * Gets a paginated list of activities for a ticket
      */
-    getTicketActivities(
+    getActivities(
         ticketId: string,
         page: number = 0,
         size: number = 10,
-        sortField: string = "startTime",
-        sortDir: string = "desc",
-        q?: string,
-        type?: string,
-        username?: string
+        sort?: string,
+        filters?: { q?: string; type?: string; username?: string }
     ): Observable<PaginatedResponse<TicketActivityDto>> {
         let params = new HttpParams()
-            .set("page", page.toString())
-            .set("size", size.toString())
-            .set("sortField", sortField)
-            .set("sortDir", sortDir);
+            .set('page', page.toString())
+            .set('size', size.toString());
 
-        if (q) params = params.set("q", q);
-        if (type) params = params.set("type", type);
-        if (username) params = params.set("username", username);
+        if (sort) {
+            params = params.set('sort', sort);
+        }
+
+        if (filters?.q) {
+            params = params.set('q', filters.q);
+        }
+
+        if (filters?.type) {
+            params = params.set('type', filters.type);
+        }
+
+        if (filters?.username) {
+            params = params.set('username', filters.username);
+        }
 
         return this._http.get<PaginatedResponse<TicketActivityDto>>(
-            `${this._BASE_URL}/${ticketId}/activities`,
+            `${this._BASE_URL}/tickets/${ticketId}/activities`,
             { params }
         );
     }
 
     /**
+     * Gets a single activity by ID
+     */
+    getActivityById(ticketId: string, activityId: string): Observable<TicketActivityDto> {
+        return this._http.get<TicketActivityDto>(
+            `${this._BASE_URL}/tickets/${ticketId}/activities/${activityId}`
+        );
+    }
+
+    /**
      * Creates a new activity for a ticket
-     *
-     * @param ticketId - ID of the ticket
-     * @param activityData - Activity data containing type and description
-     * @returns Observable of the created activity
      */
     createActivity(ticketId: string, activityData: { type: string, description: string, username: string }): Observable<TicketActivityDto> {
         return this._http.post<TicketActivityDto>(
-            `${this._BASE_URL}/${ticketId}/activities`,
+            `${this._BASE_URL}/tickets/${ticketId}/activities`,
             activityData
         );
     }
 
     /**
      * Updates an existing activity
-     *
-     * @param ticketId - ID of the ticket
-     * @param activityId - ID of the activity to update
-     * @param activityData - Updated activity data (only description is required)
-     * @returns Observable of the updated activity
      */
-    updateActivity(ticketId: string, activityId: number, activityData: { description: string }): Observable<TicketActivityDto> {
+    updateActivity(ticketId: string, activityId: string, activityData: { description: string }): Observable<TicketActivityDto> {
         return this._http.put<TicketActivityDto>(
-            `${this._BASE_URL}/${ticketId}/activities/${activityId}`,
+            `${this._BASE_URL}/tickets/${ticketId}/activities/${activityId}`,
             activityData
         );
     }
 
     /**
      * Completes an activity
-     *
-     * @param ticketId - ID of the ticket
-     * @param activityId - ID of the activity to complete
-     * @returns Observable of the completed activity
      */
-    completeActivity(ticketId: string, activityId: number): Observable<TicketActivityDto> {
-        return this._http.put<TicketActivityDto>(
-            `${this._BASE_URL}/${ticketId}/activities/${activityId}/complete`,
+    completeActivity(ticketId: string, activityId: string): Observable<TicketActivityDto> {
+        return this._http.post<TicketActivityDto>(
+            `${this._BASE_URL}/tickets/${ticketId}/activities/${activityId}/complete`,
             {}
         );
     }
 
     /**
      * Deletes an activity
-     *
-     * @param ticketId - ID of the ticket
-     * @param activityId - ID of the activity to delete
-     * @returns Observable indicating the success/failure of the operation
      */
-    deleteActivity(ticketId: string, activityId: number): Observable<any> {
-        return this._http.delete<any>(
-            `${this._BASE_URL}/${ticketId}/activities/${activityId}`
+    deleteActivity(ticketId: string, activityId: string): Observable<void> {
+        return this._http.delete<void>(
+            `${this._BASE_URL}/tickets/${ticketId}/activities/${activityId}`
+        );
+    }
+
+    /**
+     * Gets comments for an activity
+     */
+    getActivityComments(ticketId: string, activityId: string): Observable<CommentDto[]> {
+        return this._http.get<CommentDto[]>(
+            `${this._BASE_URL}/tickets/${ticketId}/activities/${activityId}/comments`
+        );
+    }
+
+    /**
+     * Adds a comment to an activity
+     */
+    addComment(ticketId: string, activityId: string, comment: { content: string }): Observable<CommentDto> {
+        return this._http.post<CommentDto>(
+            `${this._BASE_URL}/tickets/${ticketId}/activities/${activityId}/comments`,
+            comment
+        );
+    }
+
+    /**
+     * Updates an existing comment
+     */
+    updateComment(activityId: string, commentId: string, comment: { content: string }): Observable<CommentDto> {
+        return this._http.put<CommentDto>(
+            `${this._BASE_URL}/tickets/activities/${activityId}/comments/${commentId}`,
+            comment
+        );
+    }
+
+    /**
+     * Deletes a comment from an activity
+     */
+    deleteComment(activityId: string, commentId: string): Observable<void> {
+        return this._http.delete<void>(
+            `${this._BASE_URL}/tickets/activities/${activityId}/comments/${commentId}`
+        );
+    }
+
+    /**
+     * Gets attachments for an activity
+     */
+    getActivityAttachments(ticketId: string, activityId: string): Observable<AttachmentDto[]> {
+        return this._http.get<AttachmentDto[]>(
+            `${this._BASE_URL}/activities/${activityId}/attachments`
+        );
+    }
+
+    /**
+     * Uploads attachments to an activity
+     */
+    uploadAttachments(activityId: string, formData: FormData): Observable<AttachmentDto[]> {
+        return this._http.post<AttachmentDto[]>(
+            `${this._BASE_URL}/activities/${activityId}/attachments`,
+            formData,
+            {
+                headers: new HttpHeaders({
+                    'Accept': 'application/json'
+                })
+            }
+        );
+    }
+
+    /**
+     * Downloads an attachment
+     */
+    downloadAttachment(ticketId: string, activityId: string, attachmentId: string): Observable<Blob> {
+        return this._http.get(
+            `${this._BASE_URL}/activities/${activityId}/attachments/${attachmentId}`,
+            {
+                responseType: 'blob',
+                headers: new HttpHeaders({
+                    'Accept': 'application/octet-stream'
+                })
+            }
+        );
+    }
+
+    /**
+     * Deletes an attachment
+     */
+    deleteAttachment(ticketId: string, activityId: string, attachmentId: string): Observable<void> {
+        return this._http.delete<void>(
+            `${this._BASE_URL}/activities/${activityId}/attachments/${attachmentId}`
         );
     }
 }

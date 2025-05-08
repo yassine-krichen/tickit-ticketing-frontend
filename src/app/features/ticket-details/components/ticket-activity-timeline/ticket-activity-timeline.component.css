@@ -44,6 +44,15 @@
     padding-left: 15px;
 }
 
+.timeline-content h6 a {
+    color: inherit;
+    transition: color 0.2s ease;
+}
+
+.timeline-content h6 a:hover {
+    color: var(--bs-primary);
+}
+
 h6 {
     font-weight: 600;
     font-size: 0.9rem;

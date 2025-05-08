@@ -3,13 +3,13 @@
         <h5 class="mb-0">
             <i class="fas fa-history me-2 text-primary"></i> Ticket Activities Timeline
         </h5>
-        
+
         <div class="d-flex gap-2">
             <!-- New Activity Button -->
             <button class="btn btn-sm btn-primary" type="button" (click)="toggleActivityForm()">
                 <i class="fas fa-plus me-1"></i> New Activity
             </button>
-            
+
             <!-- Filters Button -->
             <button class="btn btn-sm btn-outline-secondary" type="button" (click)="toggleFilters()">
                 <i class="fas fa-filter me-1"></i> Filters
@@ -28,7 +28,7 @@
                     </label>
                     <select class="form-select" id="activityType" formControlName="type">
                         <option value="" disabled selected>Select an activity type...</option>
-                        <option *ngFor="let type of ACTIVITY_TYPES" [value]="type.value" 
+                        <option *ngFor="let type of ACTIVITY_TYPES" [value]="type.value"
                                 [disabled]="type.value === ''">
                             {{ type.label }}
                         </option>
@@ -38,20 +38,20 @@
                     </div>
                     <div class="form-text">Choose the type that best describes this activity</div>
                 </div>
-                
+
                 <div class="mb-3">
                     <label for="activityDescription" class="form-label">
                         <i class="fas fa-comment-alt me-1 text-muted"></i> Description
                     </label>
-                    <textarea 
-                        class="form-control" 
-                        id="activityDescription" 
-                        rows="3" 
+                    <textarea
+                        class="form-control"
+                        id="activityDescription"
+                        rows="3"
                         formControlName="description"
                         placeholder="Describe the activity details here..."></textarea>
                     <div class="form-text">Provide any relevant details about this activity</div>
                 </div>
-                
+
                 <div class="d-flex justify-content-end gap-2">
                     <button type="button" class="btn btn-outline-secondary" (click)="toggleActivityForm()">
                         <i class="fas fa-times me-1"></i> Cancel
@@ -73,7 +73,7 @@
                         <label for="searchQuery" class="form-label small">Search</label>
                         <div class="input-group input-group-sm">
                             <span class="input-group-text"><i class="fas fa-search"></i></span>
-                            <input type="text" class="form-control" id="searchQuery" formControlName="q" 
+                            <input type="text" class="form-control" id="searchQuery" formControlName="q"
                                    placeholder="Search activities...">
                         </div>
                     </div>
@@ -85,7 +85,7 @@
                     </div>
                     <div class="col-lg-4 mb-2">
                         <label for="username" class="form-label small">Username</label>
-                        <input type="text" class="form-control form-control-sm" id="username" 
+                        <input type="text" class="form-control form-control-sm" id="username"
                                formControlName="username" placeholder="Filter by username">
                     </div>
                     <div class="col-lg-4 mb-2">
@@ -142,11 +142,15 @@
                 <div class="timeline-content">
                     <div class="d-flex justify-content-between mb-2 align-items-start">
                         <div class="d-flex align-items-center">
-                            <h6 class="mb-0">{{ event.title }}</h6>
+                            <h6 class="mb-0">
+                                <a [routerLink]="['/tickets', ticketId, 'activities', event.id]" class="text-decoration-none">
+                                    {{ event.title }}
+                                </a>
+                            </h6>
                             <!-- Duration badge - compact display near title -->
-                            <span *ngIf="event.duration" class="badge bg-light text-dark ms-2" 
+                            <span *ngIf="event.duration" class="badge bg-light text-dark ms-2"
                                  title="Activity duration">
-                                <i class="fas fa-clock me-1 text-secondary"></i> 
+                                <i class="fas fa-clock me-1 text-secondary"></i>
                                 {{formatIsoDuration(event.duration)}}
                             </span>
                             <!-- Completed badge -->
@@ -156,7 +160,7 @@
                         </div>
                         <span class="text-muted small">{{ event.timeDisplay }}</span>
                     </div>
-                    
+
                     <p class="mb-2">{{ event.description }}</p>
 
                     <!-- Status Change Metadata -->
@@ -165,28 +169,30 @@
                         <i class="fas fa-arrow-right mx-1"></i>
                         <span class="badge" [ngClass]="'bg-' + event.colorClass">{{ event.metadata.newStatus }}</span>
                     </div>
-                    
+
                     <div class="d-flex justify-content-between align-items-end">
                         <div class="text-muted smaller">
                             <small><i class="fas fa-user me-1"></i> {{ event.username }}</small>
                         </div>
-                        
+
                         <!-- Direct action buttons with tooltips -->
                         <div class="action-buttons">
-                            <!-- Edit button
-                            <button type="button" class="btn btn-sm btn-icon" 
-                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"
-                                    (click)="editActivity(event)">
+                            <!-- Edit button -->
+                            <button type="button" class="btn btn-sm btn-icon"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Edit"
+                                    [routerLink]="['/tickets', ticketId, 'activities', event.id, 'edit']">
                                 <i class="fas fa-edit text-primary"></i>
-                            </button> -->
-                            
+                            </button>
+
                             <!-- Complete button (only shown for incomplete activities) -->
                             <button *ngIf="!event.completed" type="button" class="btn btn-sm btn-icon"
                                     data-bs-toggle="tooltip" data-bs-placement="top" title="Mark Complete"
                                     (click)="completeActivity(event)">
                                 <i class="fas fa-check text-success"></i>
                             </button>
-                            
+
                             <!-- Delete button -->
                             <button type="button" class="btn btn-sm btn-icon"
                                     data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"
@@ -211,7 +217,7 @@
                             <i class="fas fa-chevron-left"></i>
                         </a>
                     </li>
-                    
+
                     <ng-container *ngFor="let page of pages">
                         <li *ngIf="page >= 0" class="page-item" [class.active]="page === currentPage">
                             <a class="page-link" href="javascript:void(0)" (click)="onPageChange(page)">
@@ -222,7 +228,7 @@
                             <span class="page-link">...</span>
                         </li>
                     </ng-container>
-                    
+
                     <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
                         <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage + 1)" aria-label="Next">
                             <i class="fas fa-chevron-right"></i>
