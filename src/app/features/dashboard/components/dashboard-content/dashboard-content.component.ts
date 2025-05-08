@@ -3,12 +3,12 @@ import { TicketService } from 'src/app/core/services/ticket/ticket.service';
 import { SearchCategory } from '../ticket-search/ticket-search.component';
 import { OrderByEvent } from '../ticket-filters/ticket-filters.component';
 import { FilterOptions } from '../filter-drawer/filter-drawer.component';
-import { 
-  Priority, 
-  Status, 
+import {
+  Priority,
+  Status,
   CaseType,
   TicketResponse,
-  PaginatedResponse 
+  PaginatedResponse
 } from 'src/app/core/models/ticket.model';
 
 // Declare Notify for TypeScript
@@ -21,15 +21,15 @@ declare const Notify: any;
 })
 export class DashboardContentComponent implements OnInit {
   @ViewChild('ticketListContainer') ticketListContainer: ElementRef;
-  
+
   tickets: TicketResponse[] = [];
   loading = true;
-  error = null;
-  
+  error: string = null;
+
   // Notification references
   private _loadingNotification: any = null;
   private _errorNotification: any = null;
-  
+
   // Pagination properties
   currentPage = 0;
   pageSize = 10;
@@ -37,17 +37,17 @@ export class DashboardContentComponent implements OnInit {
   totalItems = 0;
   isLastPage = false;
   loadingMore = false;
-  
+
   // Search filters
   searchTerm = '';
   searchCategory: SearchCategory = 'title';
-  
+
   // Tab filter
   activeTab = 'All Tickets';
-  
+
   // Order by filter
   orderBy: OrderByEvent = { field: 'timestamp', direction: 'desc' };
-  
+
   // Advanced filters
   advancedFilters: FilterOptions = {
     priorities: [],
@@ -56,10 +56,10 @@ export class DashboardContentComponent implements OnInit {
     steps: [],
     subStatuses: []
   };
-  
+
   // Drawer state
   isFilterDrawerOpen = false;
-  
+
   // Statistics
   totalTicketsCount = 0;
   inProgressCount = 0;
@@ -72,14 +72,14 @@ export class DashboardContentComponent implements OnInit {
     this.loadTickets();
     this.loadTicketStats();
   }
-  
+
   /**
    * Shows a loading notification
    */
   private _showLoadingNotification(): void {
     // Close any existing loading notification
     this._closeNotification(this._loadingNotification);
-    
+
     // Create a new loading notification
     this._loadingNotification = new Notify({
       status: 'info',
@@ -91,10 +91,10 @@ export class DashboardContentComponent implements OnInit {
       autoclose: false,
       position: 'right top'
     });
-    
+
     this.loading = true;
   }
-  
+
   /**
    * Hides the loading notification
    */
@@ -102,7 +102,7 @@ export class DashboardContentComponent implements OnInit {
     this._closeNotification(this._loadingNotification);
     this.loading = false;
   }
-  
+
   /**
    * Shows an error notification
    * @param errorMessage - The error message to display
@@ -110,7 +110,7 @@ export class DashboardContentComponent implements OnInit {
   private _showErrorNotification(errorMessage: string): void {
     // Close any existing error notification
     this._closeNotification(this._errorNotification);
-    
+
     // Create a new error notification
     this._errorNotification = new Notify({
       status: 'error',
@@ -122,10 +122,10 @@ export class DashboardContentComponent implements OnInit {
       autotimeout: 5000,
       position: 'right top'
     });
-    
+
     this.error = errorMessage;
   }
-  
+
   /**
    * Closes the given notification if it exists
    * @param notification - The notification to close
@@ -135,7 +135,7 @@ export class DashboardContentComponent implements OnInit {
       notification.close();
     }
   }
-  
+
   /**
    * Loads tickets with pagination and the current filter settings
    */
@@ -156,7 +156,7 @@ export class DashboardContentComponent implements OnInit {
       this.currentPage = 0;
       this.isLastPage = false; // Reset isLastPage when loading fresh
     }
-    
+
     // Map status filter from UI to API
     let statusFilter: Status = null;
     if (this.activeTab !== 'All Tickets') {
@@ -164,13 +164,13 @@ export class DashboardContentComponent implements OnInit {
     } else if (this.advancedFilters.statuses.length === 1) {
       statusFilter = this.advancedFilters.statuses[0];
     }
-    
+
     // Map priority filter
     let priorityFilter: Priority = null;
     if (this.advancedFilters.priorities.length === 1) {
       priorityFilter = this.advancedFilters.priorities[0];
     }
-    
+
     this.ticketService.getPaginatedTickets(
       this.currentPage,
       this.pageSize,
@@ -179,38 +179,38 @@ export class DashboardContentComponent implements OnInit {
       this.searchTerm,
       statusFilter,
       priorityFilter
-    ).subscribe(
-      (response: PaginatedResponse<TicketResponse>) => {
+    ).subscribe({
+      next: (response: PaginatedResponse<TicketResponse>) => {
         // Append or replace tickets
         if (loadMore) {
           this.tickets = [...this.tickets, ...response.content];
         } else {
           this.tickets = response.content;
-          
+
           // Hide the loading notification when we get the initial data
           this._hideLoadingNotification();
         }
-        
+
         // Update pagination info
         this.totalPages = response.totalPages;
         this.totalItems = response.totalItems;
-        
+
         // Fix for isLastPage being undefined
         if (response.isLastPage !== undefined) {
           this.isLastPage = response.isLastPage;
         } else {
           this.isLastPage = response.pageNumber >= response.totalPages - 1 || response.content.length === 0;
         }
-        
+
         // If we received an empty array and it's not the first page, we've hit the end
         if (response.content.length === 0 && this.currentPage > 0) {
           this.isLastPage = true;
         }
-        
+
         this.loading = false;
         this.loadingMore = false;
       },
-      (error) => {
+      error: (error) => {
         const errorMessage = 'Failed to load tickets. Please try again later.';
         this._showErrorNotification(errorMessage);
         this._hideLoadingNotification(); // Hide loading notification
@@ -218,52 +218,12 @@ export class DashboardContentComponent implements OnInit {
         this.loadingMore = false;
         console.error('Error loading tickets:', error);
       }
-    );
-  }
-
-  /**
-   * Deletes a ticket
-   */
-  deleteTicket(ticket: any): void {
-    if (confirm(`Are you sure you want to delete ticket #${ticket.id}?`)) {
-      this.ticketService.deleteTicket(ticket.id).subscribe({
-        next: (response) => {
-          // Filter out the deleted ticket
-          this.tickets = this.tickets.filter(t => t.id !== ticket.id);
-          this.loadTicketStats(); // Reload statistics
-          
-          // Show success notification
-          new Notify({
-            status: 'success',
-            title: 'Success',
-            text: response.message || 'Ticket deleted successfully',
-            effect: 'slide',
-            speed: 300,
-            autoclose: true,
-            position: 'right top'
-          });
-        },
-        error: (error) => {
-          console.error('Error deleting ticket:', error);
-          
-          // Show error notification
-          new Notify({
-            status: 'error',
-            title: 'Error',
-            text: 'Failed to delete ticket. Please try again.',
-            effect: 'slide',
-            speed: 300,
-            autoclose: true,
-            position: 'right top'
-          });
-        }
-      });
-    }
+  });
   }
 
   loadTicketStats(): void {
-    this.ticketService.getAllTicketStats().subscribe(
-      (stats) => {
+    this.ticketService.getAllTicketStats().subscribe({
+      next: (stats) => {
         this.totalTicketsCount = stats.totalTickets || 0;
         // Count tickets by status
         const countsByStatus = stats.countsByStatus || [];
@@ -271,10 +231,10 @@ export class DashboardContentComponent implements OnInit {
         this.blockedCount = this.getCountForCategory(countsByStatus, 'BLOCKED');
         this.resolvedCount = this.getCountForCategory(countsByStatus, 'RESOLVED');
       },
-      (error) => {
+      error: (error) => {
         console.error('Error loading ticket statistics:', error);
       }
-    );
+    });
   }
 
   getCountForCategory(counts: any[], category: string): number {
@@ -290,11 +250,11 @@ export class DashboardContentComponent implements OnInit {
     // Only handle scroll events if not in loading state
     if (!this.loading && !this.loadingMore) {
       const element = event.target as HTMLElement;
-      
+
       // Calculate scroll position
       const scrollPosition = element.scrollTop + element.clientHeight;
       const scrollThreshold = element.scrollHeight - 100; // Load more when 100px from bottom
-      
+
       // If we're close to the bottom and not on the last page, load more
       if (scrollPosition >= scrollThreshold && !this.isLastPage) {
         console.log('Near bottom, loading more tickets...');
@@ -328,15 +288,15 @@ export class DashboardContentComponent implements OnInit {
     this.activeTab = tab;
     this.loadTickets(); // Reload with new tab filter
   }
-  
+
   onOrderByChange(orderBy: OrderByEvent): void {
     this.orderBy = orderBy;
     this.loadTickets(); // Reload with new sort settings
   }
-  
+
   toggleFilterDrawer(): void {
     this.isFilterDrawerOpen = !this.isFilterDrawerOpen;
-    
+
     // Prevent scrolling of the main content when the drawer is open
     if (this.isFilterDrawerOpen) {
       document.body.style.overflow = 'hidden';
@@ -344,15 +304,33 @@ export class DashboardContentComponent implements OnInit {
       document.body.style.overflow = '';
     }
   }
-  
+
   closeFilterDrawer(): void {
     this.isFilterDrawerOpen = false;
     document.body.style.overflow = '';
   }
-  
+
   onAdvancedFilterChange(filters: FilterOptions): void {
     this.advancedFilters = filters;
     this.loadTickets(); // Reload with new advanced filters
+  }
+
+  deleteTicket(ticket: TicketResponse): void {
+    if (confirm(`Are you sure you want to delete ticket #${ticket.id}?`)) {
+      this.ticketService.deleteTicket(ticket.id).subscribe({
+        next: (response) => {
+          // Filter out the deleted ticket
+          this.tickets = this.tickets.filter(t => t.id !== ticket.id);
+          this.loadTicketStats(); // Reload statistics
+          // Show success message
+          alert(response.message || 'Ticket deleted successfully');
+        },
+        error: (error) => {
+          console.error('Error deleting ticket:', error);
+          alert('Failed to delete ticket. Please try again.');
+        }
+      });
+    }
   }
 
   toggleDropdown(event: Event, ticketId: string): void {
@@ -363,13 +341,13 @@ export class DashboardContentComponent implements OnInit {
     // Clear search
     this.searchTerm = '';
     this.searchCategory = 'title';
-    
+
     // Clear tab filter
     this.activeTab = 'All Tickets';
-    
+
     // Clear order by filter
     this.orderBy = { field: 'timestamp', direction: 'desc' };
-    
+
     // Clear advanced filters
     this.advancedFilters = {
       priorities: [],
@@ -378,10 +356,10 @@ export class DashboardContentComponent implements OnInit {
       steps: [],
       subStatuses: []
     };
-    
+
     // Close filter drawer if open
     this.isFilterDrawerOpen = false;
-    
+
     // Reset pagination and reload tickets
     this.currentPage = 0;
     this.isLastPage = false;

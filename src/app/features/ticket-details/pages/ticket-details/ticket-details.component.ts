@@ -26,7 +26,7 @@ export class TicketDetailsComponent implements OnInit {
     treatmentActError: string = "";
     timelineEvents: TimelineEvent[] = [];
     recommendations: any[] = [];
-    
+
     // Activity timeline properties
     activities: TimelineEvent[] = [];
     activityLoading: boolean = false;
@@ -39,7 +39,7 @@ export class TicketDetailsComponent implements OnInit {
     activityUsername: string = "";
     activitySortField: string = "startTime";
     activitySortDir: string = "desc";
-    
+
     constructor(
         private _route: ActivatedRoute,
         private _router: Router,
@@ -64,10 +64,11 @@ export class TicketDetailsComponent implements OnInit {
             this.error = "Invalid ticket ID";
             return;
         }
-        
+
         this.loading = true;
-        this._ticketService.getTicketById(this.ticketId).subscribe(
-            (ticket) => {
+        this.ticketService.getTicketById(this.ticketId).subscribe({
+            next: (ticket) => {
+                console.log("Ticket data loaded successfully:", ticket);
                 this.ticket = ticket;
                 const userInfo = extractUserInfo(ticket.issuedBy);
                 this.assignee = {
@@ -82,40 +83,40 @@ export class TicketDetailsComponent implements OnInit {
                 this.loading = false;
                 this.loadTicketActivities();
             },
-            (error) => {
+            error: (error) => {
                 this.error = "Failed to load ticket details";
                 this.loading = false;
                 console.error("Error loading ticket:", error);
             }
-        );
+        });
     }
 
     loadTreatmentActData(treatmentActId: string): void {
         this.treatmentActLoading = true;
-        this._treatmentActService.getTreatmentAct(treatmentActId).subscribe(
-            (treatmentAct) => {
+        this.treatmentActService.getTreatmentAct(treatmentActId).subscribe({
+            next: (treatmentAct) => {
                 this.treatmentAct = treatmentAct;
                 if (treatmentAct && treatmentAct.caseId) {
                     this.loadTreatmentActHistory(treatmentAct.caseId);
                 }
                 this.treatmentActLoading = false;
             },
-            (error) => {
+            error: (error) => {
                 this.treatmentActError = "Failed to load treatment act details";
                 this.treatmentActLoading = false;
             }
-        );
+        });
     }
 
     loadTreatmentActHistory(caseId: string): void {
-        this._treatmentActService.getTreatmentActHistory(caseId).subscribe(
-            (historyEntries) => {
+        this.treatmentActService.getTreatmentActHistory(caseId).subscribe({
+            next: (historyEntries) => {
                 this.historyEntries = historyEntries;
             },
-            (error) => {
+            error: (error) => {
                 console.error("Error loading treatment act history:", error);
             }
-        );
+        });
     }
 
     /**
@@ -251,19 +252,19 @@ export class TicketDetailsComponent implements OnInit {
 
     /**
      * Handles filter change events from the timeline component
-     * 
+     *
      * @param filters - Object containing filter parameters
      */
     onActivityFilterChange(filters: { q?: string; type?: string; username?: string; sortField?: string; sortDir?: string; }): void {
         console.log("Filters changed:", filters);
-        
+
         // Update filter state
         this.activityQuery = filters.q || "";
         this.activityType = filters.type || "";
         this.activityUsername = filters.username || "";
         this.activitySortField = filters.sortField || "startTime";
         this.activitySortDir = filters.sortDir || "desc";
-        
+
         // Reset to first page and reload activities with new filters
         this.loadTicketActivities(0);
     }

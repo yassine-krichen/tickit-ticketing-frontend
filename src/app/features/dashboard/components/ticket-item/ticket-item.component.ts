@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
+import { TicketResponse } from 'src/app/core/models/ticket.model';
 
 @Component({
   selector: 'app-ticket-item',
@@ -7,13 +8,13 @@ import { Router } from '@angular/router';
   styleUrls: ['./ticket-item.component.css']
 })
 export class TicketItemComponent {
-  @Input() ticket: any;
-  @Output() delete = new EventEmitter<any>();
+  @Input() ticket: TicketResponse;
+  @Output() delete = new EventEmitter<TicketResponse>();
   @Output() toggleDropdown = new EventEmitter<{ event: Event, ticketId: string }>();
 
   constructor(private router: Router) {}
 
-  onDelete(ticket: any, event?: Event): void {
+  onDelete(ticket: TicketResponse, event?: Event): void {
     if (event) {
       event.stopPropagation(); // Prevent event bubbling to the routerLink
     }

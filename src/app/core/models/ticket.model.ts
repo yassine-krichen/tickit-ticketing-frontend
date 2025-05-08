@@ -130,5 +130,5 @@ export interface PaginatedResponse<T> {
   pageSize: number;
   totalItems: number;
   totalPages: number;
-  isLastPage: boolean;
+  isLastPage?: boolean;
 }
