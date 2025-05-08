@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
-import { 
-  Ticket, 
-  BackendTicket, 
-  TicketRequest, 
-  TicketResponse, 
-  TicketUpdateDTO, 
+import { environment } from '../../../../environments/environment';
+import {
+  Ticket,
+  BackendTicket,
+  TicketRequest,
+  TicketResponse,
+  TicketUpdateDTO,
   TicketCount,
   Status,
   Priority,
@@ -20,7 +21,8 @@ import {
   providedIn: 'root'
 })
 export class TicketService {
-  private baseUrl = 'http://localhost:8080/api/v1/tickets';
+  // Update baseUrl to use environment and match the controller endpoint
+  private readonly baseUrl = `${environment.apiUrl}/api/v1/tickets`;
 
   constructor(private http: HttpClient) { }
 
@@ -39,11 +41,11 @@ export class TicketService {
       .set('size', size.toString())
       .set('sortField', sortField)
       .set('sortDir', sortDir);
-    
+
     if (q) params = params.set('q', q);
     if (status) params = params.set('status', status);
     if (priority) params = params.set('priority', priority);
-    
+
     return this.http.get<PaginatedResponse<TicketResponse>>(this.baseUrl, { params })
       .pipe(
         catchError(error => {
@@ -88,27 +90,25 @@ export class TicketService {
     return this.http.get<TicketResponse>(`${this.baseUrl}/${ticketId}`);
   }
 
-  // Get all tickets with optional filters
+  // Get all tickets with optional filters - now points to /all endpoint
   getAllTickets(
     status?: Status,
     priority?: Priority,
     issuedBy?: string,
     acteTraitement?: string
   ): Observable<TicketResponse[]> {
-    let url = this.baseUrl;
-    const params = new URLSearchParams();
-    
+    let params = new HttpParams();
+
     if (status) params.append('status', status);
     if (priority) params.append('priority', priority);
     if (issuedBy) params.append('issuedBy', issuedBy);
     if (acteTraitement) params.append('acteTraitement', acteTraitement);
+    if (status) params = params.set('status', status);
+    if (priority) params = params.set('priority', priority);
+    if (issuedBy) params = params.set('issuedBy', issuedBy);
+    if (acteTraitement) params = params.set('acteTraitement', acteTraitement);
 
-    const queryString = params.toString();
-    if (queryString) {
-      url += `?${queryString}`;
-    }
-
-    return this.http.get<TicketResponse[]>(url)
+    return this.http.get<TicketResponse[]>(`${this.baseUrl}/all`, { params })
       .pipe(
         catchError(error => {
           console.error('Error fetching tickets:', error);
@@ -117,7 +117,7 @@ export class TicketService {
       );
   }
 
-  // Enhanced search with new fields
+  // Enhanced search with new fields - points to /search endpoint
   searchTickets(
     status?: Status,
     priority?: Priority,
@@ -127,23 +127,17 @@ export class TicketService {
     step?: CaseType,
     subStatus?: string
   ): Observable<TicketResponse[]> {
-    let url = `${this.baseUrl}/search`;
-    const params = new URLSearchParams();
-    
-    if (status) params.append('status', status);
-    if (priority) params.append('priority', priority);
-    if (issuedBy) params.append('issuedBy', issuedBy);
-    if (acteTraitement) params.append('acteTraitement', acteTraitement);
-    if (type) params.append('type', type);
-    if (step) params.append('step', step);
-    if (subStatus) params.append('subStatus', subStatus);
+    let params = new HttpParams();
 
-    const queryString = params.toString();
-    if (queryString) {
-      url += `?${queryString}`;
-    }
+    if (status) params = params.set('status', status);
+    if (priority) params = params.set('priority', priority);
+    if (issuedBy) params = params.set('issuedBy', issuedBy);
+    if (acteTraitement) params = params.set('acteTraitement', acteTraitement);
+    if (type) params = params.set('type', type);
+    if (step) params = params.set('step', step);
+    if (subStatus) params = params.set('subStatus', subStatus);
 
-    return this.http.get<TicketResponse[]>(url)
+    return this.http.get<TicketResponse[]>(`${this.baseUrl}/search`, { params })
       .pipe(
         catchError(error => {
           console.error('Error searching tickets:', error);
@@ -228,9 +222,9 @@ export class TicketService {
   // Delete a ticket - Updated to handle plain text responses
   deleteTicket(ticketId: string): Observable<{ success: boolean, message: string }> {
     const headers = new HttpHeaders().set('Accept', 'text/plain');
-    return this.http.delete(`${this.baseUrl}/${ticketId}`, { 
+    return this.http.delete(`${this.baseUrl}/${ticketId}`, {
       headers,
-      responseType: 'text' 
+      responseType: 'text'
     }).pipe(
       map(response => {
         // Return success object with the response message
@@ -239,7 +233,7 @@ export class TicketService {
       catchError(error => {
         console.error('Error deleting ticket:', error);
         return of({ success: false, message: error?.message || 'Failed to delete ticket' });
-      })
+      }),
     );
   }
 }

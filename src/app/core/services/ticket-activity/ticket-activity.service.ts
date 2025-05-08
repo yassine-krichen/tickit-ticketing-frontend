@@ -40,10 +40,10 @@ export class TicketActivityService {
             { params }
         );
     }
-    
+
     /**
      * Creates a new activity for a ticket
-     * 
+     *
      * @param ticketId - ID of the ticket
      * @param activityData - Activity data containing type and description
      * @returns Observable of the created activity
@@ -54,10 +54,10 @@ export class TicketActivityService {
             activityData
         );
     }
-    
+
     /**
      * Updates an existing activity
-     * 
+     *
      * @param ticketId - ID of the ticket
      * @param activityId - ID of the activity to update
      * @param activityData - Updated activity data (only description is required)
@@ -69,10 +69,10 @@ export class TicketActivityService {
             activityData
         );
     }
-    
+
     /**
      * Completes an activity
-     * 
+     *
      * @param ticketId - ID of the ticket
      * @param activityId - ID of the activity to complete
      * @returns Observable of the completed activity
@@ -86,7 +86,7 @@ export class TicketActivityService {
 
     /**
      * Deletes an activity
-     * 
+     *
      * @param ticketId - ID of the ticket
      * @param activityId - ID of the activity to delete
      * @returns Observable indicating the success/failure of the operation

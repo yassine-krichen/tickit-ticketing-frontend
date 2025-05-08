@@ -1,6 +1,6 @@
 <!-- Sidebar container -->
 <div class="sidebar-container bg-white shadow-sm">
-  
+
   <!-- Header Section with Logo Image -->
   <header class="d-flex align-items-center py-1 px-3 border-bottom">
     <img
@@ -10,25 +10,25 @@
       style="max-height: 34px;"
     />
   </header>
-  
+
   <!-- Navigation Menu -->
   <nav class="flex-grow-1 py-2 px-2">
     <ul class="nav nav-pills flex-column">
       <!-- Dashboard with nested items -->
       <li class="nav-item">
-        <a class="nav-link py-2" 
-           [class.active]="activeItem === 'dashboard'" 
+        <a class="nav-link py-2"
+           [class.active]="activeItem === 'dashboard'"
            routerLink="/dashboard"
            (click)="setActiveItem('dashboard')">
           <i class="fas fa-tachometer-alt me-2"></i>
           Dashboard
         </a>
-        
+
         <!-- Nested sub-items -->
         <ul class="nav nav-pills flex-column ms-3 mt-1">
           <li class="nav-item">
-            <a class="nav-link py-1 sub-nav-link" 
-               [class.active]="activeItem === 'tickets'" 
+            <a class="nav-link py-1 sub-nav-link"
+               [class.active]="activeItem === 'tickets'"
                routerLink="/dashboard/tickets"
                (click)="setActiveItem('tickets')">
               <i class="fas fa-ticket-alt me-2"></i>
@@ -36,8 +36,8 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link py-1 sub-nav-link" 
-               [class.active]="activeItem === 'analytics'" 
+            <a class="nav-link py-1 sub-nav-link"
+               [class.active]="activeItem === 'analytics'"
                routerLink="/dashboard/analytics"
                (click)="setActiveItem('analytics')">
               <i class="fas fa-chart-bar me-2"></i>
@@ -45,8 +45,8 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link py-1 sub-nav-link" 
-               [class.active]="activeItem === 'ai-insights'" 
+            <a class="nav-link py-1 sub-nav-link"
+               [class.active]="activeItem === 'ai-insights'"
                routerLink="/dashboard/ai-insights"
                (click)="setActiveItem('ai-insights')">
               <i class="fas fa-robot me-2"></i>
@@ -55,11 +55,11 @@
           </li>
         </ul>
       </li>
-      
+
       <!-- New Ticket Creation Option -->
       <li class="nav-item mt-2">
-        <a class="nav-link py-2" 
-           [class.active]="activeItem === 'create-ticket'" 
+        <a class="nav-link py-2"
+           [class.active]="activeItem === 'create-ticket'"
            routerLink="/ticket-create-update/ticket/new"
            (click)="setActiveItem('create-ticket')">
           <i class="fas fa-plus-circle me-2"></i>
@@ -68,21 +68,44 @@
       </li>
     </ul>
   </nav>
-  
+
+
   <!-- User Profile Footer -->
   <footer class="border-top py-2 px-3">
-    <div class="d-flex align-items-center gap-2">
-      <!-- Avatar Circle -->
+    <!-- Loading state -->
+    <div *ngIf="loading" class="user-profile">
       <div class="user-avatar">
-        <span>JD</span>
+          <i class="fas fa-spinner fa-spin"></i>
       </div>
-      <!-- User info -->
-      <div class="overflow-hidden">
-        <div class="fw-bold text-truncate">John Doe</div>
-        <div class="small text-secondary text-truncate">Support Agent</div>
+      <div class="user-info">
+          <div class="user-name">Loading...</div>
+      </div>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="!loading && error" class="user-profile">
+      <div class="user-avatar">
+          <i class="fas fa-exclamation-circle"></i>
+      </div>
+      <div class="user-info">
+          <div class="user-name text-danger">{{ error }}</div>
+      </div>
+  </div>
+
+  <!-- User data loaded successfully -->
+  <div *ngIf="!loading && user && !error" class="d-flex align-items-center gap-2">
+      <div class="user-avatar">
+          <img *ngIf="user.avatarUrl" [src]="user.avatarUrl" alt="User Avatar">
+          <i *ngIf="!user.avatarUrl" class="fas fa-user"></i>
+      </div>
+      <div class="user-info">
+        <div class="overflow-hidden">
+          <div class="fw-bold text-truncate">{{userName}}</div>
+          <div class="small text-secondary text-truncate">{{userRole}}</div>
+        </div>
       </div>
     </div>
-    <div class="d-flex justify-content-between mt-2">
+  <div class="d-flex justify-content-between mt-2">
       <!-- Action Icons -->
       <button class="btn btn-sm btn-light-hover" title="Toggle theme" (click)="toggleTheme()">
         <i class="fas fa-adjust"></i>
@@ -90,9 +113,9 @@
       <button class="btn btn-sm btn-light-hover" title="Change language" >
         <i class="fas fa-language"></i>
       </button>
-      <button class="btn btn-sm btn-light-hover" title="Settings">
-        <i class="fas fa-cog"></i>
-      </button>
+      <button class="btn btn-sm btn-light-hover" title="Logout" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+    </button>
     </div>
   </footer>
 </div>
