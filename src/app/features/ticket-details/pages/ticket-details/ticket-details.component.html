@@ -49,12 +49,15 @@
             [query]="activityQuery"
             [sortField]="activitySortField"
             [sortDir]="activitySortDir"
+            [ticketId]="ticketId"
             (pageChange)="onActivityPageChange($event)"
-            (filterChange)="onActivityFilterChange($event)">
+            (filterChange)="onActivityFilterChange($event)"
+            (activityCreated)="onActivityCreated($event)"
+            (activityUpdated)="onActivityUpdated($event)"
+            (activityCompleted)="onActivityCompleted($event)"
+            (activityDeleted)="onActivityDeleted($event)">
           </app-ticket-activity-timeline>
           
-          <!-- Ticket Activities Timeline -->
-          <!-- <app-ticket-timeline [events]="timelineEvents"></app-ticket-timeline> -->
         </div>
         
         <!-- Right Column: Sidebar -->

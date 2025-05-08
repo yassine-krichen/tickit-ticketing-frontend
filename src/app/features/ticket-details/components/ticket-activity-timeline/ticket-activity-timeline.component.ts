@@ -1,9 +1,10 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, AfterViewInit } from "@angular/core";
-import { FormBuilder, FormGroup } from "@angular/forms";
-import { TimelineEvent } from "src/app/core/models/ticket-activity.model";
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { TimelineEvent, TicketActivityDto } from "src/app/core/models/ticket-activity.model";
 import { debounceTime, distinctUntilChanged } from "rxjs/operators";
 
 declare var bootstrap: any;
+declare var Notify: any;
 
 /**
  * Component that displays ticket activities in a timeline format with filtering and pagination
@@ -24,6 +25,7 @@ export class TicketActivityTimelineComponent implements OnChanges, OnInit, After
     @Input() query: string = "";
     @Input() sortField: string = "startTime";
     @Input() sortDir: string = "desc";
+    @Input() ticketId: string = "";
     
     @Output() pageChange = new EventEmitter<number>();
     @Output() filterChange = new EventEmitter<{
@@ -33,7 +35,11 @@ export class TicketActivityTimelineComponent implements OnChanges, OnInit, After
         sortField?: string;
         sortDir?: string;
     }>();
-
+    @Output() activityCreated = new EventEmitter<any>();
+    @Output() activityUpdated = new EventEmitter<any>();
+    @Output() activityCompleted = new EventEmitter<number>();
+    @Output() activityDeleted = new EventEmitter<number>();
+    
     /**
      * Array of page numbers to display in pagination
      */
@@ -82,13 +88,30 @@ export class TicketActivityTimelineComponent implements OnChanges, OnInit, After
         { value: "asc", label: "Ascending" }
     ];
 
+    /**
+     * Form for creating or editing activities
+     */
+    activityForm: FormGroup;
+    
+    /**
+     * Current activity being edited
+     */
+    currentActivity: TimelineEvent | null = null;
+    
+    /**
+     * Bootstrap Modal instances
+     */
+    private _editActivityModal: any = null;
+    private _deleteActivityModal: any = null;
+
     constructor(private _formBuilder: FormBuilder) {}
 
     /**
-     * Initialize filter form
+     * Initialize filter form and activity form
      */
     ngOnInit(): void {
         this._initFilterForm();
+        this._initActivityForm();
     }
     
     /**
@@ -118,10 +141,25 @@ export class TicketActivityTimelineComponent implements OnChanges, OnInit, After
     private _initBootstrapComponents(): void {
         setTimeout(() => {
             const filterCollapseElement = document.getElementById("filterCollapse");
+            const activityFormCollapseElement = document.getElementById("activityFormCollapse");
+            
             if (filterCollapseElement && typeof bootstrap !== "undefined" && bootstrap.Collapse) {
                 this._createCollapse(filterCollapseElement);
-            } else {
-                console.warn("Bootstrap JS not loaded or filter collapse element not found");
+            }
+            
+            if (activityFormCollapseElement && typeof bootstrap !== "undefined" && bootstrap.Collapse) {
+                this._createCollapse(activityFormCollapseElement);
+            }
+            
+            const editActivityModalElement = document.getElementById("editActivityModal");
+            const deleteActivityModalElement = document.getElementById("deleteActivityModal");
+            
+            if (editActivityModalElement && typeof bootstrap !== "undefined" && bootstrap.Modal) {
+                this._editActivityModal = new bootstrap.Modal(editActivityModalElement);
+            }
+
+            if (deleteActivityModalElement && typeof bootstrap !== "undefined" && bootstrap.Modal) {
+                this._deleteActivityModal = new bootstrap.Modal(deleteActivityModalElement);
             }
         }, 100);
     }
@@ -149,6 +187,17 @@ export class TicketActivityTimelineComponent implements OnChanges, OnInit, After
             username: [this.username],
             sortField: [this.sortField],
             sortDir: [this.sortDir]
+        });
+    }
+
+    /**
+     * Initialize the activity creation/editing form
+     */
+    private _initActivityForm(): void {
+        this.activityForm = this._formBuilder.group({
+            id: [null],
+            type: ["", Validators.required],
+            description: [""]
         });
     }
 
@@ -233,6 +282,239 @@ export class TicketActivityTimelineComponent implements OnChanges, OnInit, After
     }
 
     /**
+     * Toggles the activity creation form
+     */
+    toggleActivityForm(): void {
+        const activityFormCollapse = document.getElementById("activityFormCollapse");
+        if (activityFormCollapse) {
+            // Reset form whenever we toggle
+            this.activityForm.reset({
+                type: "",
+                description: ""
+            });
+            
+            if (typeof bootstrap !== "undefined" && bootstrap.Collapse) {
+                const bsCollapse = bootstrap.Collapse.getInstance(activityFormCollapse);
+                if (bsCollapse) {
+                    bsCollapse.toggle();
+                } else {
+                    new bootstrap.Collapse(activityFormCollapse);
+                }
+            } else {
+                // Fallback for when Bootstrap JS isn't loaded
+                activityFormCollapse.classList.toggle("show");
+            }
+        }
+    }
+
+    /**
+     * Saves a new activity
+     */
+    saveActivity(): void {
+        if (this.activityForm.valid) {
+            const formData = this.activityForm.value;
+            
+            // Emit event to parent component to handle the API call
+            this.activityCreated.emit({
+                ticketId: this.ticketId,
+                type: formData.type,
+                description: formData.description,
+                username: "jhon doe"
+            });
+            
+            // Hide the form
+            this.toggleActivityForm();
+            
+            // Show success notification
+            this._showSuccessNotification("Activity created successfully");
+        } else {
+            // Mark all form fields as touched to show validation errors
+            Object.keys(this.activityForm.controls).forEach(key => {
+                this.activityForm.controls[key].markAsTouched();
+            });
+        }
+    }
+    
+    /**
+     * Toggles the action menu for an activity
+     */
+    toggleActionMenu(event: Event, activityId: number): void {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const menuId = `actionMenu-${activityId}`;
+        const menuElement = document.getElementById(menuId);
+        
+        // Close all other open dropdowns first
+        document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+            if (menu.id !== menuId) {
+                menu.classList.remove('show');
+            }
+        });
+        
+        // Toggle the selected dropdown menu
+        if (menuElement) {
+            menuElement.classList.toggle('show');
+        }
+        
+        // Add a click handler to close the dropdown when clicking outside
+        setTimeout(() => {
+            const clickHandler = (e: MouseEvent) => {
+                if (!menuElement?.contains(e.target as Node)) {
+                    menuElement?.classList.remove('show');
+                    document.removeEventListener('click', clickHandler);
+                }
+            };
+            document.addEventListener('click', clickHandler);
+        }, 0);
+    }
+    
+    /**
+     * Opens the edit activity modal
+     */
+    editActivity(event: TimelineEvent): void {
+        this.currentActivity = event;
+        
+        // Set form values from the activity (only description now)
+        this.activityForm.patchValue({
+            id: event.id,
+            description: event.description
+        });
+        
+        if (this._editActivityModal) {
+            this._editActivityModal.show();
+        } else {
+            console.error("Edit activity modal not initialized");
+            this._showErrorNotification("Could not open the edit form. Please try again.");
+        }
+    }
+    
+    /**
+     * Updates an existing activity
+     */
+    updateActivity(): void {
+        if (this.activityForm.valid && this.currentActivity) {
+            const formData = this.activityForm.value;
+            
+            // Emit event to parent component to handle the API call
+            this.activityUpdated.emit({
+                id: this.currentActivity.id,
+                ticketId: this.ticketId,
+                description: formData.description
+            });
+            
+            // Close modal
+            if (this._editActivityModal) {
+                this._editActivityModal.hide();
+            }
+            
+            // Show success notification
+            this._showSuccessNotification("Activity updated successfully");
+        } else {
+            // Mark all form fields as touched to show validation errors
+            Object.keys(this.activityForm.controls).forEach(key => {
+                this.activityForm.controls[key].markAsTouched();
+            });
+        }
+    }
+    
+    /**
+     * Marks an activity as complete
+     */
+    completeActivity(event: TimelineEvent): void {
+        // Confirm before completing
+        if (confirm(`Are you sure you want to mark "${event.title}" as complete?`)) {
+            // Emit event to parent component to handle the API call
+            this.activityCompleted.emit(event.id);
+            
+            // Show success notification
+            this._showSuccessNotification('Activity marked as complete');
+        }
+    }
+
+    /**
+     * Opens the delete confirmation modal
+     */
+    confirmDeleteActivity(event: TimelineEvent): void {
+        this.currentActivity = event;
+        
+        if (this._deleteActivityModal) {
+            this._deleteActivityModal.show();
+        } else {
+            console.error('Delete activity modal not initialized');
+            this._showErrorNotification('Could not open the delete confirmation. Please try again.');
+        }
+    }
+
+    /**
+     * Deletes the current activity
+     */
+    deleteActivity(): void {
+        if (this.currentActivity) {
+            // Emit event to parent component to handle the API call
+            this.activityDeleted.emit(this.currentActivity.id);
+            
+            // Close modal
+            if (this._deleteActivityModal) {
+                this._deleteActivityModal.hide();
+            }
+            
+            // Show success notification
+            // this._showSuccessNotification('Activity deleted successfully');
+        }
+    }
+    
+    /**
+     * Shows a success notification using Simple-Notify
+     */
+    private _showSuccessNotification(message: string): void {
+        if (typeof Notify !== 'undefined') {
+            new Notify({
+                status: 'success',
+                title: 'Success',
+                text: message,
+                effect: 'slide',
+                speed: 300,
+                showIcon: true,
+                showCloseButton: true,
+                autoclose: true,
+                autotimeout: 3000,
+                gap: 20,
+                distance: 20,
+                type: 'outline',
+                position: 'right top'
+            });
+        } else {
+            console.log('Success:', message);
+        }
+    }
+    
+    /**
+     * Shows an error notification using Simple-Notify
+     */
+    private _showErrorNotification(message: string): void {
+        if (typeof Notify !== 'undefined') {
+            new Notify({
+                status: 'error',
+                title: 'Error',
+                text: message,
+                effect: 'slide',
+                speed: 300,
+                showIcon: true,
+                showCloseButton: true,
+                autoclose: true,
+                autotimeout: 5000,
+                gap: 20,
+                distance: 20,
+                type: 'outline',
+                position: 'right top'
+            });
+        } else {
+            console.error('Error:', message);
+        }
+    }
+
+    /**
      * Generates an array of page numbers for pagination
      */
     private _generatePagination(): void {
@@ -264,4 +546,121 @@ export class TicketActivityTimelineComponent implements OnChanges, OnInit, After
         
         this.pages = pages;
     }
+
+    /**
+     * Formats a duration string into a human-readable format
+     * 
+     * @param duration - ISO 8601 duration string or minutes
+     * @returns Formatted duration string
+     */
+    formatDuration(duration: string | number): string {
+        if (!duration) return "N/A";
+        
+        // If it's just a number, assume it's minutes
+        if (typeof duration === "number") {
+            const hours = Math.floor(duration / 60);
+            const minutes = duration % 60;
+            
+            if (hours > 0) {
+                return `${hours}h ${minutes}m`;
+            } else {
+                return `${minutes}m`;
+            }
+        }
+        
+        // If it's a string but numeric, treat as minutes
+        if (!isNaN(Number(duration))) {
+            const durationNum = Number(duration);
+            const hours = Math.floor(durationNum / 60);
+            const minutes = durationNum % 60;
+            
+            if (hours > 0) {
+                return `${hours}h ${minutes}m`;
+            } else {
+                return `${minutes}m`;
+            }
+        }
+        
+        // Try to parse ISO 8601 duration
+        try {
+            // Parse ISO8601 duration like PT1H30M
+            const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
+            const matches = regex.exec(duration);
+            
+            if (matches) {
+                const hours = matches[1] ? parseInt(matches[1]) : 0;
+                const minutes = matches[2] ? parseInt(matches[2]) : 0;
+                const seconds = matches[3] ? parseInt(matches[3]) : 0;
+                
+                let result = "";
+                if (hours > 0) result += `${hours}h `;
+                if (minutes > 0 || hours > 0) result += `${minutes}m `;
+                if (seconds > 0) result += `${seconds}s`;
+                
+                return result.trim();
+            }
+        } catch (e) {
+            console.error("Error parsing duration:", e);
+        }
+        
+        return duration.toString();
+    }
+    
+    /**
+     * Formats a date string into a human-readable format
+     * 
+     * @param dateString - ISO date string
+     * @returns Formatted date and time
+     */
+    formatDateTime(dateString: string): string {
+        if (!dateString) return "N/A";
+        
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleString();
+        } catch (e) {
+            console.error("Error formatting date:", e);
+            return dateString;
+        }
+    }
+
+    /**
+ * Transforms an ISO 8601 duration string (e.g., "PT1H30M") into a human-readable format.
+ * Accepts a string input, handles "N/A", empty, and malformed values.
+ *
+ * @param isoDuration - ISO 8601 duration string.
+ * @returns Human-readable duration string.
+ */
+formatIsoDuration(isoDuration: string): string {
+    if (!isoDuration || isoDuration === "N/A") {
+        return "Activty not completed"; // Handle N/A or empty string
+      }
+    
+      // Allow optional decimal part for seconds
+      const regex = /^P(?:T)?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?$/;
+      const match = isoDuration.match(regex);
+    
+      if (!match) {
+        return "Invalid duration format"; // fallback for invalid format
+      }
+    
+      const [, hoursStr, minutesStr, secondsStr] = match;
+      const hours = hoursStr ? parseInt(hoursStr, 10) : 0;
+      const minutes = minutesStr ? parseInt(minutesStr, 10) : 0;
+      const seconds = secondsStr ? Math.round(parseFloat(secondsStr)) : 0;
+    
+      const parts: string[] = [];
+      if (hours) {
+        parts.push(`${hours} hour${hours !== 1 ? "s" : ""}`);
+      }
+      if (minutes) {
+        parts.push(`${minutes} minute${minutes !== 1 ? "s" : ""}`);
+      }
+      if (seconds) {
+        parts.push(`${seconds} second${seconds !== 1 ? "s" : ""}`);
+      }
+  
+    return parts.length > 0 ? parts.join(" ") : "0 minutes";
+  }
+  
 }
