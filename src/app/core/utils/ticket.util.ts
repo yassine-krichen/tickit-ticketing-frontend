@@ -50,11 +50,11 @@ export function getInitials(name: string): string {
  */
 export function getPriorityLabel(priority: Priority | string): string {
   switch(priority) {
-    case Priority.P1: return 'Very Low';
-    case Priority.P2: return 'Low';
+    case Priority.P5: return 'Very Low';
+    case Priority.P4: return 'Low';
     case Priority.P3: return 'Medium';
-    case Priority.P4: return 'High';
-    case Priority.P5: return 'Critical';
+    case Priority.P2: return 'High';
+    case Priority.P1: return 'Critical';
     default: return 'Unknown';
   }
 }

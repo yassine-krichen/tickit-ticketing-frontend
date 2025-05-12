@@ -11,15 +11,15 @@ export class TicketPriorityBadgeComponent {
 
   getPriorityColor(): { background: string, text: string } {
     switch (this.priority) {
-      case 'P1':
+      case 'P5':
         return { background: '#f4f4f5', text: '#52525b' }; // Very Low
-      case 'P2':
+      case 'P4':
         return { background: '#e0ecfc', text: '#1e40af' }; // Low
       case 'P3':
         return { background: '#fef9c3', text: '#854d0e' }; // Medium
-      case 'P4':
+      case 'P2':
         return { background: '#ffedd5', text: '#c2410c' }; // High
-      case 'P5':
+      case 'P1':
         return { background: '#fee2e2', text: '#b91c1c' }; // Critical
       default:
         return { background: '#fef9c3', text: '#854d0e' }; // Default medium
