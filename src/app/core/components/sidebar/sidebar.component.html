@@ -95,8 +95,8 @@
   <!-- User data loaded successfully -->
   <div *ngIf="!loading && user && !error" class="d-flex align-items-center gap-2">
       <div class="user-avatar">
-          <img *ngIf="user.avatarUrl" [src]="user.avatarUrl" alt="User Avatar">
-          <i *ngIf="!user.avatarUrl" class="fas fa-user"></i>
+          <img *ngIf="user.avatarUrl && user.avatarUrl.trim() && user.avatarUrl !== 'No Image Available'" [src]="user.avatarUrl" alt="User Avatar">
+          <i *ngIf="!user.avatarUrl || !user.avatarUrl.trim() || user.avatarUrl === 'No Image Available'" class="fas fa-user"></i>
       </div>
       <div class="user-info">
         <div class="overflow-hidden">

@@ -60,9 +60,9 @@ export class TicketActivityTimelineComponent implements OnChanges, OnInit, After
      */
     readonly ACTIVITY_TYPES = [
         { value: "", label: "All Types" },
-        { value: "OPEN", label: "Open" },
-        { value: "CLOSE", label: "Close" },
-        { value: "UPDATE", label: "Update" },
+        // { value: "OPEN", label: "Open" },
+        // { value: "CLOSE", label: "Close" },
+        // { value: "UPDATE", label: "Update" },
         { value: "EMAIL", label: "Email" },
         { value: "CALL", label: "Call" },
         { value: "RESEARCH", label: "Research" },
