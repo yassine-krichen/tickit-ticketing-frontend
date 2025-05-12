@@ -1,9 +1,13 @@
 <div class="dashboard-layout">
-  <!-- Sidebar on the left -->
-  <app-sidebar></app-sidebar>
-  
-  <!-- Main content area on the right -->
-  <div class="dashboard-content">
-    <app-dashboard-content></app-dashboard-content>
-  </div>
+    <!-- Sidebar on the left -->
+    <app-sidebar></app-sidebar>
+    
+    <!-- Main content area on the right -->
+    <div class="dashboard-content">
+        <!-- Use the new navbar component -->
+        <app-dashboard-navbar></app-dashboard-navbar>
+        
+        <!-- Dashboard Content -->
+        <app-dashboard-content></app-dashboard-content>
+    </div>
 </div>

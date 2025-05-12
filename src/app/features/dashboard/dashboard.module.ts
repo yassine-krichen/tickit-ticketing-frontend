@@ -17,6 +17,7 @@ import { TicketStatusBadgeComponent } from './components/ticket-status-badge/tic
 import { TicketSearchComponent } from './components/ticket-search/ticket-search.component';
 import { FilterDrawerComponent } from './components/filter-drawer/filter-drawer.component';
 import { CoreModule } from '../../core/core.module';
+import { DashboardNavbarComponent } from './components/dashboard-navbar/dashboard-navbar.component';
 
 @NgModule({
   declarations: [
@@ -31,7 +32,8 @@ import { CoreModule } from '../../core/core.module';
     TicketPriorityBadgeComponent,
     TicketStatusBadgeComponent,
     TicketSearchComponent,
-    FilterDrawerComponent
+    FilterDrawerComponent,
+    DashboardNavbarComponent
   ],
   imports: [
     CommonModule,
