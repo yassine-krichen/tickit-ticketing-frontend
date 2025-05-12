@@ -81,7 +81,7 @@ export class TicketActivityService {
      * Completes an activity
      */
     completeActivity(ticketId: string, activityId: string): Observable<TicketActivityDto> {
-        return this._http.post<TicketActivityDto>(
+        return this._http.put<TicketActivityDto>(
             `${this._BASE_URL}/tickets/${ticketId}/activities/${activityId}/complete`,
             {}
         );

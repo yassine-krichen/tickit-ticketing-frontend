@@ -18,7 +18,7 @@ export class TicketFormComponent implements OnInit {
   ticketForm: FormGroup;
   validSteps: CaseType[] = [];
   stepValidationMessage = '';
-  
+
   // All available case types from the enum
   caseTypes = Object.values(CaseType);
 
@@ -61,7 +61,6 @@ export class TicketFormComponent implements OnInit {
       subStatus: [''],
       priority: ['', Validators.required],
       status: ['', Validators.required],
-      issuedBy: ['', Validators.required]
     });
   }
 
@@ -93,7 +92,7 @@ export class TicketFormComponent implements OnInit {
     this.ticketService.getValidStepsForType(selectedType).subscribe(
       steps => {
         this.validSteps = steps;
-        
+
         if (steps.length === 0) {
           this.stepValidationMessage = 'No specific steps defined for this type. Any step can be selected.';
           // If no specific restrictions, we can use all steps
@@ -119,7 +118,7 @@ export class TicketFormComponent implements OnInit {
   validateTypeStepCombination(): void {
     const type = this.f.type.value as CaseType;
     const step = this.f.step.value as CaseType;
-    
+
     if (!type || !step) return;
 
     this.ticketService.validateTypeStepCombination(type, step).subscribe(
@@ -145,10 +144,10 @@ export class TicketFormComponent implements OnInit {
 
   onSubmit(): void {
     console.log("Form submission triggered");
-    
+
     if (this.ticketForm.invalid) {
         console.log("Form validation failed", this.ticketForm.errors);
-        
+
         // Mark all form controls as touched to show validation errors
         Object.keys(this.ticketForm.controls).forEach(key => {
             const control = this.ticketForm.controls[key];

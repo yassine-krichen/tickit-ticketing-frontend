@@ -1,0 +1,94 @@
+.ticket-activity-edit-layout{
+  display: flex;
+  min-height: 100vh;
+}
+
+
+h2 {
+  margin-bottom: 28px;
+  font-size: 1.75rem;
+  color: #1a202c;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.content-area {
+  width: 100%;
+  max-width: 1200px;
+  padding: 20px;
+  margin: 0 auto;
+  margin-left: 200px; /* Match the sidebar width */
+  transition: margin-left 0.3s ease;
+  flex: 1;
+  box-sizing: border-box ;
+  display: flex;
+  justify-content: center;
+}
+
+form {
+  width: 100%;
+  margin: 0 ;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 1rem;
+}
+
+input, textarea, select {
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: #fff;
+  color: #222;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.01);
+}
+
+.button-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 32px;
+  justify-content: flex-end;
+}
+
+.activity-form {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.form-label {
+  font-weight: 500;
+}
+
+.text-danger {
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.text-info {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-top: 0.25rem;
+}
+
+.bg-light {
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-top: 1px solid rgba(0,0,0,.125);
+}
+
+

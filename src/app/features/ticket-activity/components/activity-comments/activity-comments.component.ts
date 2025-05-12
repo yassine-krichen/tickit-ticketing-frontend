@@ -13,6 +13,9 @@ export class ActivityCommentsComponent {
   @Input() comments: any[] = [];
   @Output() commentAdded = new EventEmitter<void>();
 
+  showCommentForm = false;
+
+
   commentForm = this.fb.group({
     content: ['', [Validators.required, Validators.minLength(1)]]
   });

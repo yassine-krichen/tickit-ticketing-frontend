@@ -1,7 +1,15 @@
+.page-container {
+  display: flex;
+  min-height: 100vh;
+}
+
 .activity-details-container {
   max-width: 1200px;
   margin: 0 auto;
+  margin-left: 200px; /* Match the sidebar width */
+  transition: margin-left 0.3s ease;
   padding: 20px;
+  flex: 1;
 }
 
 .card {

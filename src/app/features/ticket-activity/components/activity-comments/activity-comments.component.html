@@ -1,14 +1,21 @@
 <div class="comments-section">
-  <h5 class="mb-4"><i class="fas fa-comments me-2"></i>Comments</h5>
 
   <!-- Comments List -->
   <div class="comments-list">
     <div class="comment-card" *ngFor="let comment of comments">
       <div class="comment-header">
         <div class="user-info">
-          <img [src]="comment.userAvatar || 'assets/images/default-avatar.png'"
-               alt="User avatar"
-               class="avatar">
+            <div class="avatar-container d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid #ddd; overflow: hidden; margin-right: 12px; background: #f8f9fa;">
+              <ng-container *ngIf="comment.userAvatar; else defaultAvatar">
+                <img [src]="comment.userAvatar"
+                     (error)="comment.userAvatar = null"
+                     class="avatar"
+                     style="width: 100%; height: 100%; object-fit: cover;">
+              </ng-container>
+              <ng-template #defaultAvatar>
+                <i class="fa-solid fa-user text-muted" style="font-size: 1.5em;"></i>
+              </ng-template>
+            </div>
           <div>
             <h6 class="mb-0">{{comment.username}}</h6>
             <small class="text-muted">{{comment.createdAt | date:'medium'}}</small>
@@ -32,30 +39,36 @@
     </div>
   </div>
 
-  <!-- Comment Form -->
-  <form [formGroup]="commentForm" (ngSubmit)="onSubmit()" class="comment-form">
-    <div class="form-group">
-      <textarea
-        class="form-control"
-        formControlName="content"
-        rows="3"
-        placeholder="Write a comment..."
-        [class.is-invalid]="commentForm.get('content').invalid && commentForm.get('content').touched">
-      </textarea>
-      <div class="invalid-feedback" *ngIf="commentForm.get('content').invalid && commentForm.get('content').touched">
-        Please enter a comment.
+  <!-- Collapsible Comment Form -->
+  <button class="btn btn-outline-secondary" type="button" (click)="showCommentForm = !showCommentForm">
+    <i class="fa" [ngClass]="showCommentForm ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+    {{ showCommentForm ? 'Hide' : 'Add a Comment' }}
+  </button>
+  <div *ngIf="showCommentForm">
+    <form [formGroup]="commentForm" (ngSubmit)="onSubmit()" class="comment-form">
+      <div class="form-group">
+        <textarea
+          class="form-control"
+          formControlName="content"
+          rows="3"
+          placeholder="Write a comment..."
+          [class.is-invalid]="commentForm.get('content').invalid && commentForm.get('content').touched">
+        </textarea>
+        <div class="invalid-feedback" *ngIf="commentForm.get('content').invalid && commentForm.get('content').touched">
+          Please enter a comment.
+        </div>
       </div>
-    </div>
-    <div class="d-flex justify-content-end mt-3">
-      <button
-        type="submit"
-        class="btn btn-primary"
-        [disabled]="!isFormValid || submitting">
-        <span class="spinner-border spinner-border-sm me-2" *ngIf="submitting"></span>
-        Add Comment
-      </button>
-    </div>
-  </form>
+      <div class="d-flex justify-content-end mt-3">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="!isFormValid || submitting">
+          <span class="spinner-border spinner-border-sm me-2" *ngIf="submitting"></span>
+          Add Comment
+        </button>
+      </div>
+    </form>
+  </div>
 
   <!-- Error Message -->
   <div class="alert alert-danger mt-3" *ngIf="error">

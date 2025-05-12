@@ -1,31 +1,29 @@
-<!-- Sidebar layout -->
 <div class="ticket-activity-edit-layout">
   <app-sidebar></app-sidebar>
 
-  <div class="content-area p-4">
-    <div class="card">
-      <div class="card-header">
-        <h5 class="mb-0">Edit Activity</h5>
-      </div>
-      <div class="card-body">
-        <!-- Loading state -->
-        <div *ngIf="loading" class="text-center py-4">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
+  <div class="content-area ">
+    <form [formGroup]="activityForm" (ngSubmit)="onSubmit()" class="activity-form">
+      <div class="card">
+        <div class="card-header">
+          <h5>Edit Activity</h5>
+        </div>
+        <div class="card-body">
+          <!-- Loading state -->
+          <div *ngIf="loading" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="text-muted mt-2">Loading activity details...</p>
           </div>
-          <p class="text-muted mt-2">Loading activity details...</p>
-        </div>
 
-        <!-- Error state -->
-        <div *ngIf="error" class="alert alert-danger" role="alert">
-          <i class="fas fa-exclamation-triangle me-2"></i>
-          {{ error }}
-        </div>
+          <!-- Error state -->
+          <div *ngIf="error" class="alert alert-danger" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            {{ error }}
+          </div>
 
-        <!-- Edit form -->
-        <form [formGroup]="activityForm" (ngSubmit)="onSubmit()" *ngIf="!loading">
           <!-- Activity Type -->
-          <div class="mb-3">
+          <div class="mb-3" *ngIf="!loading">
             <label for="type" class="form-label">Activity Type</label>
             <select class="form-select" id="type" formControlName="type">
               <option value="">Select Type</option>
@@ -38,13 +36,13 @@
               <option value="ASSIGNMENT">Assignment</option>
               <option value="OTHER">Other</option>
             </select>
-            <div class="invalid-feedback" *ngIf="activityForm.get('type').touched && activityForm.get('type').errors?.required">
+            <div class="text-danger" *ngIf="activityForm.get('type').touched && activityForm.get('type').errors?.required">
               Activity type is required
             </div>
           </div>
 
           <!-- Description -->
-          <div class="mb-3">
+          <div class="mb-3" *ngIf="!loading">
             <label for="description" class="form-label">Description</label>
             <textarea
               class="form-control"
@@ -52,21 +50,22 @@
               rows="4"
               formControlName="description"
               placeholder="Enter activity description..."></textarea>
-            <div class="invalid-feedback" *ngIf="activityForm.get('description').touched && activityForm.get('description').errors?.required">
+            <div class="text-danger" *ngIf="activityForm.get('description').touched && activityForm.get('description').errors?.required">
               Description is required
             </div>
           </div>
+        </div>
 
-
-          <!-- Form Actions -->
-          <div class="d-flex justify-content-end gap-2">
-            <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
-            <button type="submit" class="btn btn-primary" [disabled]="!activityForm.valid || loading">
-              <i class="fas fa-save me-1"></i> Save Changes
-            </button>
-          </div>
-        </form>
+        <!-- Form Actions -->
+        <div class="card-footer form-actions">
+          <button type="button" class="btn btn-secondary" (click)="onCancel()">
+            <i class="fas fa-ban me-1"></i> Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="!activityForm.valid || loading">
+            <i class="fas fa-save me-1"></i> Save Changes
+          </button>
+        </div>
       </div>
-    </div>
+    </form>
   </div>
 </div>

@@ -1,21 +1,21 @@
 <div class="ticket-details-layout">
   <!-- Sidebar on the left -->
   <app-sidebar></app-sidebar>
-  
+
   <!-- Main content area on the right -->
   <div class="ticket-details-content">
     <!-- Loading and error messages -->
     <div class="alert alert-info" *ngIf="loading">
       <i class="fas fa-spinner fa-spin me-2"></i> Loading ticket details...
     </div>
-    
+
     <div class="alert alert-danger" *ngIf="error">
       <i class="fas fa-exclamation-triangle me-2"></i> {{ error }}
     </div>
 
     <div *ngIf="ticket">
       <!-- Header -->
-      <app-ticket-header 
+      <app-ticket-header
         [ticket]="ticket"
         [assignee]="assignee"
         (back)="navigateBack()">
@@ -27,16 +27,16 @@
         <div class="col-lg-8">
           <!-- Metadata -->
           <app-ticket-metadata [ticket]="ticket" [assignee]="assignee"></app-ticket-metadata>
-          
+
           <!-- Description Card -->
           <app-ticket-description [description]="ticket.description"></app-ticket-description>
-          
+
           <!-- Treatment Act Card -->
-          <app-ticket-treatment-act 
+          <app-ticket-treatment-act
             [acteTraitement]="ticket.acteTraitement"
             [treatmentAct]="treatmentAct">
           </app-ticket-treatment-act>
-          
+
           <!-- New Ticket Activity Timeline -->
           <app-ticket-activity-timeline
             [events]="activities"
@@ -45,7 +45,7 @@
             [currentPage]="activityPage"
             [totalPages]="activityTotalPages"
             [type]="activityType"
-            [username]="activityUsername" 
+            [username]="activityUsername"
             [query]="activityQuery"
             [sortField]="activitySortField"
             [sortDir]="activitySortDir"
@@ -57,18 +57,49 @@
             (activityCompleted)="onActivityCompleted($event)"
             (activityDeleted)="onActivityDeleted($event)">
           </app-ticket-activity-timeline>
-          
+
+          <!-- Attachments Section -->
+          <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">
+                <i class="fas fa-paperclip me-2"></i>Attachments
+              </h5>
+              <div>
+                <button class="btn btn-primary btn-sm" (click)="onAddAttachment()">
+                  <i class="fas fa-plus me-2"></i>Add Attachment
+                </button>
+              </div>
+            </div>
+            <div class="card-body">
+              <!-- Existing attachments list -->
+              <div class="row g-3" *ngIf="attachments?.length > 0">
+                <div class="col-md-4" *ngFor="let attachment of attachments">
+                  <div class="attachment-card">
+                    <div class="file-preview">
+                      <i class="fas fa-file fa-3x"></i>
+                      <span class="filename">{{attachment.filename}}</span>
+                    </div>
+                    <button class="btn btn-sm btn-light" (click)="downloadAttachment(attachment.id)">
+                      <i class="fas fa-download me-2"></i>Download
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <p class="text-muted mb-0" *ngIf="!attachments?.length">No attachments available</p>
+            </div>
+          </div>
+
         </div>
-        
+
         <!-- Right Column: Sidebar -->
         <div class="col-lg-4">
           <app-ticket-sidebar>
             <!-- Ticket Details Card -->
-            <app-ticket-info 
+            <app-ticket-info
               [ticket]="ticket"
               [assignee]="assignee">
             </app-ticket-info>
-            
+
             <!-- Case Tracker Card -->
             <app-case-tracker [steps]="historyEntries"></app-case-tracker>
 
@@ -80,3 +111,4 @@
     </div>
   </div>
 </div>
+
