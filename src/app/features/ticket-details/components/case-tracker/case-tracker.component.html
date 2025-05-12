@@ -1,32 +1,93 @@
 <div class="card mb-3 shadow-sm">
-  <div class="card-header bg-white">
-    <h5 class="mb-0">
-      <i class="fas fa-history me-2 text-primary"></i> Case History Timeline
-    </h5>
-  </div>
-  <div class="card-body">
-    <div class="timeline">
-      <div *ngIf="steps.length === 0" class="text-center text-muted py-3">
-        <i class="fas fa-info-circle me-2"></i> No history records available
-      </div>
-      
-      <div class="timeline-item" *ngFor="let step of steps; let i = index">
-        <div class="timeline-badge">
-            <i [ngClass]="[getIconClass(step), 'fa', getIcon(step)]"></i>
-        </div>
-        <div class="timeline-content">
-          <h6 class="mb-1">{{ formatTitle(step) }}</h6>
-          <div class="text-muted small mb-1">
-            {{ step.timestamp | date:'MMM d, y HH:mm' }} WAT
-          </div>
-          <div class="text-muted smaller mb-2">
-            <small>{{ formatUserFingerprint(step.userFingerprint) }}</small>
-          </div>
-          <p *ngIf="step.dataSnapshot?.commentaire" class="mb-0 text-secondary">
-            {{ step.dataSnapshot.commentaire }}
-          </p>
-        </div>
-      </div>
+    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+        <h5 class="mb-0">
+            <i class="fas fa-history me-2 text-primary"></i> Case History Timeline
+        </h5>
     </div>
-  </div>
+    <div class="card-body">
+        <div class="timeline">
+            <div *ngIf="steps.length === 0" class="text-center text-muted py-3">
+                <i class="fas fa-info-circle me-2"></i> No history records available
+            </div>
+            
+            <div class="timeline-item" *ngFor="let step of steps; let i = index">
+                <!-- Timeline Badge with Fixed Icon Class -->
+                <div class="timeline-badge" [ngClass]="getActionColor(step)">
+                    <i class="fas" [ngClass]="'fa-' + getIcon(step)"></i>
+                </div>
+                
+                <!-- Simplified Timeline Content -->
+                <div class="timeline-content">
+                    <div class="case-card">
+                        <div class="case-card-header" [ngClass]="getHeaderClass(step)">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h6 class="mb-0">{{ formatTitle(step) }}</h6>
+                                <span class="text-muted small">{{ step.timestamp | date:'MMM d, y HH:mm' }}</span>
+                            </div>
+                        </div>
+                        <div class="case-card-body">
+                            <!-- User Info -->
+                            <div class="user-info d-flex align-items-center mb-2">
+                                <div class="user-icon bg-light rounded-circle me-2">
+                                    <i class="fas fa-user text-secondary"></i>
+                                </div>
+                                <span class="text-muted small">{{ formatUserFingerprint(step.userFingerprint) }}</span>
+                            </div>
+                            
+                            <!-- Description/Comment (if available) -->
+                            <p *ngIf="step.dataSnapshot?.commentaire" class="mb-1 comment-text">
+                                {{ step.dataSnapshot.commentaire }}
+                            </p>
+                            
+                            <!-- More Info Button -->
+                            <button *ngIf="hasAdditionalDetails(step)" 
+                                    class="btn btn-link btn-sm text-muted p-0 mt-2" 
+                                    (click)="showDetails(step)">
+                                <i class="fas fa-info-circle me-1"></i> More details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Details Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" *ngIf="selectedStep">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailsModalLabel">{{ formatTitle(selectedStep) }} Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Status Changes -->
+                <div *ngIf="hasStatusChange(selectedStep)" class="mb-3">
+                    <h6 class="text-muted mb-2">Status Change</h6>
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-light text-dark me-1">{{ getOldStatus(selectedStep) }}</span>
+                        <i class="fas fa-arrow-right mx-2"></i>
+                        <span class="badge" [ngClass]="getStatusBadgeClass(selectedStep)">{{ getNewStatus(selectedStep) }}</span>
+                    </div>
+                </div>
+                
+                <!-- Additional Metadata -->
+                <div *ngIf="hasMetadata(selectedStep)">
+                    <h6 class="text-muted mb-2">Additional Data</h6>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr *ngFor="let item of getMetadataItems(selectedStep)">
+                                <th style="width: 40%; font-weight: normal;">{{ item.label }}</th>
+                                <td>{{ item.value }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>

@@ -1,13 +1,15 @@
+/* Timeline Container */
 .timeline {
     position: relative;
     padding-left: 1.5rem;
     margin: 0 0 0 30px;
 }
 
+/* Timeline Item */
 .timeline-item {
     position: relative;
     padding-bottom: 1.5rem;
-    border-left: 2px solid #e9ecef;
+    border-left: 2px solid #e5e7eb; /* Lighter connector line */
     padding-left: 20px;
 }
 
@@ -16,53 +18,117 @@
     border-left-color: transparent;
 }
 
+/* Timeline Badge (Circle Icon) */
 .timeline-badge {
     position: absolute;
-    left: -12px;
-    /* width: 39px; */
-    /* height: 39px; */
-    line-height: 24px;
-    text-align: center;
-    background: #fff;
+    left: -16px; /* Position circle on the line */
+    width: 32px; /* Fixed width */
+    height: 32px; /* Fixed height */
     border-radius: 50%;
-    box-shadow: 0 0 0 4px #fff;
+    background: #fff;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #f3f4f6;
     z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .timeline-badge i {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 30px;
-    height: 30px;
-    padding: 10px;
-    transform: translateX(-4px);
-    border-radius: 50%;
+    font-size: 14px;
+    color: #ffffff; /* Icon color */
 }
 
+/* Timeline Content */
 .timeline-content {
     padding-left: 15px;
+    margin-top: -4px; /* Align content properly with badge */
 }
 
-.timeline-content h6 a {
-    color: inherit;
-    transition: color 0.2s ease;
+/* Activity Type Colors */
+.badge-create, .badge-open {
+    background-color: var(--bs-primary);
 }
 
-.timeline-content h6 a:hover {
-    color: var(--bs-primary);
+.badge-update {
+    background-color: var(--bs-info);
 }
 
-h6 {
+.badge-close {
+    background-color: var(--bs-danger);
+}
+
+.badge-assignment {
+    background-color: var(--bs-purple);
+}
+
+.badge-email {
+    background-color: var(--bs-indigo);
+}
+
+.badge-call {
+    background-color: var(--bs-success);
+}
+
+.badge-research {
+    background-color: var(--bs-warning);
+}
+
+.badge-other {
+    background-color: var(--bs-secondary);
+}
+
+/* Completed activity styling */
+.timeline-item.completed .timeline-badge {
+    opacity: 0.8;
+}
+
+.timeline-item.completed .timeline-content {
+    opacity: 0.8;
+}
+
+/* Duration badge styling */
+.duration-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.5rem;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 1rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    font-size: 0.9rem;
 }
 
-.smaller {
-    font-size: 80%;
-    color: #6c757d;
+/* Action buttons styling */
+.action-buttons {
+    display: flex;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    overflow: hidden;
 }
 
+.btn-icon {
+    padding: 0.25rem 0.5rem;
+    border: none;
+    background-color: transparent;
+    border-radius: 0;
+    transition: all 0.2s ease;
+    min-width: 32px;
+}
+
+.btn-icon:not(:last-child) {
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.btn-icon:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.btn-icon i {
+    font-size: 0.875rem;
+}
+
+/* Status change styling */
 .status-change {
     display: inline-flex;
     align-items: center;
@@ -131,43 +197,4 @@ h6 {
 
 .dropdown-item:hover {
     background-color: #f8f9fa;
-}
-
-/* Style completed activities differently */
-.timeline-item.completed .timeline-content {
-    opacity: 0.8;
-}
-
-.timeline-item.completed .timeline-badge i {
-    opacity: 0.7;
-}
-
-/* Action buttons styling */
-.action-buttons {
-    display: flex;
-    background-color: #f8f9fa;
-    border-radius: 4px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-}
-
-.btn-icon {
-    padding: 0.25rem 0.5rem;
-    border: none;
-    background-color: transparent;
-    border-radius: 0;
-    transition: all 0.2s ease;
-    min-width: 32px;
-}
-
-.btn-icon:not(:last-child) {
-    border-right: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.btn-icon:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-}
-
-.btn-icon i {
-    font-size: 0.875rem;
 }

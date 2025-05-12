@@ -1,13 +1,15 @@
+/* Timeline Container */
 .timeline {
     position: relative;
     padding-left: 1.5rem;
-    margin-bottom: 0;
+    margin: 0 0 0 30px;
 }
 
+/* Timeline Item */
 .timeline-item {
     position: relative;
-    padding-bottom: 2rem;
-    border-left: 2px solid #e9ecef;
+    padding-bottom: 1.5rem;
+    border-left: 2px solid #e5e7eb;
     padding-left: 20px;
 }
 
@@ -16,55 +18,187 @@
     border-left-color: transparent;
 }
 
+/* Timeline Badge (Circle Icon) */
 .timeline-badge {
     position: absolute;
-    left: -12px;
-    width: 24px;
-    height: 24px;
-    line-height: 24px;
-    text-align: center;
-    background: #fff;
+    left: -16px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    box-shadow: 0 0 0 4px #fff;
+    background: #fff;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #f3f4f6;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
+.timeline-badge i {
+    font-size: 0.875rem;
+    color: #ffffff;
+}
+
+/* Timeline Content */
 .timeline-content {
     padding-left: 15px;
+    margin-top: -4px;
 }
 
-.fa-icon {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* Case Card Styling */
+.case-card {
+    background-color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 0.375rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    margin-bottom: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.case-card:hover {
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.08);
+}
+
+.case-card-header {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-top-left-radius: 0.375rem;
+    border-top-right-radius: 0.375rem;
+}
+
+.case-card-body {
+    padding: 0.6rem 1rem;
+}
+
+/* User info styling */
+.user-icon {
     width: 24px;
     height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
 }
 
-.rounded-circle {
-    border-radius: 50% !important;
+/* Comment text styling */
+.comment-text {
+    background-color: #f9fafb;
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    font-size: 0.875rem;
+    color: #4b5563;
+    border-left: 3px solid #e5e7eb;
+}
+
+/* Status change styling */
+.status-change {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+}
+
+/* Metadata styling */
+.metadata {
+    background-color: rgba(248, 249, 250, 0.7);
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+}
+
+/* Icon background colors */
+.bg-create, .bg-open {
+    background-color: var(--bs-primary);
+}
+
+.bg-update, .bg-modify {
+    background-color: var(--bs-info);
+}
+
+.bg-close, .bg-delete {
+    background-color: var(--bs-danger);
+}
+
+.bg-assignment, .bg-assign {
+    background-color: var(--bs-purple);
+}
+
+.bg-email {
+    background-color: var(--bs-indigo);
+}
+
+.bg-call {
+    background-color: var(--bs-success);
+}
+
+.bg-research {
+    background-color: var(--bs-warning);
+}
+
+.bg-other, .bg-default {
+    background-color: var(--bs-secondary);
+}
+
+/* Header background classes */
+.header-create, .header-open {
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+.header-update, .header-modify {
+    background-color: rgba(13, 202, 240, 0.05);
+}
+
+.header-close, .header-delete {
+    background-color: rgba(220, 53, 69, 0.05);
+}
+
+.header-assignment, .header-assign {
+    background-color: rgba(111, 66, 193, 0.05);
+}
+
+.header-default {
+    background-color: rgba(248, 249, 250, 0.8);
+}
+
+/* Utility classes */
+.fw-medium {
+    font-weight: 500;
 }
 
 .smaller {
-    font-size: 80%;
+    font-size: 0.75rem;
 }
 
-h6 {
-    font-weight: 600;
-    font-size: 0.9rem;
+/* More details button */
+.btn-link.text-muted {
+    text-decoration: none;
+    font-size: 0.8125rem;
 }
 
-.bg-orange {
-    background-color: #f97316 !important;
+.btn-link.text-muted:hover {
+    color: var(--bs-primary) !important;
+    text-decoration: underline;
 }
 
-.bg-purple {
-    background-color: #8b5cf6 !important;
+/* Modal styling */
+.modal-body h6 {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.p-1 {
-    padding: 0.25rem !important;
+.table-sm th {
+    background-color: rgba(0, 0, 0, 0.03);
 }
 
-.card-header {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .timeline {
+        margin-left: 15px;
+    }
+    
+    .metadata .col-sm-6 {
+        width: 100%;
+    }
 }
