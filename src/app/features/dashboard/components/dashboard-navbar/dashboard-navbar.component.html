@@ -1,0 +1,90 @@
+<div class="dashboard-navbar">
+    <div class="container-fluid px-3">
+        <div class="d-flex justify-content-between align-items-center py-2">
+            <!-- Welcome Message (smaller text) -->
+            <div class="text-muted small mb-0">
+                Welcome back, <span class="fw-bold text-dark">John Doe</span>
+            </div>
+            
+            <!-- Right Actions -->
+            <div class="d-flex align-items-center">
+                <!-- Notifications Dropdown -->
+                <div class="dropdown me-2">
+                    <button class="btn-icon position-relative dropdown-toggle" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end shadow-sm notification-dropdown" aria-labelledby="notificationsDropdown">
+                        <div class="dropdown-header d-flex justify-content-between align-items-center">
+                            <span class="fw-medium">Notifications</span>
+                            <span class="badge bg-primary rounded-pill ms-2">3 New</span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <!-- Notification Items -->
+                        <a href="#" class="dropdown-item notification-item unread">
+                            <div class="notification-icon bg-primary-subtle">
+                                <i class="fas fa-ticket-alt text-primary"></i>
+                            </div>
+                            <div class="notification-content">
+                                <p class="mb-0">New ticket assigned to you</p>
+                                <span class="notification-time">10 minutes ago</span>
+                            </div>
+                        </a>
+                        <a href="#" class="dropdown-item notification-item unread">
+                            <div class="notification-icon bg-success-subtle">
+                                <i class="fas fa-check-circle text-success"></i>
+                            </div>
+                            <div class="notification-content">
+                                <p class="mb-0">Ticket #4321 was resolved</p>
+                                <span class="notification-time">2 hours ago</span>
+                            </div>
+                        </a>
+                        <a href="#" class="dropdown-item notification-item unread">
+                            <div class="notification-icon bg-warning-subtle">
+                                <i class="fas fa-exclamation-triangle text-warning"></i>
+                            </div>
+                            <div class="notification-content">
+                                <p class="mb-0">SLA breach imminent for #8765</p>
+                                <span class="notification-time">1 day ago</span>
+                            </div>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item text-center view-all">View all notifications</a>
+                    </div>
+                </div>
+                
+                <!-- User Profile Dropdown -->
+                <div class="dropdown">
+                    <button class="btn-icon profile-btn dropdown-toggle" type="button" id="userMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="User menu">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end shadow-sm profile-dropdown" aria-labelledby="userMenuDropdown">
+                        <div class="dropdown-header d-flex align-items-center">
+                            <div class="profile-icon me-2">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <div>
+                                <strong>John Doe</strong>
+                                <div class="small text-muted">Support Agent</div>
+                            </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">
+                            <i class="fas fa-user-cog me-2 text-muted"></i> My Profile
+                        </a>
+                        <a class="dropdown-item" href="#">
+                            <i class="fas fa-cog me-2 text-muted"></i> Settings
+                        </a>
+                        <a class="dropdown-item" href="#">
+                            <i class="fas fa-question-circle me-2 text-muted"></i> Help Center
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-danger" href="#">
+                            <i class="fas fa-sign-out-alt me-2"></i> Log Out
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
