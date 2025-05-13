@@ -54,6 +54,10 @@ export class TicketActivityTimelineComponent implements OnChanges, OnInit, After
      * Flag to indicate if filters have been applied
      */
     filtersApplied = false;
+
+    // Add to the component's properties
+    private _finishActivityModal: any = null;
+
     
     /**
      * Available activity types for dropdown
@@ -143,6 +147,8 @@ export class TicketActivityTimelineComponent implements OnChanges, OnInit, After
             const filterCollapseElement = document.getElementById("filterCollapse");
             const activityFormCollapseElement = document.getElementById("activityFormCollapse");
             
+        
+
             if (filterCollapseElement && typeof bootstrap !== "undefined" && bootstrap.Collapse) {
                 this._createCollapse(filterCollapseElement);
             }
@@ -161,7 +167,46 @@ export class TicketActivityTimelineComponent implements OnChanges, OnInit, After
             if (deleteActivityModalElement && typeof bootstrap !== "undefined" && bootstrap.Modal) {
                 this._deleteActivityModal = new bootstrap.Modal(deleteActivityModalElement);
             }
+
+            const finishActivityModalElement = document.getElementById("finishActivityModal");
+
+            if (finishActivityModalElement && typeof bootstrap !== "undefined" && bootstrap.Modal) {
+                this._finishActivityModal = new bootstrap.Modal(finishActivityModalElement);
+            }
         }, 100);
+    }
+
+        /**
+     * Opens the finish confirmation modal
+     * @param event The timeline event to be completed
+     */
+    confirmFinishActivity(event: TimelineEvent): void {
+        this.currentActivity = event;
+        
+        if (this._finishActivityModal) {
+            this._finishActivityModal.show();
+        } else {
+            console.error("Finish activity modal not initialized");
+            this._showErrorNotification("Could not open the completion confirmation. Please try again.");
+        }
+    }
+
+        /**
+     * Completes the current activity after confirmation
+     */
+    finishActivity(): void {
+        if (this.currentActivity) {
+            // Emit event to parent component to handle the API call
+            this.activityCompleted.emit(this.currentActivity.id);
+            
+            // Close modal
+            if (this._finishActivityModal) {
+                this._finishActivityModal.hide();
+            }
+            
+            // Show success notification
+            this._showSuccessNotification("Activity marked as complete");
+        }
     }
 
     /**
@@ -418,18 +463,20 @@ export class TicketActivityTimelineComponent implements OnChanges, OnInit, After
         }
     }
     
-    /**
-     * Marks an activity as complete
+        /**
+     * Legacy method kept for compatibility - now just redirects to the modal
+     * @param event The timeline event to complete
      */
     completeActivity(event: TimelineEvent): void {
-        // Confirm before completing
-        if (confirm(`Are you sure you want to mark "${event.title}" as complete?`)) {
-            // Emit event to parent component to handle the API call
-            this.activityCompleted.emit(event.id);
+        // // Confirm before completing
+        // if (confirm(`Are you sure you want to mark "${event.title}" as complete?`)) {
+        //     // Emit event to parent component to handle the API call
+        //     this.activityCompleted.emit(event.id);
             
-            // Show success notification
-            this._showSuccessNotification('Activity marked as complete');
-        }
+        //     // Show success notification
+        //     this._showSuccessNotification('Activity marked as complete');
+        // }
+        this.confirmFinishActivity(event);
     }
 
     /**
@@ -625,42 +672,48 @@ export class TicketActivityTimelineComponent implements OnChanges, OnInit, After
     }
 
     /**
- * Transforms an ISO 8601 duration string (e.g., "PT1H30M") into a human-readable format.
- * Accepts a string input, handles "N/A", empty, and malformed values.
- *
- * @param isoDuration - ISO 8601 duration string.
- * @returns Human-readable duration string.
- */
-formatIsoDuration(isoDuration: string): string {
-    if (!isoDuration || isoDuration === "N/A") {
-        return "Activty not completed"; // Handle N/A or empty string
-      }
-    
-      // Allow optional decimal part for seconds
-      const regex = /^P(?:T)?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?$/;
-      const match = isoDuration.match(regex);
-    
-      if (!match) {
-        return "Invalid duration format"; // fallback for invalid format
-      }
-    
-      const [, hoursStr, minutesStr, secondsStr] = match;
-      const hours = hoursStr ? parseInt(hoursStr, 10) : 0;
-      const minutes = minutesStr ? parseInt(minutesStr, 10) : 0;
-      const seconds = secondsStr ? Math.round(parseFloat(secondsStr)) : 0;
-    
-      const parts: string[] = [];
-      if (hours) {
-        parts.push(`${hours} hour${hours !== 1 ? "s" : ""}`);
-      }
-      if (minutes) {
-        parts.push(`${minutes} minute${minutes !== 1 ? "s" : ""}`);
-      }
-      if (seconds) {
-        parts.push(`${seconds} second${seconds !== 1 ? "s" : ""}`);
-      }
-  
-    return parts.length > 0 ? parts.join(" ") : "0 minutes";
-  }
-  
+     * Transforms an ISO 8601 duration string (e.g., "PT1H30M") into a human-readable format.
+     * Now includes days calculation for durations over 24 hours.
+     * 
+     * @param isoDuration - ISO 8601 duration string.
+     * @returns Human-readable duration string including days when applicable.
+     */
+    formatIsoDuration(isoDuration: string): string {
+        if (!isoDuration || isoDuration === "N/A") {
+            return "Activity not completed"; // Handle N/A or empty string
+        }
+        
+        // Allow optional decimal part for seconds
+        const regex = /^P(?:T)?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?$/;
+        const match = isoDuration.match(regex);
+        
+        if (!match) {
+            return "Invalid duration format"; // fallback for invalid format
+        }
+        
+        const [, hoursStr, minutesStr, secondsStr] = match;
+        let hours = hoursStr ? parseInt(hoursStr, 10) : 0;
+        const minutes = minutesStr ? parseInt(minutesStr, 10) : 0;
+        const seconds = secondsStr ? Math.round(parseFloat(secondsStr)) : 0;
+        
+        // Calculate days if hours > 24
+        const days = Math.floor(hours / 24);
+        hours = hours % 24; // Remaining hours after calculating days
+        
+        const parts: string[] = [];
+        if (days) {
+            parts.push(`${days} day${days !== 1 ? "s" : ""}`);
+        }
+        if (hours) {
+            parts.push(`${hours} hour${hours !== 1 ? "s" : ""}`);
+        }
+        if (minutes) {
+            parts.push(`${minutes} minute${minutes !== 1 ? "s" : ""}`);
+        }
+        if (seconds) {
+            parts.push(`${seconds} second${seconds !== 1 ? "s" : ""}`);
+        }
+        
+        return parts.length > 0 ? parts.join(" ") : "0 minutes";
+    }
 }

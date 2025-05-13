@@ -135,14 +135,14 @@
 
         <!-- Timeline section in your component -->
         <div *ngIf="events.length > 0 && !loading" class="timeline">
-            <div class="timeline-item" *ngFor="let event of events" [class.completed]="event.completed">
+            <div class="timeline-item" *ngFor="let event of events" [class.completed]="event.duration != 'N/A'">
                 <div class="timeline-badge" [ngClass]="'badge-' + event.type.toLowerCase()">
                     <i class="fas" [ngClass]="event.iconClass"></i>
                 </div>
                 <div class="timeline-content">
                     <div class="d-flex justify-content-between mb-2 align-items-start">
                         <div class="d-flex align-items-center">
-                            <h6 class="mb-0">
+                            <h6 class="mb-0 fs-5 fw-semibold">
                                 <a [routerLink]="['/tickets', ticketId, 'activities', event.id]" class="text-decoration-none">
                                     {{ event.title }}
                                 </a>
@@ -153,7 +153,7 @@
                                 {{ formatIsoDuration(event.duration) }}
                             </span>
                             <!-- Completed badge -->
-                            <span *ngIf="event.completed" class="badge bg-success ms-2">
+                            <span *ngIf="event.duration != 'N/A'" class="badge bg-success ms-2">
                                 <i class="fas fa-check-circle me-1"></i> Completed
                             </span>
                         </div>
@@ -170,12 +170,12 @@
                     </div>
 
                     <div class="d-flex justify-content-between align-items-end">
-                        <div class="text-muted smaller">
-                            <small><i class="fas fa-user me-1"></i> {{ event.username }}</small>
+                        <div class="text-muted extra-small">
+                            <i class="fas fa-user me-1"></i> {{ event.username }}
                         </div>
 
-                        <!-- Action buttons -->
-                        <div class="action-buttons">
+                        <!-- Action buttons - filtered to remove open/close actions -->
+                        <div class="action-buttons" *ngIf="event.type !== 'OPEN' && event.type !== 'CLOSE'">
                             <!-- Edit button -->
                             <button type="button" class="btn btn-sm btn-icon"
                                     data-bs-toggle="tooltip"
@@ -185,11 +185,14 @@
                                 <i class="fas fa-edit text-primary"></i>
                             </button>
 
-                            <!-- Complete button (only shown for incomplete activities) -->
-                            <button *ngIf="!event.completed" type="button" class="btn btn-sm btn-icon"
-                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Mark Complete"
+                            <!-- Complete button (only shown for incomplete activities and disabled for completed ones) -->
+                            <button type="button" class="btn btn-sm btn-icon"
+                                    data-bs-toggle="tooltip" 
+                                    data-bs-placement="top" 
+                                    title="Mark Complete"
+                                    [disabled]="event.duration != 'N/A'"
                                     (click)="completeActivity(event)">
-                                <i class="fas fa-check text-success"></i>
+                                <i class="fas fa-check" [ngClass]="event.duration != 'N/A' ? 'text-muted' : 'text-success'"></i>
                             </button>
 
                             <!-- Delete button -->
@@ -265,35 +268,43 @@
     </div>
 </div>
 
-<!-- Delete Activity Confirmation Modal -->
+<!-- Delete Activity Confirmation Modal (Simplified) -->
 <div class="modal fade" id="deleteActivityModal" tabindex="-1" aria-labelledby="deleteActivityModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-sm">
         <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="deleteActivityModalLabel">Confirm Activity Deletion</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteActivityModalLabel">Delete Activity</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" *ngIf="currentActivity">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="me-3">
-                        <span class="fa-stack fa-2x">
-                            <i class="fas fa-circle fa-stack-2x text-danger opacity-25"></i>
-                            <i class="fas fa-exclamation-triangle fa-stack-1x text-danger"></i>
-                        </span>
-                    </div>
-                    <div>
-                        <p class="mb-1">Are you sure you want to delete this activity?</p>
-                        <p class="mb-0 fw-bold">{{ currentActivity.title }}</p>
-                    </div>
-                </div>
-                <div class="alert alert-warning">
-                    <i class="fas fa-info-circle me-2"></i> This action cannot be undone.
-                </div>
+                <p>Delete this activity?</p>
+                <div class="fw-bold mb-2">{{ currentActivity.title }}</div>
+                <small class="text-muted">This action cannot be undone.</small>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" (click)="deleteActivity()">
-                    <i class="fas fa-trash-alt me-1"></i> Delete Activity
+                <button type="button" class="btn btn-danger" (click)="deleteActivity()">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Finish Activity Confirmation Modal -->
+<div class="modal fade" id="finishActivityModal" tabindex="-1" aria-labelledby="finishActivityModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="finishActivityModalLabel">Complete Activity</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" *ngIf="currentActivity">
+                <p>Are you sure you want to mark this activity as complete?</p>
+                <div class="fw-bold mb-2">{{ currentActivity.title }}</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" (click)="finishActivity()">
+                    <i class="fas fa-check me-1"></i> Complete
                 </button>
             </div>
         </div>

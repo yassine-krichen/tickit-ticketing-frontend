@@ -45,37 +45,43 @@
     margin-top: -4px; /* Align content properly with badge */
 }
 
-/* Activity Type Colors */
+/* Timeline item title - make larger */
+.timeline-content h6.fs-5 {
+    font-size: 1.15rem !important; /* Slightly larger than default h6 */
+}
+
+/* Activity Type Colors - Updated with new color scheme */
+/* TODO: color scheme sucks, update it */
 .badge-create, .badge-open {
     background-color: var(--bs-primary);
 }
 
 .badge-update {
-    background-color: var(--bs-info);
-}
-
-.badge-close {
-    background-color: var(--bs-danger);
-}
-
-.badge-assignment {
-    background-color: var(--bs-purple);
+    background-color: var(--bs-secondary);
 }
 
 .badge-email {
-    background-color: var(--bs-indigo);
+    background-color: #0d6efd; /* Bootstrap blue */
 }
 
 .badge-call {
-    background-color: var(--bs-success);
+    background-color: #198754; /* Bootstrap green */
 }
 
 .badge-research {
-    background-color: var(--bs-warning);
+    background-color: #beb750; /* Bootstrap grey */
+}
+
+.badge-assignment {
+    background-color: #6f42c1; /* Bootstrap purple */
 }
 
 .badge-other {
-    background-color: var(--bs-secondary);
+    background-color: #80a3aa; /* Bootstrap info/cyan */
+}
+
+.badge-close {
+    background-color: #6c757d; /* Changed from red to grey */
 }
 
 /* Completed activity styling */
@@ -126,6 +132,12 @@
 
 .btn-icon i {
     font-size: 0.875rem;
+}
+
+/* Disabled complete button */
+.btn-icon:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 /* Status change styling */
@@ -197,4 +209,10 @@
 
 .dropdown-item:hover {
     background-color: #f8f9fa;
+}
+
+/* Username text - smaller and more muted */
+.extra-small {
+    font-size: 0.75rem;
+    color: #8a8a8a;
 }
