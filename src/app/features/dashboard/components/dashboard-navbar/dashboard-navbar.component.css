@@ -173,3 +173,38 @@
         width: 280px;
     }
 }
+
+/* Add these styles for custom dropdowns */
+
+/* Custom dropdown container */
+.custom-dropdown {
+    position: relative;
+}
+
+/* Dropdown menu base styling */
+.dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.5rem);
+    z-index: 1000;
+    display: none;
+    min-width: 10rem;
+    margin: 0;
+    color: #212529;
+    text-align: left;
+    list-style: none;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 0.375rem;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+/* Show state for dropdown menu */
+.dropdown-menu.show {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}

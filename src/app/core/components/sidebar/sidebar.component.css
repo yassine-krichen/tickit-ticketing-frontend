@@ -31,7 +31,8 @@
 /* Sub-navigation styling */
 .sub-nav-link {
     font-size: 0.85rem;
-    padding-left: 0.5rem !important;
+    margin-left: 0.25rem;
+    padding-left: 0.25rem !important;
 }
 
 .sub-nav-link.active {
@@ -41,6 +42,45 @@
 /* For sub-navigation active links as well */
 .sub-nav-link.active:hover {
     color: white !important;
+}
+
+/* Add these styles to create visual connection between parent and children */
+
+.nav-item-children {
+    position: relative;
+    padding-left: 12px;
+}
+
+.nav-connector {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: rgba(249, 115, 22, 0.2);
+    border-radius: 1px;
+}
+
+.nav-item-children .nav-item:first-child .sub-nav-link::before {
+    content: "";
+    position: absolute;
+    left: -12px;
+    top: 50%;
+    width: 10px;
+    height: 2px;
+    background-color: rgba(249, 115, 22, 0.2);
+    border-radius: 1px;
+}
+
+.nav-item-children .nav-item .sub-nav-link {
+    position: relative;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.nav-item-children .nav-item .sub-nav-link:hover,
+.nav-item-children .nav-item .sub-nav-link.active {
+    border-left-color: #f97316;
 }
 
 .user-avatar {
@@ -66,6 +106,15 @@
     background-color: rgba(249, 115, 22, 0.1);
     color: #f97316;
     border-radius: 4px;
+}
+
+/* Simplified footer structure */
+.user-profile-section {
+    flex: 1;
+}
+
+footer .d-flex {
+    width: 100%;
 }
 
 /* Dark mode styles */

@@ -1,20 +1,29 @@
 <div class="dashboard-navbar">
     <div class="container-fluid px-3">
         <div class="d-flex justify-content-between align-items-center py-2">
-            <!-- Welcome Message (smaller text) -->
+            <!-- Welcome Message with dynamic username -->
             <div class="text-muted small mb-0">
-                Welcome back, <span class="fw-bold text-dark">John Doe</span>
+                <ng-container *ngIf="loading">
+                    <span>Loading...</span>
+                </ng-container>
+                <ng-container *ngIf="!loading && !errorMessage">
+                    Welcome back, <span class="fw-bold text-dark">{{ getUserName() }}</span>
+                </ng-container>
+                <ng-container *ngIf="!loading && errorMessage">
+                    <span class="text-danger">{{ errorMessage }}</span>
+                </ng-container>
             </div>
             
             <!-- Right Actions -->
             <div class="d-flex align-items-center">
                 <!-- Notifications Dropdown -->
-                <div class="dropdown me-2">
-                    <button class="btn-icon position-relative dropdown-toggle" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications">
+                <div class="custom-dropdown me-2">
+                    <button class="btn-icon position-relative" type="button" 
+                            (click)="toggleNotifications($event)" title="Notifications">
                         <i class="fas fa-bell"></i>
                         <span class="notification-badge">3</span>
                     </button>
-                    <div class="dropdown-menu dropdown-menu-end shadow-sm notification-dropdown" aria-labelledby="notificationsDropdown">
+                    <div class="dropdown-menu shadow-sm notification-dropdown" [class.show]="notificationsOpen">
                         <div class="dropdown-header d-flex justify-content-between align-items-center">
                             <span class="fw-medium">Notifications</span>
                             <span class="badge bg-primary rounded-pill ms-2">3 New</span>
@@ -54,17 +63,18 @@
                 </div>
                 
                 <!-- User Profile Dropdown -->
-                <div class="dropdown">
-                    <button class="btn-icon profile-btn dropdown-toggle" type="button" id="userMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="User menu">
+                <div class="custom-dropdown">
+                    <button class="btn-icon profile-btn" type="button"
+                            (click)="toggleUserMenu($event)" title="User menu">
                         <i class="fas fa-user"></i>
                     </button>
-                    <div class="dropdown-menu dropdown-menu-end shadow-sm profile-dropdown" aria-labelledby="userMenuDropdown">
+                    <div class="dropdown-menu shadow-sm profile-dropdown" [class.show]="userMenuOpen">
                         <div class="dropdown-header d-flex align-items-center">
                             <div class="profile-icon me-2">
                                 <i class="fas fa-user-circle"></i>
                             </div>
                             <div>
-                                <strong>John Doe</strong>
+                                <strong>{{ getUserName() }}</strong>
                                 <div class="small text-muted">Support Agent</div>
                             </div>
                         </div>
