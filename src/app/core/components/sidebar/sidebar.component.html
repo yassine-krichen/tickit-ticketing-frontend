@@ -69,6 +69,17 @@
           <span>Create Ticket</span>
         </a>
       </li>
+
+      <!-- Notifications (no subitems) -->
+      <li class="nav-item mt-2">
+        <a class="nav-link py-2"
+           [class.active]="activeItem === 'notifications'"
+           routerLink="/notifications"
+           (click)="setActiveItem('notifications')">
+          <i class="fas fa-bell me-2 nav-icon"></i>
+          <span>Notifications</span>
+        </a>
+      </li>
     </ul>
   </nav>
 

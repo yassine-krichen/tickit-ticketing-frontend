@@ -81,6 +81,24 @@ export class DashboardNavbarComponent implements OnInit, AfterViewInit {
         return this.currentUser.email ? this.currentUser.email.split("@")[0] : "User";
     }
 
+
+    getUserRole(): string {
+        if (!this.currentUser) {
+            return "User";
+        }
+
+        const fingerprint = this.currentUser.fingerprint || this.currentUser.userFingerPrint;
+        if (fingerprint) {  
+            const parts = fingerprint.split(".");
+            if (parts.length >= 3) {
+                // Format as "Firstname Lastname"
+                return this._capitalizeFirst(parts[2]);
+            }
+        }
+        
+        return "User";
+    }
+
     /**
      * Toggle notifications dropdown
      */
