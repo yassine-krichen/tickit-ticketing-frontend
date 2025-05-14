@@ -66,6 +66,11 @@ export class DashboardContentComponent implements OnInit {
   blockedCount = 0;
   resolvedCount = 0;
 
+  totalTicketsMoM: number | null = null;
+  inProgressMoM: number | null = null;
+  blockedMoM: number | null = null;
+  resolvedMoM: number | null = null;
+
   constructor(private ticketService: TicketService, private elementRef: ElementRef) { }
 
   ngOnInit(): void {
@@ -221,18 +226,44 @@ export class DashboardContentComponent implements OnInit {
   });
   }
 
+  /**
+   * Loads ticket statistics including Month-over-Month comparisons
+   */
   loadTicketStats(): void {
     this.ticketService.getAllTicketStats().subscribe({
       next: (stats) => {
+        // Set basic counts
         this.totalTicketsCount = stats.totalTickets || 0;
-        // Count tickets by status
         const countsByStatus = stats.countsByStatus || [];
         this.inProgressCount = this.getCountForCategory(countsByStatus, 'IN_PROGRESS');
         this.blockedCount = this.getCountForCategory(countsByStatus, 'BLOCKED');
         this.resolvedCount = this.getCountForCategory(countsByStatus, 'RESOLVED');
+        
+        // Set Month-over-Month comparison values if they exist
+        if (stats.momComparisons) {
+          this.totalTicketsMoM = stats.momComparisons.totalTickets ?? null;
+          this.inProgressMoM = stats.momComparisons.inProgress ?? null;
+          this.blockedMoM = stats.momComparisons.blocked ?? null;
+          this.resolvedMoM = stats.momComparisons.resolved ?? null;
+        } else {
+          // Reset MoM values if not provided by API
+          this.totalTicketsMoM = null;
+          this.inProgressMoM = null;
+          this.blockedMoM = null;
+          this.resolvedMoM = null;
+        }
       },
       error: (error) => {
         console.error('Error loading ticket statistics:', error);
+        // Reset all values on error
+        this.totalTicketsCount = 0;
+        this.inProgressCount = 0;
+        this.blockedCount = 0;
+        this.resolvedCount = 0;
+        this.totalTicketsMoM = null;
+        this.inProgressMoM = null;
+        this.blockedMoM = null;
+        this.resolvedMoM = null;
       }
     });
   }

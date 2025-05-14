@@ -9,6 +9,17 @@
         <div class="text-center">
           <div class="text-muted small">{{ kpi.title }}</div>
           <div class="fs-4 fw-bold">{{ kpi.value() }}</div>
+          
+          <!-- Month-over-Month Comparison Badge -->
+          <div class="badge bg-light mt-2" [ngClass]="getMoMClass(kpi.momPercentage, kpi.title)" *ngIf="kpi.momPercentage !== null">
+            <i [class]="getMoMIcon(kpi.momPercentage, kpi.title)"></i> 
+            {{ formatMoMPercentage(kpi.momPercentage) }} MoM
+          </div>
+          
+          <!-- Show "First Month" badge when no MoM data is available -->
+          <div class="badge bg-light text-secondary mt-2" *ngIf="kpi.momPercentage === null">
+            <i class="fas fa-calendar-alt"></i> First Month
+          </div>
         </div>
       </div>
     </div>

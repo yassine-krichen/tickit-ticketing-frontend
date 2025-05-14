@@ -62,6 +62,12 @@ export class TicketService {
     countsByType?: TicketCount[];
     countsByStep?: TicketCount[];
     countsBySubStatus?: TicketCount[];
+    momComparisons?: {
+      totalTickets: number | null;
+      inProgress: number | null;
+      blocked: number | null;
+      resolved: number | null;
+    };
   }> {
     return this.http.get<any>(`${this.baseUrl}/stats/all`)
       .pipe(
@@ -74,7 +80,13 @@ export class TicketService {
             countsByStatus: [],
             countsByType: [],
             countsByStep: [],
-            countsBySubStatus: []
+            countsBySubStatus: [],
+            momComparisons: {
+              totalTickets: null,
+              inProgress: null,
+              blocked: null,
+              resolved: null
+            }
           });
         })
       );
