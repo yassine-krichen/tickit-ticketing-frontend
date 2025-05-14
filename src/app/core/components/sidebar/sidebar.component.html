@@ -1,119 +1,119 @@
 <!-- Sidebar container -->
 <div class="sidebar-container bg-white shadow-sm">
-
-  <!-- Header Section with Logo Image -->
+  <!-- Header with logo -->
   <header class="d-flex align-items-center py-1 px-3 border-bottom">
     <img
       src="assets/images/mini-logo.png"
       alt="TickIT Logo"
-      class="img-fluid"
-      style="max-height: 44px;"
+      class="logo img-fluid"
     />
   </header>
 
   <!-- Navigation Menu -->
   <nav class="flex-grow-1 py-2 px-2">
     <ul class="nav nav-pills flex-column">
-      <!-- Dashboard with nested items -->
+      <!-- Dashboard item with dropdown -->
       <li class="nav-item">
         <a class="nav-link py-2"
            [class.active]="activeItem === 'dashboard'"
            routerLink="/dashboard"
            (click)="setActiveItem('dashboard')">
-          <i class="fas fa-tachometer-alt me-2"></i>
-          Dashboard
+          <i class="fas fa-tachometer-alt me-2 nav-icon"></i>
+          <span>Dashboard</span>
+          <i class="fas fa-chevron-down ms-auto dropdown-indicator" 
+             [class.rotated]="openDropdown === 'dashboard'"
+             (click)="toggleDropdown('dashboard'); $event.preventDefault(); $event.stopPropagation()"></i>
         </a>
 
-        <!-- Nested sub-items with improved visual hierarchy -->
-        <div class="nav-item-children">
-          <div class="nav-connector"></div>
-          <ul class="nav nav-pills flex-column ms-2 mt-1">
+        <!-- Dropdown for dashboard sub-items -->
+        <div class="nav-dropdown" [class.show]="openDropdown === 'dashboard'">
+          <ul class="nav nav-pills flex-column mt-1">
             <li class="nav-item">
-              <a class="nav-link py-1 sub-nav-link"
+              <a class="nav-link py-1"
                  [class.active]="activeItem === 'tickets'"
                  routerLink="/dashboard/tickets"
                  (click)="setActiveItem('tickets')">
-                <i class="fas fa-ticket-alt me-2"></i>
-                Tickets
+                <i class="fas fa-ticket-alt me-2 nav-icon"></i>
+                <span>Tickets</span>
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link py-1 sub-nav-link"
+              <a class="nav-link py-1"
                  [class.active]="activeItem === 'analytics'"
                  routerLink="/dashboard/analytics"
                  (click)="setActiveItem('analytics')">
-                <i class="fas fa-chart-bar me-2"></i>
-                Analytics
+                <i class="fas fa-chart-bar me-2 nav-icon"></i>
+                <span>Analytics</span>
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link py-1 sub-nav-link"
+              <a class="nav-link py-1"
                  [class.active]="activeItem === 'ai-insights'"
                  routerLink="/dashboard/ai-insights"
                  (click)="setActiveItem('ai-insights')">
-                <i class="fas fa-robot me-2"></i>
-                AI Insights
+                <i class="fas fa-robot me-2 nav-icon"></i>
+                <span>AI Insights</span>
               </a>
             </li>
           </ul>
         </div>
       </li>
 
-      <!-- New Ticket Creation Option -->
+      <!-- Create Ticket (no subitems) -->
       <li class="nav-item mt-2">
         <a class="nav-link py-2"
            [class.active]="activeItem === 'create-ticket'"
            routerLink="/ticket-create-update/ticket/new"
            (click)="setActiveItem('create-ticket')">
-          <i class="fas fa-plus-circle me-2"></i>
-          Create Ticket
+          <i class="fas fa-plus-circle me-2 nav-icon"></i>
+          <span>Create Ticket</span>
         </a>
       </li>
     </ul>
   </nav>
 
-  <!-- User Profile Footer - Restructured -->
+  <!-- Footer with User Profile -->
   <footer class="border-top py-2 px-3">
-    <div class="d-flex justify-content-between align-items-center">
-      <!-- Left side: User profile info -->
-      <div class="user-profile-section">
+    <div class="user-profile-wrapper">
+      <!-- User info area -->
+      <div class="user-info-area">
         <!-- Loading state -->
-        <div *ngIf="loading" class="user-profile">
-          <div class="user-avatar">
+        <div *ngIf="loading" class="user-profile d-flex align-items-center">
+          <div class="user-avatar me-2">
             <i class="fas fa-spinner fa-spin"></i>
           </div>
-          <div class="user-info">
-            <div class="user-name">Loading...</div>
+          <div class="user-text">
+            <div class="fw-bold">Loading...</div>
           </div>
         </div>
 
         <!-- Error state -->
-        <div *ngIf="!loading && error" class="user-profile">
-          <div class="user-avatar">
+        <div *ngIf="!loading && error" class="user-profile d-flex align-items-center">
+          <div class="user-avatar me-2">
             <i class="fas fa-exclamation-circle"></i>
           </div>
-          <div class="user-info">
-            <div class="user-name text-danger">{{ error }}</div>
+          <div class="user-text">
+            <div class="text-danger">{{ error }}</div>
           </div>
         </div>
 
         <!-- User data loaded successfully -->
-        <div *ngIf="!loading && user && !error" class="d-flex align-items-center gap-2">
-          <div class="user-avatar">
-            <img *ngIf="user.avatarUrl && user.avatarUrl.trim() && user.avatarUrl !== 'No Image Available'" [src]="user.avatarUrl" alt="User Avatar">
-            <i *ngIf="!user.avatarUrl || !user.avatarUrl.trim() || user.avatarUrl === 'No Image Available'" class="fas fa-user"></i>
+        <div *ngIf="!loading && user && !error" class="user-profile d-flex align-items-center">
+          <div class="user-avatar me-2">
+            <img *ngIf="user.avatarUrl && user.avatarUrl.trim() && user.avatarUrl !== 'No Image Available'" 
+                 [src]="user.avatarUrl" alt="User Avatar">
+            <i *ngIf="!user.avatarUrl || !user.avatarUrl.trim() || user.avatarUrl === 'No Image Available'" 
+               class="fas fa-user"></i>
           </div>
-          <div class="user-info">
-            <div class="overflow-hidden">
-              <div class="fw-bold text-truncate">{{userName}}</div>
-              <div class="small text-secondary text-truncate">{{userRole}}</div>
-            </div>
+          <div class="user-text">
+            <div class="fw-bold text-truncate">{{userName}}</div>
+            <div class="small text-secondary text-truncate">{{userRole}}</div>
           </div>
         </div>
       </div>
 
-      <!-- Right side: Only logout button -->
-      <button class="btn btn-sm btn-light-hover" title="Logout" (click)="logout()">
+      <!-- Logout button -->
+      <button class="btn-logout" title="Logout" (click)="logout()">
         <i class="fas fa-sign-out-alt"></i>
       </button>
     </div>

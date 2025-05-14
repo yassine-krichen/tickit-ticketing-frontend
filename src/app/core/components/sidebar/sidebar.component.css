@@ -1,5 +1,5 @@
 .sidebar-container {
-    width: 200px;
+    width: 200px; /* Fixed width, no longer collapsible */
     height: 100vh;
     position: fixed;
     top: 0;
@@ -7,80 +7,109 @@
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    z-index: 1030;
 }
 
+/* Header and logo styles */
+header {
+    min-height: 50px;
+}
+
+.logo {
+    max-height: 35px;
+}
+
+/* Navigation link styles */
 .nav-link {
     border-radius: 4px;
     transition: all 0.15s ease;
     font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    position: relative;
 }
 
 .nav-link:not(.active):hover {
     background-color: rgba(249, 115, 22, 0.1);
 }
 
-/* Add these styles to ensure text remains visible on active nav links when hovering */
 .nav-link.active {
     color: white;
+    background-color: #f97316;
 }
 
 .nav-link.active:hover {
     color: white !important;
 }
 
+/* Icon styling */
+.nav-icon {
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Dropdown indicator */
+.dropdown-indicator {
+    font-size: 0.75rem;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.dropdown-indicator.rotated {
+    transform: rotate(180deg);
+}
+
+/* Dropdown styles - completely reworked */
+.nav-dropdown {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.2s ease;
+    opacity: 0;
+}
+
+.nav-dropdown.show {
+    max-height: 300px;
+    opacity: 1;
+}
+
 /* Sub-navigation styling */
 .sub-nav-link {
     font-size: 0.85rem;
-    margin-left: 0.25rem;
-    padding-left: 0.25rem !important;
+    padding-left: 1.5rem !important;
+    margin-left: 0.5rem;
+    border-left: 2px solid rgba(249, 115, 22, 0.2);
+    position: relative;
+}
+
+.sub-nav-link::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 0.5rem;
+    height: 2px;
+    background-color: rgba(249, 115, 22, 0.2);
 }
 
 .sub-nav-link.active {
     background-color: rgba(249, 115, 22, 0.8) !important;
+    border-left-color: rgba(249, 115, 22, 1);
 }
 
-/* For sub-navigation active links as well */
 .sub-nav-link.active:hover {
     color: white !important;
 }
 
-/* Add these styles to create visual connection between parent and children */
-
-.nav-item-children {
-    position: relative;
-    padding-left: 12px;
+/* User profile styles */
+.user-profile-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
-.nav-connector {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background-color: rgba(249, 115, 22, 0.2);
-    border-radius: 1px;
-}
-
-.nav-item-children .nav-item:first-child .sub-nav-link::before {
-    content: "";
-    position: absolute;
-    left: -12px;
-    top: 50%;
-    width: 10px;
-    height: 2px;
-    background-color: rgba(249, 115, 22, 0.2);
-    border-radius: 1px;
-}
-
-.nav-item-children .nav-item .sub-nav-link {
-    position: relative;
-    border-left: 3px solid transparent;
-    transition: all 0.2s ease;
-}
-
-.nav-item-children .nav-item .sub-nav-link:hover,
-.nav-item-children .nav-item .sub-nav-link.active {
-    border-left-color: #f97316;
+.user-info-area {
+    flex: 1;
+    overflow: hidden;
 }
 
 .user-avatar {
@@ -93,28 +122,33 @@
     justify-content: center;
     color: white;
     font-size: 0.8rem;
+    overflow: hidden;
 }
 
-.btn-light-hover {
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-text {
+    flex: 1;
+    min-width: 0; /* Allow text to wrap/truncate */
+}
+
+.btn-logout {
     background: transparent;
     border: none;
     padding: 0.25rem 0.5rem;
     color: #6c757d;
+    border-radius: 4px;
+    margin-left: 5px;
+    transition: all 0.2s ease;
 }
 
-.btn-light-hover:hover {
+.btn-logout:hover {
     background-color: rgba(249, 115, 22, 0.1);
     color: #f97316;
-    border-radius: 4px;
-}
-
-/* Simplified footer structure */
-.user-profile-section {
-    flex: 1;
-}
-
-footer .d-flex {
-    width: 100%;
 }
 
 /* Dark mode styles */
@@ -141,15 +175,29 @@ footer .d-flex {
     color: #adb5bd !important;
 }
 
-:host-context(body.dark-mode) .btn-light-hover {
+:host-context(body.dark-mode) .btn-logout {
     color: #adb5bd;
 }
 
-:host-context(body.dark-mode) .btn-light-hover:hover {
+:host-context(body.dark-mode) .btn-logout:hover {
     background-color: rgba(249, 115, 22, 0.2);
     color: #f97316;
 }
 
 :host-context(body.dark-mode) .fw-bold {
     color: #f8f9fa;
+}
+
+/* Responsive styles */
+@media (max-width: 767.98px) {
+    .sidebar-container {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    
+    .sidebar-container.mobile-visible {
+        transform: translateX(0);
+    }
+    
+    /* Add mobile hamburger button styles here if needed */
 }
