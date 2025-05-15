@@ -165,14 +165,27 @@
             <div class="col-md-4" *ngFor="let attachment of attachments">
               <div class="attachment-card border rounded p-3 h-100">
                 <div class="d-flex flex-column align-items-center text-center mb-2">
-                  <i class="fas fa-file fa-2x mb-2 text-primary"></i>
-                  <span class="text-truncate w-100">{{ attachment.filename || 'Unnamed file' }}</span>
+                  <!-- Icon based on file type -->
+                  <i class="fas fa-2x mb-2" 
+                     [ngClass]="{
+                         'fa-file-image text-primary': attachment.type?.startsWith('image'),
+                         'fa-file-pdf text-danger': attachment.type === 'application/pdf',
+                         'fa-file-word text-primary': attachment.type === 'application/msword' || attachment.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                         'fa-file-alt text-secondary': attachment.type === 'text/plain',
+                         'fa-file text-secondary': !attachment.type || (!attachment.type.startsWith('image') && attachment.type !== 'application/pdf' && attachment.type !== 'application/msword' && attachment.type !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' && attachment.type !== 'text/plain')
+                     }"></i>
+                  <span class="text-truncate w-100" title="{{attachment.filename}}">{{ attachment.filename || 'Unnamed file' }}</span>
                   <small class="text-muted">{{ attachment.size | fileSize }}</small>
                 </div>
-                <div class="d-flex justify-content-center">
+                <div class="d-flex justify-content-center gap-2">
                   <button class="btn btn-sm btn-outline-primary" 
-                          (click)="downloadAttachment(ticketId, activityId, attachment.id)">
+                          (click)="downloadAttachment(ticketId, activityId, attachment.id.toString())">
                     <i class="fas fa-download me-1"></i> Download
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger" 
+                          *ngIf="attachment.canDelete" 
+                          (click)="deleteAttachment(attachment.id.toString())">
+                    <i class="fas fa-trash-alt me-1"></i> Delete
                   </button>
                 </div>
               </div>
@@ -263,3 +276,10 @@
     </div>
   </div>
 </div>
+
+<!-- Add this at the bottom of your template, outside all other containers -->
+<app-file-upload-modal 
+    [ticketId]="ticketId" 
+    [activityId]="activityId" 
+    (uploadComplete)="onUploadComplete($event)">
+</app-file-upload-modal>

@@ -1,9 +1,17 @@
 import { Pipe, PipeTransform } from "@angular/core";
 
+/**
+ * Pipe to format file sizes in bytes to a human-readable format
+ */
 @Pipe({
     name: "fileSize"
 })
 export class FileSizePipe implements PipeTransform {
+    /**
+     * Transforms file size in bytes to a human-readable format
+     * @param size - Size in bytes
+     * @returns Formatted size string (e.g., "1.5 MB")
+     */
     transform(size: number | undefined): string {
         if (size === undefined || size === null) {
             return "Unknown size";

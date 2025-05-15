@@ -54,10 +54,18 @@ export class TicketActivityDetailsComponent implements OnInit, AfterViewInit {
     }
 
     /**
-     * Initialize Bootstrap components after view is initialized
+     * Lifecycle hook called after the view is initialized
+     * Sets up the file upload modal and other bootstrap components
      */
     ngAfterViewInit(): void {
         this._initBootstrapComponents();
+        
+        // Add a small delay to ensure ViewChild is available
+        setTimeout(() => {
+            if (!this.fileUploadModal) {
+                console.warn("File upload modal component not found. Check that it's properly included in the template.");
+            }
+        }, 500);
     }
 
     /**
@@ -130,12 +138,32 @@ export class TicketActivityDetailsComponent implements OnInit, AfterViewInit {
             });
     }
 
+    /**
+     * Opens the file upload modal
+     */
     onUploadImage(): void {
-        this.fileUploadModal.show();
+        if (this.fileUploadModal) {
+            this.fileUploadModal.ticketId = this.ticketId;
+            this.fileUploadModal.activityId = this.activityId;
+            this.fileUploadModal.show();
+        } else {
+            this._showErrorNotification("File upload component is not available");
+            console.error("File upload modal is undefined. Check component initialization.");
+        }
     }
 
-    onUploadComplete(): void {
-        this.loadAttachments(); // Refresh attachments list
+    /**
+     * Handles file upload completion
+     * @param attachments - The newly uploaded attachments
+     */
+    onUploadComplete(attachments: AttachmentDto[]): void {
+        if (attachments && attachments.length > 0) {
+            // Add the new attachments to the existing list
+            this.attachments = [...attachments, ...this.attachments];
+            
+            // Show success notification
+            this._showSuccessNotification(`Successfully uploaded ${attachments.length} file(s)`);
+        }
     }
 
     onUploadFiles(): void {
@@ -146,21 +174,56 @@ export class TicketActivityDetailsComponent implements OnInit, AfterViewInit {
         this.router.navigate(["/tickets", this.ticketId, "activities", this.activityId, "edit"]);
     }
 
+    /**
+     * Downloads an attachment
+     * @param ticketId - The ticket ID
+     * @param activityId - The activity ID
+     * @param attachmentId - The attachment ID to download
+     */
     downloadAttachment(ticketId: string, activityId: string, attachmentId: string): void {
         this.activityService.downloadAttachment(ticketId, activityId, attachmentId).subscribe({
             next: (response) => {
-                // Handle file download
+                // Create a Blob URL and trigger download
                 const url = window.URL.createObjectURL(response);
+                
+                // Find the attachment to get the filename
+                const attachment = this.attachments.find(a => a.id === Number(attachmentId));
+                const filename = attachment ? attachment.filename : "attachment";
+                
+                // Create a link element and click it to trigger download
                 const link = document.createElement("a");
                 link.href = url;
-                link.download = "attachment"; // You might want to get the filename from response headers
+                link.download = filename;
                 link.click();
-                window.URL.revokeObjectURL(url);
+                
+                // Clean up the URL object
+                setTimeout(() => window.URL.revokeObjectURL(url), 100);
             },
             error: (error) => {
                 console.error("Error downloading attachment:", error);
+                this._showErrorNotification("Failed to download attachment. Please try again.");
             }
         });
+    }
+
+    /**
+     * Deletes an attachment
+     * @param attachmentId - The attachment ID to delete
+     */
+    deleteAttachment(attachmentId: string): void {
+        if (confirm("Are you sure you want to delete this attachment?")) {
+            this.activityService.deleteAttachment(this.ticketId, this.activityId, attachmentId).subscribe({
+                next: () => {
+                    // Remove the deleted attachment from the list
+                    this.attachments = this.attachments.filter(a => a.id !== Number(attachmentId));
+                    this._showSuccessNotification("Attachment deleted successfully");
+                },
+                error: (error) => {
+                    console.error("Error deleting attachment:", error);
+                    this._showErrorNotification("Failed to delete attachment. Please try again.");
+                }
+            });
+        }
     }
 
     formatIsoDuration(isoDuration: string): string {

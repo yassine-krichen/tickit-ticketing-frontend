@@ -4,11 +4,13 @@ import { RouterModule } from '@angular/router';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { BackButtonComponent } from './components/back-button/back-button.component';
 import { ScrollToTopComponent } from './components/scroll-to-top/scroll-to-top.component';
+import { FileSizePipe } from './pipes/file-size.pipe';
 @NgModule({
   declarations: [
     SidebarComponent,
     BackButtonComponent,
-    ScrollToTopComponent
+    ScrollToTopComponent,
+    FileSizePipe
   ],
   imports: [
     CommonModule,
@@ -17,7 +19,8 @@ import { ScrollToTopComponent } from './components/scroll-to-top/scroll-to-top.c
   exports: [
     SidebarComponent,
     BackButtonComponent,
-    ScrollToTopComponent
+    ScrollToTopComponent,
+    FileSizePipe
   ],
   providers: [
     // Add your singleton services here
