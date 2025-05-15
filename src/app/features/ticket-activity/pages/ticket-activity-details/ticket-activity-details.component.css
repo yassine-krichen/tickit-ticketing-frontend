@@ -4,11 +4,9 @@
 }
 
 .activity-details-container {
-  max-width: 1200px;
-  margin: 0 auto;
   margin-left: 200px; /* Match the sidebar width */
   transition: margin-left 0.3s ease;
-  padding: 20px;
+  padding: 1.5rem;
   flex: 1;
 }
 
@@ -30,12 +28,19 @@
   text-align: center;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  background-color: #fff;
 }
 
 .attachment-card img {
   width: 100%;
   height: 200px;
   object-fit: cover;
+}
+
+.attachment-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .attachment-overlay {
@@ -81,3 +86,58 @@
 .btn-link:hover {
   text-decoration: underline;
 }
+
+.avatar-placeholder {
+  width: 36px;
+  height: 36px;
+}
+
+.comment-item:not(:last-child) {
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 1rem;
+}
+
+.comment-form {
+  transition: all 0.3s ease;
+}
+
+#commentFormCollapse.collapse:not(.show) {
+  display: none;
+}
+
+#commentFormCollapse.collapsing {
+  height: 0;
+  overflow: hidden;
+  transition: height 0.35s ease;
+}
+
+.comment-form textarea {
+  resize: none;
+  transition: all 0.2s ease;
+}
+
+.comment-form textarea:focus {
+  box-shadow: none;
+  border-color: #86b7fe;
+}
+
+/* Make sure the comments list has a clean separation */
+.comments-list {
+  margin-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 1rem;
+}
+
+/* Only show border when comments exist */
+.comments-list:empty {
+  border-top: none;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+/* File type icons */
+.fa-file-pdf { color: #dc3545; }
+.fa-file-word { color: #0d6efd; }
+.fa-file-excel { color: #198754; }
+.fa-file-image { color: #6f42c1; }
+.fa-file-alt { color: #6c757d; }

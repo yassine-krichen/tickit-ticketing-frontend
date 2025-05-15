@@ -4,7 +4,7 @@
       <i class="fas fa-file-medical me-2 text-primary"></i> Treatment Act
     </h5>
     <span class="badge" [ngClass]="getCaseStatusClass(treatmentAct?.caseStatus)" *ngIf="treatmentAct?.caseStatus">
-      {{ treatmentAct?.caseStatus }}
+      {{ treatmentAct?.caseStatus || 'No Status' }}
     </span>
   </div>
 
@@ -29,33 +29,34 @@
           <div class="col-md-6">
             <div class="d-flex flex-column">
               <small class="text-muted">Case ID</small>
-              <span class="badge bg-light text-dark font-monospace mb-2">{{ treatmentAct.caseId }}</span>
+              <span class="badge bg-light text-dark font-monospace mb-2">{{ treatmentAct.caseId || 'Not assigned' }}</span>
             </div>
           </div>
           <div class="col-md-6">
             <div class="d-flex flex-column">
               <small class="text-muted">Case Name</small>
-              <span class="fw-bold">{{ treatmentAct.caseName }}</span>
+              <span>{{ treatmentAct.caseName || 'Unnamed case' }}</span>
             </div>
           </div>
           <div class="col-md-4">
             <div class="d-flex flex-column">
               <small class="text-muted">Case Type</small>
-              <span>{{ treatmentAct.caseType }}</span>
+              <span>{{ treatmentAct.caseType || 'Not specified' }}</span>
             </div>
           </div>
           <div class="col-md-4">
             <div class="d-flex flex-column">
               <small class="text-muted">Case Priority</small>
-              <span class="badge" [ngClass]="getPriorityClass(treatmentAct.casePriority)">
+              <span class="badge" [ngClass]="getPriorityClass(treatmentAct.casePriority)" *ngIf="treatmentAct.casePriority">
                 {{ treatmentAct.casePriority }}
               </span>
+              <span class="text-muted" *ngIf="!treatmentAct.casePriority">No priority set</span>
             </div>
           </div>
           <div class="col-md-4">
             <div class="d-flex flex-column">
               <small class="text-muted">Act ID</small>
-              <span class="badge bg-light text-dark font-monospace">{{ treatmentAct.idacte }}</span>
+              <span class="badge bg-light text-dark font-monospace">{{ treatmentAct.idacte || 'Not assigned' }}</span>
             </div>
           </div>
         </div>
@@ -71,33 +72,34 @@
           <div class="col-md-6">
             <div class="d-flex flex-column">
               <small class="text-muted">Type</small>
-              <span>{{ treatmentAct.type_element }}</span>
+              <span>{{ treatmentAct.type_element || 'Not categorized' }}</span>
             </div>
           </div>
           <div class="col-md-6">
             <div class="d-flex flex-column">
               <small class="text-muted">Reference</small>
-              <span>{{ treatmentAct.refTacheBPU }}</span>
+              <span>{{ treatmentAct.refTacheBPU || 'No reference provided' }}</span>
             </div>
           </div>
           <div class="col-md-4">
             <div class="d-flex flex-column">
               <small class="text-muted">Quantity</small>
-              <span>{{ treatmentAct.quantite }}</span>
+              <span>{{ treatmentAct.quantite !== null && treatmentAct.quantite !== undefined ? treatmentAct.quantite : 'Not specified' }}</span>
             </div>
           </div>
           <div class="col-md-4">
             <div class="d-flex flex-column">
               <small class="text-muted">Duration (days)</small>
-              <span>{{ treatmentAct.duree }}</span>
+              <span>{{ treatmentAct.duree !== null && treatmentAct.duree !== undefined ? treatmentAct.duree : 'Not defined' }}</span>
             </div>
           </div>
           <div class="col-md-4">
             <div class="d-flex flex-column">
               <small class="text-muted">Priority</small>
-              <span class="badge" [ngClass]="getPriorityClass(treatmentAct.priorite)">
+              <span class="badge" [ngClass]="getPriorityClass(treatmentAct.priorite)" *ngIf="treatmentAct.priorite">
                 {{ treatmentAct.priorite }}
               </span>
+              <span class="text-muted" *ngIf="!treatmentAct.priorite">No priority set</span>
             </div>
           </div>
         </div>
@@ -113,13 +115,13 @@
           <div class="col-md-6">
             <div class="d-flex flex-column">
               <small class="text-muted">Reception Date</small>
-              <span>{{ treatmentAct.dateReception | date:'mediumDate' }}</span>
+              <span>{{ treatmentAct.dateReception ? (treatmentAct.dateReception | date:'mediumDate') : 'Not received yet' }}</span>
             </div>
           </div>
           <div class="col-md-6">
             <div class="d-flex flex-column">
               <small class="text-muted">Delivery Date</small>
-              <span>{{ treatmentAct.dateLivraison | date:'mediumDate' }}</span>
+              <span>{{ treatmentAct.dateLivraison ? (treatmentAct.dateLivraison | date:'mediumDate') : 'Not delivered yet' }}</span>
             </div>
           </div>
           <div class="col-md-4" *ngIf="treatmentAct.dateValidation">
@@ -128,16 +130,34 @@
               <span>{{ treatmentAct.dateValidation | date:'mediumDate' }}</span>
             </div>
           </div>
+          <div class="col-md-4" *ngIf="!treatmentAct.dateValidation">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Validation Date</small>
+              <span class="text-muted">Pending validation</span>
+            </div>
+          </div>
           <div class="col-md-4" *ngIf="treatmentAct.dateReprise">
             <div class="d-flex flex-column">
               <small class="text-muted">Recovery Date</small>
               <span>{{ treatmentAct.dateReprise | date:'mediumDate' }}</span>
             </div>
           </div>
+          <div class="col-md-4" *ngIf="!treatmentAct.dateReprise">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Recovery Date</small>
+              <span class="text-muted">No recovery needed</span>
+            </div>
+          </div>
           <div class="col-md-4" *ngIf="treatmentAct.dateDeadline">
             <div class="d-flex flex-column">
               <small class="text-muted">Deadline</small>
               <span>{{ treatmentAct.dateDeadline | date:'mediumDate' }}</span>
+            </div>
+          </div>
+          <div class="col-md-4" *ngIf="!treatmentAct.dateDeadline">
+            <div class="d-flex flex-column">
+              <small class="text-muted">Deadline</small>
+              <span class="text-muted">No deadline set</span>
             </div>
           </div>
         </div>
@@ -153,33 +173,34 @@
           <div class="col-md-4">
             <div class="d-flex flex-column">
               <small class="text-muted">Billing Status</small>
-              <span class="badge" [ngClass]="getBillingStatusClass(treatmentAct.statutFacturation)">
+              <span class="badge" [ngClass]="getBillingStatusClass(treatmentAct.statutFacturation)" *ngIf="treatmentAct.statutFacturation">
                 {{ treatmentAct.statutFacturation }}
               </span>
+              <span class="text-muted" *ngIf="!treatmentAct.statutFacturation">Not billed</span>
             </div>
           </div>
           <div class="col-md-4">
             <div class="d-flex flex-column">
               <small class="text-muted">Tariff ID</small>
-              <span>{{ treatmentAct.tarifId }}</span>
+              <span>{{ treatmentAct.tarifId || 'No tariff assigned' }}</span>
             </div>
           </div>
           <div class="col-md-4">
             <div class="d-flex flex-column">
               <small class="text-muted">Tariff Name</small>
-              <span>{{ treatmentAct.tarifName }}</span>
+              <span>{{ treatmentAct.tarifName || 'No tariff information' }}</span>
             </div>
           </div>
           <div class="col-md-6">
             <div class="d-flex flex-column">
               <small class="text-muted">Classification</small>
-              <span>{{ treatmentAct.classification }}</span>
+              <span>{{ treatmentAct.classification || 'Unclassified' }}</span>
             </div>
           </div>
           <div class="col-md-6">
             <div class="d-flex flex-column">
               <small class="text-muted">Billable Recovery</small>
-              <span>{{ treatmentAct.repriseFacturable !== null ? (treatmentAct.repriseFacturable ? 'Yes' : 'No') : 'N/A' }}</span>
+              <span>{{ treatmentAct.repriseFacturable !== null ? (treatmentAct.repriseFacturable ? 'Yes' : 'No') : 'Not applicable' }}</span>
             </div>
           </div>
         </div>
@@ -195,26 +216,32 @@
           <div class="col-md-6">
             <div class="d-flex flex-column">
               <small class="text-muted">Assigned To</small>
-              <span>{{ treatmentAct.affectation }}</span>
+              <span>{{ treatmentAct.affectation || 'Not assigned' }}</span>
             </div>
           </div>
           <div class="col-md-6">
             <div class="d-flex flex-column">
               <small class="text-muted">Prestation</small>
-              <span>{{ treatmentAct.prestationName }} ({{ treatmentAct.prestationId }})</span>
+              <span *ngIf="treatmentAct.prestationName || treatmentAct.prestationId">
+                {{ treatmentAct.prestationName || 'Unknown' }} 
+                {{ treatmentAct.prestationId ? '(' + treatmentAct.prestationId + ')' : '' }}
+              </span>
+              <span class="text-muted" *ngIf="!treatmentAct.prestationName && !treatmentAct.prestationId">No prestation details</span>
             </div>
           </div>
           <div class="col-12">
             <div class="d-flex flex-column">
               <small class="text-muted">Reason</small>
-              <span>{{ treatmentAct.motif }}</span>
+              <span *ngIf="treatmentAct.motif">{{ treatmentAct.motif }}</span>
+              <span class="text-muted fst-italic" *ngIf="!treatmentAct.motif">No reason provided</span>
             </div>
           </div>
           <div class="col-12">
             <div class="d-flex flex-column">
               <small class="text-muted">Comment</small>
               <div class="border rounded p-3 bg-light">
-                {{ treatmentAct.commentaire }}
+                <span *ngIf="treatmentAct.commentaire">{{ treatmentAct.commentaire }}</span>
+                <span class="text-muted fst-italic" *ngIf="!treatmentAct.commentaire">No comments available</span>
               </div>
             </div>
           </div>

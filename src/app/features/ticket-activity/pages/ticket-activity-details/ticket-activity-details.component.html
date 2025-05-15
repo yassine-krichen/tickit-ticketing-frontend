@@ -1,102 +1,265 @@
 <div class="page-container">
   <app-sidebar></app-sidebar>
-<div class="activity-details-container">
-  <!-- Loading state -->
-  <div class="text-center py-5" *ngIf="loading">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
+  <div class="activity-details-container">
+    <!-- Loading state -->
+    <div class="text-center py-5" *ngIf="loading">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="text-muted mt-2">Loading activity details...</p>
     </div>
-  </div>
 
-  <!-- Error state -->
-  <div class="alert alert-danger" *ngIf="error">
-    <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
-  </div>
+    <!-- Error state -->
+    <div class="alert alert-danger" *ngIf="error">
+      <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+    </div>
 
-  <div class="" *ngIf="activity">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <div class="d-flex align-items-center gap-3">
-        <button class="btn btn-link" [routerLink]="['/tickets', ticketId]">
-          <i class="fas fa-arrow-left"></i> Back to Ticket
+    <div *ngIf="activity && !loading">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-sm btn-outline-secondary" [routerLink]="['/tickets', ticketId]">
+            <i class="fas fa-arrow-left me-1"></i> Back to Ticket
+          </button>
+          <h4 class="mb-0 text-primary">
+            <i class="fas fa-clipboard-list me-2"></i>
+            {{ (activity.type | titlecase) + ' Activity' || 'Activity' }} Details
+          </h4>
+        </div>
+        <button class="btn btn-sm btn-primary" (click)="onEditActivity()">
+          <i class="fas fa-edit me-2"></i>Edit Activity
         </button>
-        <h2 class="mb-0">Activity Details</h2>
       </div>
-      <button class="btn btn-primary" (click)="onEditActivity()">
-        <i class="fas fa-edit me-2"></i>Edit Activity
-      </button>
-    </div>
 
-    <!-- Activity Information -->
-    <div class="card mb-4">
-      <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Activity Information</h5>
-      </div>
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-6">
-            <p><strong>Type:</strong> {{activity.type}}</p>
-            <p><strong>Created By:</strong> {{activity.username}}</p>
-            <p><strong>Start Time:</strong> {{activity.startTime | date:'medium'}}</p>
-          </div>
-          <div class="col-md-6">
-            <p><strong>Status:</strong>
-              <span class="badge" [ngClass]="{'bg-success': activity.completed, 'bg-warning': !activity.completed}">
-                {{activity.completed ? 'Completed' : 'In Progress'}}
-              </span>
-            </p>
-            <p><strong>End Time:</strong> {{activity.endTime | date:'medium'}}</p>
-            <p><strong>Duration:</strong> {{formatIsoDuration(activity.duration)}}</p>
-          </div>
+      <!-- Activity Information Card -->
+      <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">
+            <i class="fas fa-info-circle me-2 text-primary"></i> Activity Information
+          </h5>
+          <span class="badge" 
+                [ngClass]="activity.completed ? 'bg-success' : 'bg-warning'"
+                *ngIf="activity.status !== null">
+            {{ activity.completed ? 'Completed' : 'In Progress' }}
+          </span>
         </div>
-        <div class="mt-3">
-          <h6 class="fw-semibold mb-2 text-muted">Description</h6>
-          <p class="mb-0">{{activity.description}}</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Attachments Section -->
-    <div class="card mb-4">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="fas fa-paperclip me-2"></i>Attachments</h5>
-        <app-file-upload-modal
-          [activityId]="activityId"
-          (uploadComplete)="onUploadComplete()">
-        </app-file-upload-modal>
-      </div>
-      <div class="card-body">
-        <div class="row g-3" *ngIf="attachments?.length > 0">
-          <div class="col-md-4" *ngFor="let attachment of attachments">
-            <div class="attachment-card">
-              <div class="file-preview">
-                <i class="fas fa-file fa-3x"></i>
-                <span class="filename">{{attachment.filename}}</span>
+        <div class="card-body">
+          <!-- Basic Information -->
+          <div class="mb-4">
+            <h6 class="border-bottom pb-2 mb-3">
+              <i class="fas fa-tag me-2 text-primary"></i> Basic Information
+            </h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="d-flex flex-column">
+                  <small class="text-muted">Activity ID</small>
+                  <span class="badge bg-light text-dark font-monospace mb-2">{{ activityId || 'Not assigned' }}</span>
+                </div>
               </div>
-              <button class="btn btn-sm btn-light" (click)="downloadAttachment(attachment.id)">
-                <i class="fas fa-download me-2"></i>Download
-              </button>
+              <div class="col-md-6">
+                <div class="d-flex flex-column">
+                  <small class="text-muted">Type</small>
+                  <span>{{ activity.type || 'Not specified' }}</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex flex-column">
+                  <small class="text-muted">Created By</small>
+                  <span>{{ activity.username || 'Unknown user' }}</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex flex-column">
+                  <small class="text-muted">Associated Ticket</small>
+                  <span class="badge bg-light text-dark font-monospace">{{ ticketId || 'Not associated' }}</span>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="d-flex flex-column mt-2">
+                  <small class="text-muted">Description</small>
+                  <div class="border rounded p-3 bg-light">
+                    <span *ngIf="activity.description">{{ activity.description }}</span>
+                    <span class="text-muted fst-italic" *ngIf="!activity.description">No description provided</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Timeline Information -->
+          <div class="mb-4">
+            <h6 class="border-bottom pb-2 mb-3">
+              <i class="fas fa-clock me-2 text-primary"></i> Timeline
+            </h6>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="d-flex flex-column">
+                  <small class="text-muted">Start Time</small>
+                  <span>{{ activity.startTime ? (activity.startTime | date:'medium') : 'Not started yet' }}</span>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="d-flex flex-column">
+                  <small class="text-muted">End Time</small>
+                  <span>{{ activity.endTime ? (activity.endTime | date:'medium') : 'Not completed yet' }}</span>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="d-flex flex-column">
+                  <small class="text-muted">Duration</small>
+                  <span>{{ formatIsoDuration(activity.duration) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Additional Details -->
+          <div *ngIf="activity.metadata || activity.tags || activity.priority">
+            <h6 class="border-bottom pb-2 mb-3">
+              <i class="fas fa-sliders-h me-2 text-primary"></i> Additional Details
+            </h6>
+            <div class="row g-3">
+              <div class="col-md-4" *ngIf="activity.priority">
+                <div class="d-flex flex-column">
+                  <small class="text-muted">Priority</small>
+                  <span class="badge" 
+                        [ngClass]="{'bg-danger': activity.priority === 'HIGH', 
+                                    'bg-warning': activity.priority === 'MEDIUM', 
+                                    'bg-info': activity.priority === 'LOW'}">
+                    {{ activity.priority }}
+                  </span>
+                </div>
+              </div>
+              <div class="col-md-4" *ngIf="activity.tags">
+                <div class="d-flex flex-column">
+                  <small class="text-muted">Tags</small>
+                  <div>
+                    <span class="badge bg-secondary me-1" *ngFor="let tag of activity.tags">{{ tag }}</span>
+                    <span class="text-muted" *ngIf="!activity.tags?.length">No tags</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4" *ngIf="activity.metadata">
+                <div class="d-flex flex-column">
+                  <small class="text-muted">Metadata</small>
+                  <span>{{ activity.metadata || 'No metadata' }}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <p class="text-muted mb-0" *ngIf="!attachments?.length">No attachments available</p>
       </div>
-    </div>
 
-    <!-- Comments Section -->
-    <div class="card">
-      <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Comments</h5>
+      <!-- Attachments Section -->
+      <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">
+            <i class="fas fa-paperclip me-2 text-primary"></i> Attachments
+          </h5>
+          <button class="btn btn-sm btn-primary" (click)="onUploadImage()">
+            <i class="fas fa-upload me-2"></i>Upload Files
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="row g-3" *ngIf="attachments?.length > 0">
+            <div class="col-md-4" *ngFor="let attachment of attachments">
+              <div class="attachment-card border rounded p-3 h-100">
+                <div class="d-flex flex-column align-items-center text-center mb-2">
+                  <i class="fas fa-file fa-2x mb-2 text-primary"></i>
+                  <span class="text-truncate w-100">{{ attachment.filename || 'Unnamed file' }}</span>
+                  <small class="text-muted">{{ attachment.size | fileSize }}</small>
+                </div>
+                <div class="d-flex justify-content-center">
+                  <button class="btn btn-sm btn-outline-primary" 
+                          (click)="downloadAttachment(ticketId, activityId, attachment.id)">
+                    <i class="fas fa-download me-1"></i> Download
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="text-center py-4" *ngIf="!attachments?.length">
+            <i class="fas fa-file-upload text-muted fa-3x mb-3"></i>
+            <p class="text-muted mb-0">No attachments available</p>
+            <small class="text-muted">Click the Upload button to add files</small>
+          </div>
+        </div>
       </div>
-      <div class="card-body">
-        <app-activity-comments
-          [ticketId]="ticketId"
-          [activityId]="activityId"
-          [comments]="comments"
-          (commentAdded)="loadComments()">
-        </app-activity-comments>
+
+      <!-- Comments Section -->
+      <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">
+            <i class="fas fa-comments me-2 text-primary"></i> Comments
+          </h5>
+          <button class="btn btn-sm btn-primary" type="button" (click)="toggleCommentForm()">
+            <i class="fas" [ngClass]="commentFormVisible ? 'fa-times' : 'fa-plus'"></i>
+            <span class="ms-1">{{ commentFormVisible ? 'Cancel' : 'Add Comment' }}</span>
+          </button>
+        </div>
+        <div class="card-body">
+          <!-- Comment Form (Collapsible) -->
+          <div class="collapse" id="commentFormCollapse">
+            <div class="comment-form mb-4">
+              <form [formGroup]="commentForm" (ngSubmit)="addComment()">
+                <div class="d-flex">
+                  <div class="flex-shrink-0 me-2">
+                    <div class="avatar-placeholder bg-light rounded-circle d-flex align-items-center justify-content-center">
+                      <i class="fas fa-user text-muted"></i>
+                    </div>
+                  </div>
+                  <div class="flex-grow-1">
+                    <textarea class="form-control form-control-sm" 
+                              placeholder="Write a comment..." 
+                              rows="2"
+                              formControlName="text"></textarea>
+                    <div class="invalid-feedback" *ngIf="commentForm.get('text')?.invalid && commentForm.get('text')?.touched">
+                      Please enter a comment.
+                    </div>
+                    <div class="d-flex justify-content-end mt-2">
+                      <button type="submit" class="btn btn-sm btn-primary" [disabled]="commentForm.invalid || submittingComment">
+                        <i class="fas fa-paper-plane me-1"></i> 
+                        <span *ngIf="!submittingComment">Submit</span>
+                        <span *ngIf="submittingComment">Submitting...</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Comments List -->
+          <div class="comments-list">
+            <div class="text-center py-4" *ngIf="!comments?.length">
+              <i class="fas fa-comments text-muted fa-2x mb-2"></i>
+              <p class="text-muted mb-0">No comments yet</p>
+              <small class="text-muted">Be the first to add a comment</small>
+            </div>
+
+            <div class="comment-item mb-3" *ngFor="let comment of comments">
+              <div class="d-flex">
+                <div class="flex-shrink-0 me-2">
+                  <div class="avatar-placeholder bg-light rounded-circle d-flex align-items-center justify-content-center">
+                    <i class="fas fa-user text-muted"></i>
+                  </div>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="comment-header d-flex justify-content-between align-items-center">
+                    <div>
+                      <span class="fw-bold">{{ comment.username || 'Unknown user' }}</span>
+                      <small class="text-muted ms-2">{{ comment.createdAt | date:'medium' || 'Unknown date' }}</small>
+                    </div>
+                  </div>
+                  <div class="comment-body mt-1 bg-light p-2 rounded">
+                    {{ comment.content || 'No comment text' }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</div>
 </div>

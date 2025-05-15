@@ -58,36 +58,7 @@
             (activityDeleted)="onActivityDeleted($event)">
           </app-ticket-activity-timeline>
 
-          <!-- Attachments Section -->
-          <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <h5 class="mb-0">
-                <i class="fas fa-paperclip me-2"></i>Attachments
-              </h5>
-              <div>
-                <button class="btn btn-primary btn-sm" (click)="onAddAttachment()">
-                  <i class="fas fa-plus me-2"></i>Add Attachment
-                </button>
-              </div>
-            </div>
-            <div class="card-body">
-              <!-- Existing attachments list -->
-              <div class="row g-3" *ngIf="attachments?.length > 0">
-                <div class="col-md-4" *ngFor="let attachment of attachments">
-                  <div class="attachment-card">
-                    <div class="file-preview">
-                      <i class="fas fa-file fa-3x"></i>
-                      <span class="filename">{{attachment.filename}}</span>
-                    </div>
-                    <button class="btn btn-sm btn-light" (click)="downloadAttachment(attachment.id)">
-                      <i class="fas fa-download me-2"></i>Download
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <p class="text-muted mb-0" *ngIf="!attachments?.length">No attachments available</p>
-            </div>
-          </div>
+          
 
         </div>
 
