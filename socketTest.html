@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TickIT WebSocket Tester</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .connection-panel, .subscription-panel, .message-panel {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .panel-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        label {
+            display: inline-block;
+            width: 120px;
+            margin-bottom: 10px;
+        }
+        input[type="text"], select {
+            padding: 8px;
+            width: 500px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 5px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button.danger {
+            background-color: #e74c3c;
+        }
+        button.danger:hover {
+            background-color: #c0392b;
+        }
+        button.secondary {
+            background-color: #95a5a6;
+        }
+        button.secondary:hover {
+            background-color: #7f8c8d;
+        }
+        .logs {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            font-family: monospace;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+        }
+        .log-entry {
+            margin-bottom: 5px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        .log-time {
+            color: #7f8c8d;
+            margin-right: 8px;
+        }
+        .log-error {
+            color: #e74c3c;
+        }
+        .log-success {
+            color: #27ae60;
+        }
+        .log-info {
+            color: #3498db;
+        }
+        .log-warning {
+            color: #f39c12;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+        .status.connected {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .status.disconnected {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .pill {
+            background-color: #ecf0f1;
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+        }
+        .pill.active {
+            background-color: #3498db;
+            color: white;
+        }
+        .received-message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border-left: 4px solid #3498db;
+            background-color: #ecf0f1;
+        }
+        .received-message pre {
+            margin: 5px 0 0 0;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TickIT WebSocket Tester</h1>
+        
+        <div class="connection-panel">
+            <div class="panel-header">Connection Settings</div>
+            <div>
+                <label for="token">JWT Token:</label>
+                <input type="text" id="token" placeholder="Enter your JWT token here">
+            </div>
+            <div style="margin-top: 10px;">
+                <label for="connectionType">Connection Type:</label>
+                <select id="connectionType">
+                    <option value="sockjs">SockJS (Recommended)</option>
+                    <option value="websocket">Native WebSocket</option>
+                </select>
+            </div>
+            <div style="margin-top: 15px;">
+                <button onclick="connect()">Connect</button>
+                <button onclick="disconnect()" class="danger">Disconnect</button>
+                <span id="connectionStatus" class="status disconnected">Disconnected</span>
+            </div>
+        </div>
+        
+        <div class="subscription-panel">
+            <div class="panel-header">Subscriptions</div>
+            <div>Active Subscriptions:</div>
+            <div class="pills" id="subscriptions">
+                <!-- Subscription pills will be added here -->
+            </div>
+            <div style="margin-top: 15px;">
+                <button onclick="subscribeToNotifications()" id="btnSubNotifications">Subscribe to Notifications</button>
+                <button onclick="subscribeToCount()" id="btnSubCount">Subscribe to Count</button>
+                <button onclick="subscribeToEcho()" id="btnSubEcho">Subscribe to Echo</button>
+                <button onclick="subscribeToInfo()" id="btnSubInfo">Subscribe to Info</button>
+            </div>
+        </div>
+        
+        <div class="message-panel">
+            <div class="panel-header">Send Messages</div>
+            <div>
+                <label for="echoMessage">Echo Message:</label>
+                <input type="text" id="echoMessage" placeholder="Type a message to echo">
+                <button onclick="sendEcho()">Send Echo</button>
+            </div>
+        </div>
+        
+        <div>
+            <div class="panel-header">Received Messages</div>
+            <div id="messages">
+                <!-- Received messages will appear here -->
+            </div>
+        </div>
+        
+        <div style="margin-top: 20px;">
+            <div class="panel-header">Connection Logs</div>
+            <div class="logs" id="logs"></div>
+            <div style="margin-top: 10px;">
+                <button onclick="clearLogs()" class="secondary">Clear Logs</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let stompClient = null;
+        let subscriptions = {};
+        const logsContainer = document.getElementById('logs');
+        const messagesContainer = document.getElementById('messages');
+        const subscriptionsList = document.getElementById('subscriptions');
+        
+        // Log functions with levels
+        function log(message, level = 'info') {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            
+            const time = document.createElement('span');
+            time.className = 'log-time';
+            time.textContent = new Date().toLocaleTimeString();
+            
+            const content = document.createElement('span');
+            content.className = `log-${level}`;
+            content.textContent = message;
+            
+            entry.appendChild(time);
+            entry.appendChild(content);
+            
+            logsContainer.appendChild(entry);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+        }
+        
+        function logError(message) { log(message, 'error'); }
+        function logSuccess(message) { log(message, 'success'); }
+        function logWarning(message) { log(message, 'warning'); }
+        
+        function clearLogs() {
+            logsContainer.innerHTML = '';
+            log('Logs cleared');
+        }
+        
+        function updateConnectionStatus(connected) {
+            const statusEl = document.getElementById('connectionStatus');
+            if (connected) {
+                statusEl.textContent = 'Connected';
+                statusEl.className = 'status connected';
+            } else {
+                statusEl.textContent = 'Disconnected';
+                statusEl.className = 'status disconnected';
+                // Clear subscriptions display
+                subscriptionsList.innerHTML = '';
+                subscriptions = {};
+            }
+        }
+        
+        function updateSubscriptionPills() {
+            subscriptionsList.innerHTML = '';
+            
+            if (Object.keys(subscriptions).length === 0) {
+                const emptyPill = document.createElement('div');
+                emptyPill.className = 'pill';
+                emptyPill.textContent = 'No active subscriptions';
+                subscriptionsList.appendChild(emptyPill);
+                return;
+            }
+            
+            for (const [destination, subscription] of Object.entries(subscriptions)) {
+                const pill = document.createElement('div');
+                pill.className = 'pill active';
+                pill.textContent = destination;
+                
+                const closeBtn = document.createElement('span');
+                closeBtn.textContent = ' ✕';
+                closeBtn.style.marginLeft = '5px';
+                closeBtn.style.cursor = 'pointer';
+                closeBtn.onclick = function() {
+                    unsubscribe(destination);
+                };
+                
+                pill.appendChild(closeBtn);
+                subscriptionsList.appendChild(pill);
+            }
+        }
+        
+        function displayReceivedMessage(source, data) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'received-message';
+            
+            const header = document.createElement('div');
+            header.innerHTML = `<strong>${source}</strong> (${new Date().toLocaleTimeString()})`;
+            
+            const content = document.createElement('pre');
+            try {
+                // Try to parse and format as JSON
+                const json = JSON.parse(data);
+                content.textContent = JSON.stringify(json, null, 2);
+            } catch (e) {
+                // If not JSON, display as is
+                content.textContent = data;
+            }
+            
+            messageDiv.appendChild(header);
+            messageDiv.appendChild(content);
+            messagesContainer.appendChild(messageDiv);
+            
+            // Keep only the latest 10 messages
+            while (messagesContainer.children.length > 10) {
+                messagesContainer.removeChild(messagesContainer.firstChild);
+            }
+        }
+        
+        function connect() {
+            if (stompClient && stompClient.connected) {
+        logWarning("Already connected. Disconnect first to establish a new connection.");
+        return;
+    }
+    
+    const token = document.getElementById("token").value;
+    if (!token) {
+        logError("JWT token is required for connection");
+        return;
+    }
+    
+    const connectionType = document.getElementById("connectionType").value;
+    const backendUrl = "http://localhost:8080"; // Update this to your Spring Boot server URL
+    let socket;
+    
+    try {
+        if (connectionType === "sockjs") {
+            log("Connecting using SockJS...");
+            // Use absolute URL with backend host and port
+            socket = new SockJS(`${backendUrl}/ws`);
+        } else {
+            log("Connecting using native WebSocket...");
+            // Use absolute URL with backend host and port (ws:// protocol)
+            socket = new WebSocket(`ws://localhost:8080/ws`);
+        }
+        
+        stompClient = Stomp.over(socket);
+                
+                // Disable debug logging to console, but keep our own logs
+                stompClient.debug = function(str) {
+                    // Only log important STOMP messages
+                    if (str.startsWith('Connected') || str.startsWith('Error') || str.includes('ERROR')) {
+                        log(`STOMP: ${str}`, str.includes('ERROR') ? 'error' : 'info');
+                    }
+                };
+                
+                // Connect with token in CONNECT headers
+                const headers = {
+                    'Authorization': `Bearer ${token}`
+                };
+                
+                stompClient.connect(headers, 
+                    // Success callback
+                    function(frame) {
+                        updateConnectionStatus(true);
+                        logSuccess(`Connected: ${frame}`);
+                        
+                        // Auto-subscribe to info messages that tell us about successful connection
+                        subscribeToInfo();
+                    }, 
+                    // Error callback
+                    function(error) {
+                        updateConnectionStatus(false);
+                        logError(`Connection error: ${error}`);
+                    }
+                );
+            } catch (err) {
+                logError(`Error creating connection: ${err.message}`);
+            }
+        }
+        
+        function disconnect() {
+            if (stompClient !== null && stompClient.connected) {
+                stompClient.disconnect(function() {
+                    updateConnectionStatus(false);
+                    logSuccess('Disconnected successfully');
+                });
+            } else {
+                logWarning('Not connected - nothing to disconnect');
+            }
+        }
+        
+        function checkConnection() {
+            if (!stompClient || !stompClient.connected) {
+                logError('Not connected. Please connect first.');
+                return false;
+            }
+            return true;
+        }
+        
+        function subscribe(destination, callback, buttonId = null) {
+            if (!checkConnection()) return;
+            
+            if (subscriptions[destination]) {
+                logWarning(`Already subscribed to ${destination}`);
+                return;
+            }
+            
+            try {
+                const subscription = stompClient.subscribe(destination, function(message) {
+                    log(`Received message from ${destination}`);
+                    callback(message);
+                });
+                
+                subscriptions[destination] = subscription;
+                logSuccess(`Subscribed to ${destination}`);
+                
+                if (buttonId) {
+                    document.getElementById(buttonId).classList.add('secondary');
+                }
+                
+                updateSubscriptionPills();
+            } catch (err) {
+                logError(`Error subscribing to ${destination}: ${err.message}`);
+            }
+        }
+        
+        function unsubscribe(destination) {
+            if (!subscriptions[destination]) {
+                logWarning(`Not subscribed to ${destination}`);
+                return;
+            }
+            
+            try {
+                subscriptions[destination].unsubscribe();
+                logSuccess(`Unsubscribed from ${destination}`);
+                
+                // Update button state if applicable
+                if (destination === '/user/queue/notifications') {
+                    document.getElementById('btnSubNotifications').classList.remove('secondary');
+                } else if (destination === '/user/queue/notifications/count') {
+                    document.getElementById('btnSubCount').classList.remove('secondary');
+                } else if (destination === '/user/queue/echo') {
+                    document.getElementById('btnSubEcho').classList.remove('secondary');
+                } else if (destination === '/user/queue/info') {
+                    document.getElementById('btnSubInfo').classList.remove('secondary');
+                }
+                
+                delete subscriptions[destination];
+                updateSubscriptionPills();
+            } catch (err) {
+                logError(`Error unsubscribing from ${destination}: ${err.message}`);
+            }
+        }
+        
+        function subscribeToNotifications() {
+            subscribe('/user/queue/notifications', function(message) {
+                displayReceivedMessage('Notification', message.body);
+            }, 'btnSubNotifications');
+        }
+        
+        function subscribeToCount() {
+            subscribe('/user/queue/notifications/count', function(message) {
+                displayReceivedMessage('Notification Count', message.body);
+            }, 'btnSubCount');
+        }
+        
+        function subscribeToEcho() {
+            subscribe('/user/queue/echo', function(message) {
+                displayReceivedMessage('Echo Response', message.body);
+            }, 'btnSubEcho');
+        }
+        
+        function subscribeToInfo() {
+            subscribe('/user/queue/info', function(message) {
+                displayReceivedMessage('Info Message', message.body);
+            }, 'btnSubInfo');
+        }
+        
+        function sendEcho() {
+            if (!checkConnection()) return;
+            
+            const message = document.getElementById('echoMessage').value;
+            if (!message) {
+                logWarning('Please enter a message to echo');
+                return;
+            }
+            
+            try {
+                stompClient.send("/app/echo", {}, message);
+                log(`Sent echo message: ${message}`);
+                
+                // Auto-subscribe to echo response if not already subscribed
+                if (!subscriptions['/user/queue/echo']) {
+                    logInfo('Auto-subscribing to echo responses');
+                    subscribeToEcho();
+                }
+            } catch (err) {
+                logError(`Error sending echo message: ${err.message}`);
+            }
+        }
+        
+        // Initialize the page
+        updateConnectionStatus(false);
+        updateSubscriptionPills();
+        log('WebSocket tester initialized. Please connect to begin testing.');
+    </script>
+</body>
+</html>

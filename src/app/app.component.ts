@@ -1,21 +1,24 @@
-import { Component } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { NotificationEventService } from './core/services/notification/notification-event.service';
+import { Component, OnInit } from "@angular/core";
+import { AuthService } from "./core/services/auth/auth.service";
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+    selector: "app-root",
+    templateUrl: "./app.component.html",
+    styleUrls: ["./app.component.css"]
 })
-export class AppComponent {
-
-  constructor(private translate: TranslateService) {
-    // Set the default language
-    translate.setDefaultLang('en');
-    // Use default language
-    translate.use('en');
-  }
-
-  switchLanguage(lang: string) {
-    this.translate.use(lang);
-  }
+export class AppComponent implements OnInit {
+    title = "TickIT";
+    
+    constructor(
+        private authService: AuthService,
+        private notificationEventService: NotificationEventService
+    ) {}
+    
+    ngOnInit(): void {
+        // Initialize notification service if user is logged in
+        if (this.authService.isAuthenticated()) {
+            this.notificationEventService.triggerInitialize();
+        }
+    }
 }

@@ -1,5 +1,11 @@
-import { Component, AfterViewInit, OnInit, ElementRef, Renderer2 } from "@angular/core";
+import { Component, AfterViewInit, OnInit, ElementRef, Renderer2, OnDestroy } from "@angular/core";
+import { Router } from "@angular/router";
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 import { UserService, UserResponseDTO } from "src/app/core/services/user/user.service";
+import { AuthService } from "src/app/core/services/auth/auth.service";
+import { NotificationService } from "src/app/core/services/notification/notification.service";
+import { NotificationResponse } from "src/app/core/models/notification.model";
 
 /**
  * Navbar component for the dashboard displaying user info and notification controls
@@ -9,7 +15,7 @@ import { UserService, UserResponseDTO } from "src/app/core/services/user/user.se
     templateUrl: "./dashboard-navbar.component.html",
     styleUrls: ["./dashboard-navbar.component.css"]
 })
-export class DashboardNavbarComponent implements OnInit, AfterViewInit {
+export class DashboardNavbarComponent implements OnInit, AfterViewInit, OnDestroy {
     /**
      * Current user data
      */
@@ -30,17 +36,29 @@ export class DashboardNavbarComponent implements OnInit, AfterViewInit {
      */
     notificationsOpen = false;
     userMenuOpen = false;
+    
+    /**
+     * Notification data
+     */
+    notifications: NotificationResponse[] = [];
+    unreadCount = 0;
+    isSocketConnected = false;
+    
+    /**
+     * Subject for managing subscriptions
+     */
+    private _destroy$ = new Subject<void>();
 
     /**
      * Constructor for the DashboardNavbarComponent
-     * @param userService - Service to fetch user data
-     * @param renderer - Renderer2 for DOM manipulation
-     * @param elementRef - Reference to component's host element
      */
     constructor(
         private userService: UserService,
         private renderer: Renderer2,
-        private elementRef: ElementRef
+        private elementRef: ElementRef,
+        private notificationService: NotificationService,
+        private authService: AuthService,
+        private router: Router
     ) { }
 
     /**
@@ -49,6 +67,12 @@ export class DashboardNavbarComponent implements OnInit, AfterViewInit {
     ngOnInit(): void {
         this._loadUserData();
         this._setupClickOutsideListener();
+        this._subscribeToNotifications();
+        
+        // Initialize notification service if not already
+        if (this.authService.isAuthenticated()) {
+            this.notificationService.initialize();
+        }
     }
 
     /**
@@ -56,6 +80,14 @@ export class DashboardNavbarComponent implements OnInit, AfterViewInit {
      */
     ngAfterViewInit(): void {
         // No longer needed as we're using CSS dropdowns
+    }
+    
+    /**
+     * Clean up subscriptions when component is destroyed
+     */
+    ngOnDestroy(): void {
+        this._destroy$.next();
+        this._destroy$.complete();
     }
 
     /**
@@ -80,7 +112,6 @@ export class DashboardNavbarComponent implements OnInit, AfterViewInit {
         // Fallback to email if no fingerprint
         return this.currentUser.email ? this.currentUser.email.split("@")[0] : "User";
     }
-
 
     getUserRole(): string {
         if (!this.currentUser) {
@@ -107,6 +138,10 @@ export class DashboardNavbarComponent implements OnInit, AfterViewInit {
         event.stopPropagation();
         this.notificationsOpen = !this.notificationsOpen;
         this.userMenuOpen = false; // Close other dropdown
+        if (this.notificationsOpen) {
+            // Refresh notifications when opening dropdown
+            this.notificationService.loadNotifications().subscribe();
+        }
     }
 
     /**
@@ -126,6 +161,148 @@ export class DashboardNavbarComponent implements OnInit, AfterViewInit {
         this.notificationsOpen = false;
         this.userMenuOpen = false;
     }
+    
+    /**
+     * Mark a single notification as read
+     * @param notification - The notification to mark as read
+     * @param event - The event object to prevent propagation
+     */
+    markAsRead(notification: NotificationResponse, event: Event): void {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        if (notification.readFlag) {
+            return; // Already read
+        }
+        
+        this.notificationService.markAsRead([notification.id]).subscribe(() => {
+            console.log(`Notification ${notification.id} marked as read`);
+        });
+    }
+    
+    /**
+     * Mark all notifications as read
+     * @param event - The event object to prevent propagation
+     */
+    markAllAsRead(event: Event): void {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        this.notificationService.markAllAsRead().subscribe(response => {
+            console.log(`${response.count} notifications marked as read`);
+        });
+    }
+    
+    /**
+     * Navigate to notification destination and mark as read
+     * @param notification - The notification to navigate to
+     * @param event - The event object to prevent propagation
+     */
+    navigateToNotification(notification: NotificationResponse, event: Event): void {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        // Mark as read first
+        if (!notification.readFlag) {
+            this.notificationService.markAsRead([notification.id]).subscribe();
+        }
+        
+        // Extract route information from payload if available
+        if (notification.payload && notification.payload.route) {
+            this.router.navigateByUrl(notification.payload.route);
+            this.closeDropdowns();
+            return;
+        }
+        
+        // Default routing based on notification type
+        switch (notification.type) {
+            case "TICKET_CREATED":
+            case "TICKET_RESOLVED":
+            case "PRIO_LEVELED":
+            case "CASE_BLOCKED":
+                if (notification.payload && notification.payload.ticketId) {
+                    this.router.navigate(['/ticket-details', notification.payload.ticketId]);
+                } else {
+                    this.router.navigate(['/dashboard/tickets']);
+                }
+                break;
+            case "ACTIVITY_STALLED":
+                if (notification.payload && notification.payload.activityId) {
+                    // Navigate to activity if you have a specific route
+                    this.router.navigate(['/ticket-details', notification.payload.ticketId]);
+                } else {
+                    this.router.navigate(['/dashboard/tickets']);
+                }
+                break;
+            case "DUE_DATE_APPROACHING":
+            case "SLA_BREACH":
+                if (notification.payload && notification.payload.ticketId) {
+                    this.router.navigate(['/ticket-details', notification.payload.ticketId]);
+                } else {
+                    this.router.navigate(['/dashboard/tickets']);
+                }
+                break;
+            case "SYSTEM_ANNOUNCEMENT":
+                // Maybe navigate to announcements page if you have one
+                this.router.navigate(['/dashboard']);
+                break;
+            case "UPDATE":
+                if (notification.payload && notification.payload.ticketId) {
+                    this.router.navigate(['/ticket-details', notification.payload.ticketId]);
+                } else {
+                    this.router.navigate(['/dashboard/tickets']);
+                }
+                break;
+            default:
+                this.router.navigate(['/dashboard']);
+                break;
+        }
+        
+        this.closeDropdowns();
+    }
+    
+    /**
+     * View all notifications
+     * @param event - The event object to prevent propagation
+     */
+    viewAllNotifications(event: Event): void {
+        event.preventDefault();
+        event.stopPropagation();
+        this.router.navigate(['/notifications']);
+        this.closeDropdowns();
+    }
+    
+    /**
+     * Get color class for notification type
+     * @param type - The notification type
+     */
+    getNotificationColorClass(type: string): string {
+        return this.notificationService.getNotificationTypeColorClass(type);
+    }
+    
+    /**
+     * Get icon class for notification type
+     * @param type - The notification type
+     */
+    getNotificationIcon(type: string): string {
+        return this.notificationService.getNotificationTypeIcon(type);
+    }
+    
+    /**
+     * Format relative time for notification
+     * @param dateStr - ISO date string
+     */
+    formatRelativeTime(dateStr: string): string {
+        return this.notificationService.formatRelativeTime(dateStr);
+    }
+    
+    /**
+     * Log out the current user
+     */
+    logout(): void {
+        this.authService.logout();
+        this.router.navigate(['/auth/login']);
+    }
 
     /**
      * Set up click outside listener to close dropdowns
@@ -138,6 +315,30 @@ export class DashboardNavbarComponent implements OnInit, AfterViewInit {
                 this.closeDropdowns();
             }
         });
+    }
+    
+    /**
+     * Subscribe to notification updates
+     * @private
+     */
+    private _subscribeToNotifications(): void {
+        this.notificationService.notifications$
+            .pipe(takeUntil(this._destroy$))
+            .subscribe(notifications => {
+                this.notifications = notifications;
+            });
+            
+        this.notificationService.unreadCount$
+            .pipe(takeUntil(this._destroy$))
+            .subscribe(count => {
+                this.unreadCount = count;
+            });
+            
+        this.notificationService.connectionStatus$
+            .pipe(takeUntil(this._destroy$))
+            .subscribe(connected => {
+                this.isSocketConnected = connected;
+            });
     }
     
     /**

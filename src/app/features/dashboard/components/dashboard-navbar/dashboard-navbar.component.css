@@ -47,14 +47,15 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 1rem;
+    min-width: 1rem;
     height: 1rem;
+    padding: 0 0.3rem;
     font-size: 0.625rem;
     font-weight: 700;
     line-height: 1;
     background-color: #dc3545;
     color: #fff;
-    border-radius: 50%;
+    border-radius: 0.5rem;
     box-shadow: 0 0 0 2px #ffffff;
 }
 
@@ -66,18 +67,26 @@
     overflow: hidden;
 }
 
+/* Notification dropdown scrollable area */
+.notification-scrollable {
+    max-height: 360px;
+    overflow-y: auto;
+}
+
 .dropdown-header {
     padding: 0.75rem 1rem;
     background-color: #f8f9fa;
     font-size: 0.875rem;
 }
 
+/* Enhanced notification item styling */
 .notification-item {
     display: flex;
     align-items: center;
     padding: 0.75rem 1rem;
     border-bottom: 1px solid #f1f1f1;
     transition: background-color 0.2s;
+    position: relative;
 }
 
 .notification-item:hover {
@@ -86,6 +95,17 @@
 
 .notification-item.unread {
     background-color: rgba(13, 110, 253, 0.05);
+}
+
+.notification-item.unread::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background-color: #0d6efd;
+    border-radius: 0 2px 2px 0;
 }
 
 .notification-icon {
@@ -102,6 +122,7 @@
 .notification-content {
     flex-grow: 1;
     overflow: hidden;
+    margin-right: 0.5rem;
 }
 
 .notification-content p {
@@ -116,6 +137,32 @@
     font-size: 0.75rem;
     color: #6c757d;
     display: block;
+}
+
+.notification-action {
+    background: transparent;
+    border: none;
+    color: #6c757d;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    opacity: 0;
+    flex-shrink: 0;
+}
+
+.notification-item:hover .notification-action {
+    opacity: 1;
+}
+
+.notification-action:hover {
+    background-color: rgba(108, 117, 125, 0.1);
+    color: #0d6efd;
 }
 
 .view-all {
@@ -207,4 +254,56 @@
     display: block;
     opacity: 1;
     transform: translateY(0);
+}
+
+/* WebSocket connection indicator */
+.connection-indicator {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1px solid #fff;
+}
+
+.connection-indicator.connected {
+    background-color: #10b981;
+}
+
+.connection-indicator.disconnected {
+    background-color: #ef4444;
+}
+
+/* Type-specific colors */
+.text-ticket {
+    color: #0d6efd !important;
+}
+
+.text-prio {
+    color: #fd7e14 !important;
+}
+
+.text-activity {
+    color: #6f42c1 !important;
+}
+
+.text-case {
+    color: #dc3545 !important;
+}
+
+.text-due {
+    color: #0dcaf0 !important;
+}
+
+.text-sla {
+    color: #dc3545 !important;
+}
+
+.text-system {
+    color: #20c997 !important;
+}
+
+.text-update {
+    color: #6c757d !important;
 }

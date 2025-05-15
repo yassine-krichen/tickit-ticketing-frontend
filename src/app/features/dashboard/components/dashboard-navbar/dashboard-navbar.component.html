@@ -21,44 +21,56 @@
                     <button class="btn-icon position-relative" type="button" 
                             (click)="toggleNotifications($event)" title="Notifications">
                         <i class="fas fa-bell"></i>
-                        <span class="notification-badge">3</span>
+                        <span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
+                        <span class="connection-indicator" [ngClass]="isSocketConnected ? 'connected' : 'disconnected'"
+                              title="{{isSocketConnected ? 'Connected' : 'Disconnected'}}"></span>
                     </button>
                     <div class="dropdown-menu shadow-sm notification-dropdown" [class.show]="notificationsOpen">
                         <div class="dropdown-header d-flex justify-content-between align-items-center">
                             <span class="fw-medium">Notifications</span>
-                            <span class="badge bg-primary rounded-pill ms-2">3 New</span>
+                            <div>
+                                <span class="badge bg-primary rounded-pill ms-2" *ngIf="unreadCount > 0">{{ unreadCount }} New</span>
+                                <button class="btn btn-link btn-sm p-0 ms-2" 
+                                        (click)="markAllAsRead($event)" 
+                                        *ngIf="unreadCount > 0"
+                                        title="Mark all as read">
+                                    <i class="fas fa-check-double"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="dropdown-divider"></div>
+                        
+                        <!-- Empty notification state -->
+                        <div class="dropdown-item text-center p-3" *ngIf="notifications.length === 0">
+                            <i class="fas fa-bell text-muted fa-lg mb-2"></i>
+                            <p class="text-muted mb-0">No notifications yet</p>
+                        </div>
+                        
                         <!-- Notification Items -->
-                        <a href="#" class="dropdown-item notification-item unread">
-                            <div class="notification-icon bg-primary-subtle">
-                                <i class="fas fa-ticket-alt text-primary"></i>
-                            </div>
-                            <div class="notification-content">
-                                <p class="mb-0">New ticket assigned to you</p>
-                                <span class="notification-time">10 minutes ago</span>
-                            </div>
-                        </a>
-                        <a href="#" class="dropdown-item notification-item unread">
-                            <div class="notification-icon bg-success-subtle">
-                                <i class="fas fa-check-circle text-success"></i>
-                            </div>
-                            <div class="notification-content">
-                                <p class="mb-0">Ticket #4321 was resolved</p>
-                                <span class="notification-time">2 hours ago</span>
-                            </div>
-                        </a>
-                        <a href="#" class="dropdown-item notification-item unread">
-                            <div class="notification-icon bg-warning-subtle">
-                                <i class="fas fa-exclamation-triangle text-warning"></i>
-                            </div>
-                            <div class="notification-content">
-                                <p class="mb-0">SLA breach imminent for #8765</p>
-                                <span class="notification-time">1 day ago</span>
-                            </div>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item text-center view-all">View all notifications</a>
+                        <div class="notification-scrollable" *ngIf="notifications.length > 0">
+                            <a href="#" class="dropdown-item notification-item" 
+                               *ngFor="let notification of notifications.slice(0, 5)"
+                               [class.unread]="!notification.readFlag"
+                               (click)="navigateToNotification(notification, $event)">
+                                <div class="notification-icon" [ngClass]="getNotificationColorClass(notification.type)">
+                                    <i [class]="getNotificationIcon(notification.type) + ' text-' + notification.type.toLowerCase().split('_')[0]"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <p class="mb-0">{{ notification.message }}</p>
+                                    <span class="notification-time">{{ formatRelativeTime(notification.createdAt) }}</span>
+                                </div>
+                                <button class="notification-action" 
+                                        *ngIf="!notification.readFlag"
+                                        (click)="markAsRead(notification, $event)"
+                                        title="Mark as read">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </a>
+                        </div>
+                        
+                        <div class="dropdown-divider" *ngIf="notifications.length > 0"></div>
+                        <a href="#" class="dropdown-item text-center view-all" 
+                           (click)="viewAllNotifications($event)">View all notifications</a>
                     </div>
                 </div>
                 
@@ -80,11 +92,11 @@
                         </div>
                         <div class="dropdown-divider"></div>
 
-                        <a class="dropdown-item" href="#">
+                        <a class="dropdown-item" href="https://sof-tunisie.sofrecom.fr/fr" target="_blank" rel="noopener noreferrer">
                             <i class="fas fa-question-circle me-2 text-muted"></i> Help Center
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-danger" href="#">
+                        <a class="dropdown-item text-danger" href="#" (click)="logout(); $event.preventDefault()">
                             <i class="fas fa-sign-out-alt me-2"></i> Log Out
                         </a>
                     </div>

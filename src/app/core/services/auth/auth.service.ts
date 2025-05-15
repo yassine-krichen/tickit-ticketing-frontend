@@ -1,8 +1,9 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
-import { Observable, throwError } from "rxjs";
-import { catchError, map } from "rxjs/operators";
+import { throwError } from "rxjs";
+import { catchError, map, tap } from "rxjs/operators";
 import { environment } from "../../../../environments/environment";
+import { NotificationEventService } from "../notification/notification-event.service";
 
 export interface LoginResponse {
     token: string;
@@ -14,8 +15,11 @@ export class AuthService {
     private readonly _apiUrl = environment.apiUrl + "/api/v1/auth";
     private readonly _tokenKey = "auth_token";
 
-    constructor(private http: HttpClient) {}
-
+    constructor(
+        private http: HttpClient,
+        private notificationEventService: NotificationEventService
+    ) {}
+    
     /**
      * Logs in the user with email and password.
      * @param email User email
@@ -28,6 +32,10 @@ export class AuthService {
                 map(res => {
                     this._setToken(res.token);
                     return res;
+                }),
+                tap(() => {
+                    // Initialize notification service after successful login
+                    this.notificationEventService.triggerInitialize();
                 }),
                 catchError(this._handleError)
             ).toPromise();
@@ -54,15 +62,12 @@ export class AuthService {
             ).toPromise();
     }
 
-
-
     /**
      * Gets the current auth token
      */
     getToken(): string | null {
         return localStorage.getItem(this._tokenKey);
     }
-
 
     /**
      * Sets the auth token
@@ -72,9 +77,11 @@ export class AuthService {
     }
 
     /**
-     * Removes the auth token
+     * Removes the auth token and disconnects from WebSocket
      */
     logout(): void {
+        // Disconnect notifications before removing token
+        this.notificationEventService.triggerDisconnect();
         localStorage.removeItem(this._tokenKey);
     }
 
