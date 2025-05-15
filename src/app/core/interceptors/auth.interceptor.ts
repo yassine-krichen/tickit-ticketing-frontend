@@ -1,21 +1,39 @@
 import { Injectable } from "@angular/core";
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from "@angular/common/http";
-import { Observable } from "rxjs";
+import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from "@angular/common/http";
+import { Observable, throwError } from "rxjs";
+import { catchError } from "rxjs/operators";
 import { AuthService } from "../services/auth/auth.service";
+import { Router } from "@angular/router";
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-    constructor(private authService: AuthService) {}
+    constructor(private authService: AuthService, private router: Router) {}
 
-    intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         const token = this.authService.getToken();
+        
         if (token) {
-            request = request.clone({
+            req = req.clone({
                 setHeaders: {
                     Authorization: `Bearer ${token}`
                 }
             });
         }
-        return next.handle(request);
+        
+        return next.handle(req).pipe(
+            catchError((error: HttpErrorResponse) => {
+                if (error.status === 401) {
+                    // Token is expired or invalid
+                    console.log("Authentication error:", error.message);
+                    
+                    // Clear the token and disconnect WebSocket
+                    this.authService.logout();
+                    
+                    // Redirect to login page
+                    this.router.navigate(["/auth/login"]);
+                }
+                return throwError(() => error);
+            })
+        );
     }
-} 
+}
