@@ -8,14 +8,15 @@ const routes: Routes = [
     redirectTo: 'dashboard',
     pathMatch: 'full'
   },
-  {path: 'tickets',
+  {
+    path: 'tickets',
     canActivate: [AuthGuard],
     children: [
       {
         path: '',
         loadChildren: () => import('./features/ticket-activity/ticket-activity.module').then(m => m.TicketActivityModule)
-      }]
-
+      }
+    ]
   },
   {
     path: 'ticket-details/:id',
@@ -31,6 +32,11 @@ const routes: Routes = [
     path: 'dashboard',
     canActivate: [AuthGuard],
     loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule)
+  },
+  {
+    path: 'notifications',
+    canActivate: [AuthGuard],
+    loadChildren: () => import('./features/notifications/notifications.module').then(m => m.NotificationsModule)
   },
   {
     path: 'ticket-activity',

@@ -66,6 +66,12 @@ export class TicketCreateUpdateComponent implements OnInit, OnDestroy {
                 if (this.isEditMode && id) {
                     this.ticketId = id;
                     this.loadTicketData(id);
+                } else {
+                    // For new ticket creation, disable the status field
+                    const statusControl = this.form.get("status");
+                    if (statusControl) {
+                        statusControl.disable();
+                    }
                 }
             });
     }

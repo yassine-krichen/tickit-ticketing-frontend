@@ -108,6 +108,8 @@ export class SidebarComponent implements OnInit {
             this.activeItem = "dashboard";
         } else if (currentUrl.includes("/ticket-create-update/ticket/new")) {
             this.activeItem = "create-ticket";
+        } else if (currentUrl.includes("/notifications")) {
+            this.activeItem = "notifications";
         }
     }
 

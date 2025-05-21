@@ -47,8 +47,15 @@ export class TicketFormComponent implements OnInit {
   ngOnInit(): void {
     if (this.editMode && this.ticket) {
       this.populateForm();
-      this.onTypeChange(); // Load valid steps for existing type
+    } else {
+      // For new tickets, disable the status field
+      const statusControl = this.ticketForm.get("status");
+      if (statusControl) {
+        statusControl.disable();
+      }
     }
+    
+    this.onTypeChange(); // Load valid steps for existing type
   }
 
   private createForm(): FormGroup {

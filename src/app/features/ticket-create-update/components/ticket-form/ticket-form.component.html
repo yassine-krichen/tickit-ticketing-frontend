@@ -76,13 +76,16 @@
         </div>
       </div>
 
-      <!-- Status -->
+      <!-- Status field with conditional disabled and helper text -->
       <div class="mb-3">
         <label for="status" class="form-label">Status</label>
         <select class="form-select" id="status" formControlName="status">
           <option value="">Select Status</option>
           <option *ngFor="let s of statusOptions" [value]="s.value">{{ s.label }}</option>
         </select>
+        <div *ngIf="!editMode" class="form-text text-muted">
+          <i class="fas fa-info-circle me-1"></i> Status is automatically set to "Open" for new tickets
+        </div>
         <div *ngIf="f.status.errors && f.status.touched" class="text-danger">
           <small *ngIf="f.status.errors.required">Status is required</small>
         </div>

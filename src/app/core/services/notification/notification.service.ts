@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
-import { Observable, BehaviorSubject, Subject, of } from "rxjs";
-import { catchError, map, takeUntil } from "rxjs/operators";
+import { HttpClient, HttpParams } from "@angular/common/http";
+import { Observable, BehaviorSubject, Subject, of, throwError } from "rxjs";
+import { catchError, map, takeUntil, tap } from "rxjs/operators";
 import { Client, IMessage } from "@stomp/stompjs";
 import * as SockJS from "sockjs-client";
 import { environment } from "../../../../environments/environment";
@@ -153,6 +153,64 @@ export class NotificationService implements OnDestroy {
     }
     
     /**
+     * Load notifications with pagination and filtering
+     * @param page - Page number (1-based)
+     * @param pageSize - Number of items per page
+     * @param filters - Optional filters (readFlag, type, dates, searchTerm)
+     */
+    loadNotificationsPage(
+        page = 1, 
+        pageSize = 10, 
+        filters?: { 
+            readFlag?: boolean, 
+            type?: string, 
+            startDate?: string, 
+            endDate?: string, 
+            searchTerm?: string 
+        }
+    ): Observable<{ notifications: NotificationResponse[], totalCount: number }> {
+        let params = new HttpParams()
+            .set("page", page.toString())
+            .set("size", pageSize.toString());
+        
+        if (filters) {
+            if (filters.readFlag !== undefined && filters.readFlag !== null) {
+                params = params.set("readFlag", filters.readFlag.toString());
+            }
+            if (filters.type) {
+                params = params.set("type", filters.type);
+            }
+            if (filters.startDate) {
+                params = params.set("startDate", filters.startDate);
+            }
+            if (filters.endDate) {
+                params = params.set("endDate", filters.endDate);
+            }
+            if (filters.searchTerm) {
+                params = params.set("search", filters.searchTerm);
+            }
+        }
+        
+        console.log('API request parameters:', params.toString());
+        
+        return this.http.get<{ content: NotificationResponse[], totalElements: number }>(
+            `${this._baseUrl}/paged`, { params }
+        ).pipe(
+            map(response => {
+                console.log('API response:', response);
+                return {
+                    notifications: response.content,
+                    totalCount: response.totalElements
+                };
+            }),
+            catchError(error => {
+                console.error("Error loading notifications page:", error);
+                return of({ notifications: [], totalCount: 0 });
+            })
+        );
+    }
+    
+    /**
      * Mark specific notifications as read
      * @param ids - Array of notification IDs to mark as read
      */
@@ -199,6 +257,35 @@ export class NotificationService implements OnDestroy {
         }
         
         return this.markAsRead(unreadIds);
+    }
+    
+    /**
+     * Delete specific notifications by IDs
+     * @param ids - Array of notification IDs to delete
+     */
+    deleteNotifications(ids: number[]): Observable<{ count: number }> {
+        return this.http.post<{ count: number }>(`${this._baseUrl}/delete`, { ids }).pipe(
+            tap(() => {
+                // Remove deleted notifications from the current list
+                const currentNotifications = this._notifications.value;
+                const updatedNotifications = currentNotifications.filter(n => !ids.includes(n.id));
+                this._notifications.next(updatedNotifications);
+                
+                // Update unread count if needed
+                const removedUnreadCount = currentNotifications
+                    .filter(n => ids.includes(n.id) && !n.readFlag)
+                    .length;
+                    
+                if (removedUnreadCount > 0) {
+                    const currentUnreadCount = this._unreadCount.value;
+                    this._unreadCount.next(Math.max(0, currentUnreadCount - removedUnreadCount));
+                }
+            }),
+            catchError(error => {
+                console.error("Error deleting notifications:", error);
+                return throwError(() => new Error("Failed to delete notifications"));
+            })
+        );
     }
     
     /**

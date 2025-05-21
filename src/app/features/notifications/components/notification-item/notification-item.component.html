@@ -1,0 +1,44 @@
+<div class="notification-card" 
+     [class.unread]="!notification.readFlag"
+     [class.newly-arrived]="isNewlyArrived">
+    <div class="notification-content">
+        <div class="notification-icon" [ngClass]="notificationService.getNotificationTypeColorClass(notification.type)">
+            <i [class]="notificationService.getNotificationTypeIcon(notification.type)"></i>
+        </div>
+        <div class="notification-details">
+            <div class="notification-metadata">
+                <span class="notification-type">
+                    {{notificationService.getNotificationTypeLabel(notification.type)}}
+                    <span class="role-badge" 
+                          *ngIf="hasTargetRoles()" 
+                          [title]="'Role-based notification for: ' + formatTargetRoles()">R</span>
+                </span>
+                <span class="notification-time">
+                    {{notificationService.formatRelativeTime(notification.createdAt)}}
+                </span>
+            </div>
+            <div class="notification-message">
+                {{notification.message}}
+            </div>
+        </div>
+    </div>
+    <div class="notification-actions">
+        <button class="btn btn-sm btn-icon" 
+               *ngIf="notification.payload?.targetId && notification.payload?.targetType"
+               (click)="navigateToTarget($event)"
+               title="View Details">
+            <i class="fas fa-external-link-alt"></i>
+        </button>
+        <button class="btn btn-sm btn-icon" 
+               *ngIf="!notification.readFlag"
+               (click)="onMarkRead($event)"
+               title="Mark as Read">
+            <i class="fas fa-check"></i>
+        </button>
+        <button class="btn btn-sm btn-icon text-danger" 
+               (click)="onDelete($event)"
+               title="Delete">
+            <i class="fas fa-trash"></i>
+        </button>
+    </div>
+</div>

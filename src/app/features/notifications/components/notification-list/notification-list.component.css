@@ -1,0 +1,32 @@
+.notification-list-container {
+    margin-bottom: 2rem;
+}
+
+.empty-state {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 3rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.empty-state-icon {
+    color: #dee2e6;
+}
+
+/* Fix for active pagination item - ensure text is visible on selected page */
+.pagination .page-item.active .page-link {
+  color: #fff !important; /* White text for contrast */
+  font-weight: 500;
+}
+
+/* Additional styling for pagination for a more modern look */
+.pagination .page-link {
+  color: #495057;
+  border-radius: 0.2rem;
+  margin: 0 2px;
+}
+
+.pagination .page-link:hover {
+  background-color: #f8f9fa;
+  color: #fd7e14;
+}

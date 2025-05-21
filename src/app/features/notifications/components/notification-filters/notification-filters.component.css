@@ -1,0 +1,76 @@
+.notification-filters {
+    padding: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.notification-filters .form-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.3rem;
+}
+
+.notification-filters .input-group {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.notification-filters .input-group-text {
+    background-color: #f8f9fa;
+    color: #6c757d;
+}
+
+.notification-filters .form-select, 
+.notification-filters .form-control {
+    border-color: #e9ecef;
+}
+
+.notification-filters .form-select:focus, 
+.notification-filters .form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(253, 126, 20, 0.15);
+    border-color: #fed7aa;
+}
+
+.btn-icon {
+    width: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.date-range-container {
+    display: flex;
+    gap: 10px;
+}
+
+.date-input-group {
+    flex: 1;
+}
+
+.date-label {
+    display: block;
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-bottom: 2px;
+}
+
+/* Improve button styles */
+.notification-filters button {
+    transition: all 0.2s;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .notification-filters .row > div {
+        margin-bottom: 1rem;
+    }
+    
+    .date-range-container {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .notification-filters .card-body {
+        padding: 0.75rem;
+    }
+}

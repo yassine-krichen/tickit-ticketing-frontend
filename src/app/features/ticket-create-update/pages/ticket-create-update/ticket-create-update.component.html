@@ -40,6 +40,18 @@
         (formSubmit)="onSubmit($event)"
         (cancel)="onBackClick()">
       </app-ticket-form>
+      
+      <!-- Status field with conditional disabled state -->
+      <!-- <div class="mb-3">
+        <label for="status" class="form-label">Status</label>
+        <select class="form-select" id="status" formControlName="status" [attr.disabled]="!isEditMode ? true : null">
+          <option value="">Select Status</option>
+          <option *ngFor="let s of statusOptions" [value]="s">{{ getStatusDisplay(s) }}</option>
+        </select>
+        <div *ngIf="!isEditMode" class="form-text text-muted">
+          <i class="fas fa-info-circle me-1"></i> Status is set to "Open" for new tickets
+        </div>
+      </div> -->
      
     </div>
   </div>
