@@ -118,6 +118,9 @@ export class TicketActionsComponent implements AfterViewInit {
     }
   }
 
+  /**
+   * Handle delete action
+   */
   onDelete(): void {
     // Close dropdown when an action is taken
     this.isOpen = false;

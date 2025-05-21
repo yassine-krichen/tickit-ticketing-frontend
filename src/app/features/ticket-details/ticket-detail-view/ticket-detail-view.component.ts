@@ -7,6 +7,7 @@ import { getPriorityLabel, getStatusLabel, getCaseTypeLabel, formatSLA } from '.
   templateUrl: './ticket-detail-view.component.html',
   styleUrls: ['./ticket-detail-view.component.css']
 })
+// delete this component, obsolete
 export class TicketDetailViewComponent implements OnInit {
   @Input() ticket: TicketResponse | null = null;
   @Output() edit = new EventEmitter<void>();

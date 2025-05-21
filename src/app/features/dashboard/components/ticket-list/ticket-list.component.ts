@@ -1,13 +1,19 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { Router } from "@angular/router";
 import { TicketService } from "src/app/core/services/ticket/ticket.service";
 
+declare var bootstrap: any; // Declare bootstrap variable for modal
+
+/**
+ * Component for displaying and managing the list of tickets
+ */
 @Component({
     selector: "app-ticket-list",
     templateUrl: "./ticket-list.component.html",
     styleUrls: ["./ticket-list.component.css"]
 })
-export class TicketListComponent implements OnInit {
+export class TicketListComponent implements OnInit, OnDestroy {
+    // Existing properties
     tickets = [];
     loading = true;
     error = null;
@@ -20,13 +26,99 @@ export class TicketListComponent implements OnInit {
     blockedCount = 0;
     resolvedCount = 0;
 
+    // New properties for delete modal
+    ticketToDelete: any = null;
+    private _deleteModal: any = null;
+
     constructor(
         private ticketService: TicketService,
         private router: Router
     ) { }
 
+    /**
+     * Initialize component and load tickets
+     */
     ngOnInit(): void {
         this.loadTickets();
+        
+        // Initialize modal after DOM is ready
+        setTimeout(() => {
+            this.initDeleteModal();
+        });
+    }
+
+    /**
+     * Initialize the delete confirmation modal
+     */
+    private initDeleteModal(): void {
+        const modalElement = document.getElementById("deleteTicketModal");
+        if (modalElement && typeof bootstrap !== "undefined") {
+            this._deleteModal = new bootstrap.Modal(modalElement);
+        }
+    }
+
+    /**
+     * Open delete confirmation modal for a ticket
+     * 
+     * @param ticket - The ticket to delete
+     * @param event - The click event
+     */
+    deleteTicket(ticket: any, event?: Event): void {
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
+        
+        this.ticketToDelete = ticket;
+        
+        if (this._deleteModal) {
+            this._deleteModal.show();
+        } else {
+            // Fallback to confirm dialog if modal isn't available
+            if (confirm(`Are you sure you want to delete ticket #${ticket.id}?`)) {
+                this.performDeleteTicket();
+            }
+        }
+    }
+
+    /**
+     * Confirm and perform the ticket deletion
+     */
+    confirmDelete(): void {
+        this.performDeleteTicket();
+        
+        if (this._deleteModal) {
+            this._deleteModal.hide();
+        }
+    }
+
+    /**
+     * Perform the actual ticket deletion API call
+     */
+    private performDeleteTicket(): void {
+        if (!this.ticketToDelete) return;
+        
+        this.ticketService.deleteTicket(this.ticketToDelete.id).subscribe({
+            next: () => {
+                this.tickets = this.tickets.filter(t => t.id !== this.ticketToDelete.id);
+                this.calculateStatistics();
+                this.ticketToDelete = null;
+            },
+            error: error => {
+                console.error("Error deleting ticket:", error);
+                this.error = "Failed to delete ticket. Please try again.";
+            }
+        });
+    }
+
+    /**
+     * Clean up resources
+     */
+    ngOnDestroy(): void {
+        // Clean up modal if needed
+        if (this._deleteModal) {
+            this._deleteModal.dispose();
+        }
     }
 
     loadTickets(): void {
@@ -86,21 +178,6 @@ export class TicketListComponent implements OnInit {
     clearFilter(): void {
         this.searchTerm = "";
         this.activeTab = "All Tickets";
-    }
-
-    deleteTicket(ticket: any): void {
-        if (confirm(`Are you sure you want to delete ticket #${ticket.id}?`)) {
-            this.ticketService.deleteTicket(ticket.id).subscribe(
-                () => {
-                    this.tickets = this.tickets.filter(t => t.id !== ticket.id);
-                    this.calculateStatistics();
-                },
-                error => {
-                    console.error("Error deleting ticket:", error);
-                    alert("Failed to delete ticket. Please try again.");
-                }
-            );
-        }
     }
 
     toggleDropdown(event: Event, ticketId: string): void {

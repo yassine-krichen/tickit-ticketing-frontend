@@ -13,6 +13,7 @@ import {
 
 // Declare Notify for TypeScript
 declare const Notify: any;
+declare const bootstrap: any; // Declare bootstrap for modal handling
 
 @Component({
   selector: 'app-dashboard-content',
@@ -71,11 +72,22 @@ export class DashboardContentComponent implements OnInit {
   blockedMoM: number | null = null;
   resolvedMoM: number | null = null;
 
+  // Delete modal properties
+  private _deleteModal: any = null;
+  ticketToDelete: TicketResponse | null = null;
+
   constructor(private ticketService: TicketService, private elementRef: ElementRef) { }
 
   ngOnInit(): void {
     this.loadTickets();
     this.loadTicketStats();
+  }
+
+  ngAfterViewInit(): void {
+    // Initialize modal after DOM is ready
+    setTimeout(() => {
+      this.initDeleteModal();
+    });
   }
 
   /**
@@ -138,6 +150,16 @@ export class DashboardContentComponent implements OnInit {
   private _closeNotification(notification: any): void {
     if (notification) {
       notification.close();
+    }
+  }
+
+  /**
+   * Initialize the delete confirmation modal
+   */
+  private initDeleteModal(): void {
+    const modalElement = document.getElementById("deleteTicketModal");
+    if (modalElement && typeof bootstrap !== "undefined") {
+      this._deleteModal = new bootstrap.Modal(modalElement);
     }
   }
 
@@ -346,26 +368,93 @@ export class DashboardContentComponent implements OnInit {
     this.loadTickets(); // Reload with new advanced filters
   }
 
+  /**
+   * Open the delete confirmation modal for a ticket
+   * 
+   * @param ticket Ticket to be deleted
+   */
   deleteTicket(ticket: TicketResponse): void {
-    if (confirm(`Are you sure you want to delete ticket #${ticket.id}?`)) {
-      this.ticketService.deleteTicket(ticket.id).subscribe({
-        next: (response) => {
-          // Filter out the deleted ticket
-          this.tickets = this.tickets.filter(t => t.id !== ticket.id);
-          this.loadTicketStats(); // Reload statistics
-          // Show success message
-          alert(response.message || 'Ticket deleted successfully');
-        },
-        error: (error) => {
-          console.error('Error deleting ticket:', error);
-          alert('Failed to delete ticket. Please try again.');
-        }
-      });
+    this.ticketToDelete = ticket;
+    
+    if (this._deleteModal) {
+      this._deleteModal.show();
+    } else {
+      // Fallback to confirm dialog if modal isn't available
+      if (confirm(`Are you sure you want to delete ticket #${ticket.id}?`)) {
+        this.performDeleteTicket();
+      }
     }
   }
 
-  toggleDropdown(event: Event, ticketId: string): void {
-    console.log('Dropdown toggle event received for ticket', ticketId);
+  /**
+   * Confirm and perform the ticket deletion
+   */
+  confirmDelete(): void {
+    this.performDeleteTicket();
+    
+    if (this._deleteModal) {
+      this._deleteModal.hide();
+    }
+  }
+
+  /**
+   * Perform the actual ticket deletion API call
+   */
+  private performDeleteTicket(): void {
+    if (!this.ticketToDelete) return;
+    
+    this.ticketService.deleteTicket(this.ticketToDelete.id).subscribe({
+      next: (response) => {
+        // Filter out the deleted ticket
+        this.tickets = this.tickets.filter(t => t.id !== this.ticketToDelete.id);
+        
+        // Reload statistics
+        this.loadTicketStats();
+        
+        // Show success notification (using Notify instead of alert)
+        new Notify({
+          status: "success",
+          title: "Ticket Deleted",
+          text: response.message || "Ticket deleted successfully",
+          effect: "fade",
+          speed: 300,
+          customClass: null,
+          customIcon: null,
+          showIcon: true,
+          showCloseButton: true,
+          autoclose: true,
+          autotimeout: 3000,
+          gap: 20,
+          distance: 20,
+          type: 1,
+          position: "right top"
+        });
+        
+        this.ticketToDelete = null;
+      },
+      error: (error) => {
+        console.error("Error deleting ticket:", error);
+        
+        // Show error notification
+        new Notify({
+          status: "error",
+          title: "Error",
+          text: "Failed to delete ticket. Please try again.",
+          effect: "fade",
+          speed: 300,
+          customClass: null,
+          customIcon: null,
+          showIcon: true,
+          showCloseButton: true,
+          autoclose: true,
+          autotimeout: 3000,
+          gap: 20,
+          distance: 20,
+          type: 1,
+          position: "right top"
+        });
+      }
+    });
   }
 
   clearAllFilters(): void {
@@ -423,5 +512,12 @@ export class DashboardContentComponent implements OnInit {
     }
 
     return false;
+  }
+
+  ngOnDestroy(): void {
+    // Clean up modal if needed
+    if (this._deleteModal) {
+      this._deleteModal.dispose();
+    }
   }
 }
