@@ -30,6 +30,8 @@ export class TicketActivityDetailsComponent implements OnInit, AfterViewInit {
 
     // Bootstrap modal and collapse instances
     private _commentFormCollapse: any = null;
+    private _deleteAttachmentModal: any = null;
+    private _attachmentToDelete: string | null = null;
 
     constructor(
         private route: ActivatedRoute,
@@ -74,9 +76,14 @@ export class TicketActivityDetailsComponent implements OnInit, AfterViewInit {
     private _initBootstrapComponents(): void {
         setTimeout(() => {
             const commentFormCollapseElement = document.getElementById("commentFormCollapse");
+            const deleteAttachmentModalElement = document.getElementById("deleteAttachmentModal");
             
             if (commentFormCollapseElement && typeof bootstrap !== "undefined" && bootstrap.Collapse) {
                 this._createCollapse(commentFormCollapseElement);
+            }
+            
+            if (deleteAttachmentModalElement && typeof bootstrap !== "undefined" && bootstrap.Modal) {
+                this._deleteAttachmentModal = new bootstrap.Modal(deleteAttachmentModalElement);
             }
             
             // Initialize other bootstrap components here as needed
@@ -211,19 +218,52 @@ export class TicketActivityDetailsComponent implements OnInit, AfterViewInit {
      * @param attachmentId - The attachment ID to delete
      */
     deleteAttachment(attachmentId: string): void {
-        if (confirm("Are you sure you want to delete this attachment?")) {
-            this.activityService.deleteAttachment(this.ticketId, this.activityId, attachmentId).subscribe({
-                next: () => {
-                    // Remove the deleted attachment from the list
-                    this.attachments = this.attachments.filter(a => a.id !== Number(attachmentId));
-                    this._showSuccessNotification("Attachment deleted successfully");
-                },
-                error: (error) => {
-                    console.error("Error deleting attachment:", error);
-                    this._showErrorNotification("Failed to delete attachment. Please try again.");
-                }
-            });
+        this._attachmentToDelete = attachmentId;
+        
+        if (this._deleteAttachmentModal) {
+            this._deleteAttachmentModal.show();
+        } else {
+            // Fallback to confirm dialog if modal isn't available
+            if (confirm("Are you sure you want to delete this attachment?")) {
+                this.performDeleteAttachment();
+            }
         }
+    }
+
+    /**
+     * Confirms and performs attachment deletion
+     */
+    confirmDeleteAttachment(): void {
+        this.performDeleteAttachment();
+        
+        if (this._deleteAttachmentModal) {
+            this._deleteAttachmentModal.hide();
+        }
+    }
+
+    /**
+     * Performs the actual attachment deletion API call
+     */
+    private performDeleteAttachment(): void {
+        if (!this._attachmentToDelete) return;
+        
+        this.activityService.deleteAttachment(
+            this.ticketId, 
+            this.activityId, 
+            this._attachmentToDelete
+        ).subscribe({
+            next: () => {
+                // Remove the deleted attachment from the list
+                this.attachments = this.attachments.filter(a => a.id !== Number(this._attachmentToDelete));
+                this._showSuccessNotification("Attachment deleted successfully");
+                this._attachmentToDelete = null;
+            },
+            error: (error) => {
+                console.error("Error deleting attachment:", error);
+                this._showErrorNotification("Failed to delete attachment. Please try again.");
+                this._attachmentToDelete = null;
+            }
+        });
     }
 
     formatIsoDuration(isoDuration: string): string {
