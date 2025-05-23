@@ -4,6 +4,10 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { TicketActivityService } from "../../../../core/services/ticket-activity/ticket-activity.service";
 import { FileUploadModalComponent } from "../../components/file-upload-modal/file-upload-modal.component";
 import { TicketActivityDto, AttachmentDto, CommentDto } from "../../../../core/models/ticket-activity.model";
+import { HttpErrorResponse } from "@angular/common/http";
+import { UserService } from "../../../../core/services/user/user.service";
+import { forkJoin, of } from "rxjs";
+import { catchError, map } from "rxjs/operators";
 
 declare var bootstrap: any;
 declare var Notify: any;
@@ -31,13 +35,19 @@ export class TicketActivityDetailsComponent implements OnInit, AfterViewInit {
     // Bootstrap modal and collapse instances
     private _commentFormCollapse: any = null;
     private _deleteAttachmentModal: any = null;
+    private _deleteCommentModal: any = null;
     private _attachmentToDelete: string | null = null;
+    private _commentToDelete: string | number | null = null;
+
+    // Add new property to track permissions for each comment
+    commentsPermissions: Map<string | number, boolean> = new Map();
 
     constructor(
         private route: ActivatedRoute,
         private router: Router,
         private formBuilder: FormBuilder,
-        private activityService: TicketActivityService
+        private activityService: TicketActivityService,
+        private userService: UserService
     ) {
         this.commentForm = this.formBuilder.group({
             text: ["", [Validators.required]]
@@ -74,19 +84,37 @@ export class TicketActivityDetailsComponent implements OnInit, AfterViewInit {
      * Initializes Bootstrap components with a small delay to ensure DOM is ready
      */
     private _initBootstrapComponents(): void {
+        console.log('[DEBUG] Initializing Bootstrap components');
+        
         setTimeout(() => {
             const commentFormCollapseElement = document.getElementById("commentFormCollapse");
             const deleteAttachmentModalElement = document.getElementById("deleteAttachmentModal");
+            const deleteCommentModalElement = document.getElementById("deleteCommentModal");
+            
+            console.log('[DEBUG] Form collapse element found:', !!commentFormCollapseElement);
+            console.log('[DEBUG] Attachment modal element found:', !!deleteAttachmentModalElement);
+            console.log('[DEBUG] Comment modal element found:', !!deleteCommentModalElement);
+            console.log('[DEBUG] Bootstrap available:', typeof bootstrap !== "undefined");
             
             if (commentFormCollapseElement && typeof bootstrap !== "undefined" && bootstrap.Collapse) {
                 this._createCollapse(commentFormCollapseElement);
+                console.log('[DEBUG] Comment form collapse initialized');
             }
             
             if (deleteAttachmentModalElement && typeof bootstrap !== "undefined" && bootstrap.Modal) {
                 this._deleteAttachmentModal = new bootstrap.Modal(deleteAttachmentModalElement);
+                console.log('[DEBUG] Delete attachment modal initialized');
             }
             
-            // Initialize other bootstrap components here as needed
+            if (deleteCommentModalElement && typeof bootstrap !== "undefined" && bootstrap.Modal) {
+                this._deleteCommentModal = new bootstrap.Modal(deleteCommentModalElement);
+                console.log('[DEBUG] Delete comment modal initialized');
+            } else {
+                console.warn('[DEBUG] Failed to initialize delete comment modal:', 
+                         !deleteCommentModalElement ? 'Element not found' : 
+                         typeof bootstrap === "undefined" ? 'Bootstrap not defined' : 
+                         !bootstrap.Modal ? 'Bootstrap.Modal not available' : 'Unknown reason');
+            }
         }, 100);
     }
 
@@ -132,15 +160,70 @@ export class TicketActivityDetailsComponent implements OnInit, AfterViewInit {
             });
     }
 
+    /**
+     * Load comments and their associated permissions
+     */
     loadComments(): void {
+        console.log('[DEBUG] loadComments called');
+        this.loading = true; // Show loading state while fetching comments and permissions
+        
         this.activityService.getActivityComments(this.ticketId, this.activityId)
             .subscribe({
                 next: (comments) => {
-                    this.comments = comments;
+                    console.log(`[DEBUG] Loaded ${comments.length} comments`);
+                    
+                    // Store comments temporarily
+                    const tempComments = comments;
+                    
+                    if (tempComments.length === 0) {
+                        console.log('[DEBUG] No comments to process');
+                        // No comments to process, just set empty array and hide loading
+                        this.comments = [];
+                        this.loading = false;
+                        return;
+                    }
+                    
+                    console.log('[DEBUG] Creating permission check observables');
+                    // Create an array of observables for permission checks
+                    const permissionChecks = tempComments.map(comment => {
+                        console.log(`[DEBUG] Creating permission check for comment by: ${comment.username}`);
+                        return this.userService.canDeleteComment(comment.username)
+                            .pipe(
+                                map(canDelete => {
+                                    console.log(`[DEBUG] Permission for comment ${comment.id} by ${comment.username}: ${canDelete}`);
+                                    return { commentId: comment.id, canDelete };
+                            }),
+                            catchError((err) => {
+                                console.error(`[DEBUG] Error checking permission for comment ${comment.id}:`, err);
+                                return of({ commentId: comment.id, canDelete: false });
+                            })
+                        );
+                    });
+                    
+                    console.log('[DEBUG] Waiting for all permission checks to complete');
+                    // Wait for all permission checks to complete
+                    forkJoin(permissionChecks).subscribe(results => {
+                        console.log('[DEBUG] All permission checks completed:', results);
+                        
+                        // Populate the permissions map
+                        this.commentsPermissions.clear(); // Clear existing permissions first
+                        results.forEach(result => {
+                            console.log(`[DEBUG] Setting permission for comment ${result.commentId}: ${result.canDelete}`);
+                            this.commentsPermissions.set(result.commentId, result.canDelete);
+                        });
+                        
+                        console.log('[DEBUG] Permissions map after update:', 
+                            Array.from(this.commentsPermissions.entries()).map(([id, can]) => `${id}: ${can}`).join(', '));
+                        
+                        // Now that we have all permissions, set the comments and hide loading
+                        this.comments = tempComments;
+                        this.loading = false;
+                    });
                 },
                 error: (error) => {
-                    console.error("Error loading comments:", error);
+                    console.error('[DEBUG] Error loading comments:', error);
                     this._showErrorNotification("Failed to load comments.");
+                    this.loading = false;
                 }
             });
     }
@@ -266,6 +349,122 @@ export class TicketActivityDetailsComponent implements OnInit, AfterViewInit {
         });
     }
 
+    /**
+     * Delete a comment after confirmation
+     * @param commentId - ID of the comment to delete
+     */
+    deleteComment(commentId: string, commentUsername: string): void {
+        console.log(`[DEBUG] deleteComment called with commentId: ${commentId}, username: ${commentUsername}`);
+        
+        // First check if user has permission to delete this comment
+        this.userService.canDeleteComment(commentUsername)
+            .pipe(catchError((error) => {
+                console.error('[DEBUG] Error in canDeleteComment:', error);
+                return of(false);
+            }))
+            .subscribe(canDelete => {
+                console.log(`[DEBUG] Permission check result for comment ${commentId}: ${canDelete}`);
+                
+                if (canDelete) {
+                    this._commentToDelete = commentId;
+                    console.log(`[DEBUG] Setting _commentToDelete: ${this._commentToDelete}`);
+                    
+                    if (this._deleteCommentModal) {
+                        console.log('[DEBUG] Modal exists, showing delete confirmation');
+                        this._deleteCommentModal.show();
+                    } else {
+                        console.warn('[DEBUG] Modal not found, falling back to confirm dialog');
+                        if (confirm("Are you sure you want to delete this comment?")) {
+                            this.performDeleteComment();
+                        }
+                    }
+                } else {
+                    console.log('[DEBUG] Permission denied for deleting comment');
+                    this._showErrorNotification(
+                        "You don't have permission to delete this comment. Only comment owners or administrators can delete comments."
+                    );
+                }
+            });
+    }
+
+    /**
+     * Confirm and perform comment deletion
+     */
+    confirmDeleteComment(): void {
+        console.log('[DEBUG] confirmDeleteComment called, _commentToDelete:', this._commentToDelete);
+        
+        this.performDeleteComment();
+        
+        if (this._deleteCommentModal) {
+            console.log('[DEBUG] Hiding comment deletion modal');
+            this._deleteCommentModal.hide();
+        } else {
+            console.warn('[DEBUG] Modal not found when trying to hide');
+        }
+    }
+
+    /**
+     * Perform the actual API call to delete the comment
+     */
+    private performDeleteComment(): void {
+        if (!this._commentToDelete) {
+            console.warn('[DEBUG] performDeleteComment called but _commentToDelete is null/undefined');
+            return;
+        }
+        
+        console.log(`[DEBUG] Attempting to delete comment with ID: ${this._commentToDelete}`);
+        console.log(`[DEBUG] API parameters - activityId: ${this.activityId}, ticketId: ${this.ticketId}`);
+        
+        this.activityService.deleteComment(this.activityId, this._commentToDelete, this.ticketId).subscribe({
+            next: () => {
+                console.log('[DEBUG] Comment deleted successfully');
+                
+                // Remove the deleted comment from the list
+                const previousCount = this.comments.length;
+                this.comments = this.comments.filter(c => c.id !== this._commentToDelete);
+                console.log(`[DEBUG] Removed comment from list (before: ${previousCount}, after: ${this.comments.length})`);
+                
+                this._showSuccessNotification("Comment deleted successfully");
+                this._commentToDelete = null;
+            },
+            error: (error: any) => {
+                console.log('[DEBUG] Error deleting comment - Full error object:', error);
+                console.log('[DEBUG] Error type:', typeof error);
+                console.log('[DEBUG] Error keys:', error ? Object.keys(error) : 'No keys (error is null/undefined)');
+                console.log('[DEBUG] Error status:', error?.status);
+                console.log('[DEBUG] Error message:', error?.message);
+                console.log('[DEBUG] Error response:', error?.error);
+                
+                if (error?.error) {
+                    console.log('[DEBUG] Error response body:', error.error);
+                }
+                
+                this._commentToDelete = null;
+                
+                // Check for 403 in the URL itself since the error object isn't giving us the status
+                const responseText = error?.message || error?.toString() || "";
+                console.log('[DEBUG] Response text for status check:', responseText);
+                
+                // Look for any indication of a 403 status
+                const is403 = responseText.includes("403") || 
+                              (error?.rejection?.status === 403) ||
+                              (error?.status === 403);
+                
+                console.log('[DEBUG] Is 403 error?', is403);
+                
+                if (is403) {
+                    console.log('[DEBUG] Permission denied detected (403)');
+                    this._showErrorNotification(
+                        "You don't have permission to delete this comment. Only comment owners or administrators can delete comments."
+                    );
+                } else {
+                    console.error('[DEBUG] Other error deleting comment:', error);
+                    this._showErrorNotification("Failed to delete comment. Please try again.");
+                }
+            }
+        });
+    }
+
     formatIsoDuration(isoDuration: string): string {
         if (!isoDuration || isoDuration === "N/A") {
             return "Activity not completed";
@@ -341,6 +540,10 @@ export class TicketActivityDetailsComponent implements OnInit, AfterViewInit {
             { content: commentText }
         ).subscribe({
             next: (response) => {
+                // For new comments, the current user is always the owner
+                // So they should have permission to delete their own comment
+                this.commentsPermissions.set(response.id, true);
+                
                 // Add new comment to the list (prepend to show newest first)
                 this.comments.unshift(response);
                 
@@ -409,5 +612,16 @@ export class TicketActivityDetailsComponent implements OnInit, AfterViewInit {
         } else {
             console.error("Error:", message);
         }
+    }
+
+    /**
+     * Add a method to check if a comment can be deleted
+     */
+    canDeleteComment(commentId: string | number): boolean {
+        const canDelete = this.commentsPermissions.get(commentId) || false;
+        console.log(`[DEBUG] Checking if can delete comment ${commentId}: ${canDelete}`);
+        console.log('[DEBUG] Current permissions map:', 
+            Array.from(this.commentsPermissions.entries()).map(([id, can]) => `${id}: ${can}`).join(', '));
+        return canDelete;
     }
 }

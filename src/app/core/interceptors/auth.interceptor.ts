@@ -5,6 +5,10 @@ import { catchError } from "rxjs/operators";
 import { AuthService } from "../services/auth/auth.service";
 import { Router } from "@angular/router";
 
+/**
+ * Interceptor that adds authentication token to outgoing requests
+ * and handles authentication errors (401)
+ */
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
     constructor(private authService: AuthService, private router: Router) {}
@@ -22,8 +26,8 @@ export class AuthInterceptor implements HttpInterceptor {
         
         return next.handle(req).pipe(
             catchError((error: HttpErrorResponse) => {
+                // Only handle 401 errors (unauthorized), pass through all other errors
                 if (error.status === 401) {
-                    // Token is expired or invalid
                     console.log("Authentication error:", error.message);
                     
                     // Clear the token and disconnect WebSocket
@@ -32,6 +36,8 @@ export class AuthInterceptor implements HttpInterceptor {
                     // Redirect to login page
                     this.router.navigate(["/auth/login"]);
                 }
+                
+                // Return the original HttpErrorResponse to preserve its type
                 return throwError(() => error);
             })
         );

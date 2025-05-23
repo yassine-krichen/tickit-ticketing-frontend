@@ -128,9 +128,9 @@ export class TicketActivityService {
     /**
      * Deletes a comment from an activity
      */
-    deleteComment(activityId: string, commentId: string): Observable<void> {
+    deleteComment(activityId: string, commentId: string | number, ticketId: string): Observable<void> {
         return this._http.delete<void>(
-            `${this._BASE_URL}/tickets/activities/${activityId}/comments/${commentId}`
+            `${this._BASE_URL}/tickets/${ticketId}/activities/${activityId}/comments/${commentId}`
         );
     }
 

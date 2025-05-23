@@ -1,9 +1,14 @@
 import { Component, Input, Output, EventEmitter, OnInit, AfterViewInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { HttpErrorResponse } from "@angular/common/http";
 import { TicketActivityService } from "../../../../core/services/ticket-activity/ticket-activity.service";
 
 declare var bootstrap: any;
+declare var Notify: any;
 
+/**
+ * Component for displaying and managing comments on ticket activities
+ */
 @Component({
     selector: "app-activity-comments",
     templateUrl: "./activity-comments.component.html",
@@ -122,16 +127,107 @@ export class ActivityCommentsComponent implements OnInit, AfterViewInit {
     private performDeleteComment(): void {
         if (!this._commentToDelete) return;
         
-        this.activityService.deleteComment(this.activityId, this._commentToDelete).subscribe({
+        this.activityService.deleteComment(this.activityId, this._commentToDelete, this.ticketId).subscribe({
             next: () => {
                 this.commentAdded.emit();
                 this._commentToDelete = null;
+                this._showSuccessNotification("Comment deleted successfully");
             },
-            error: (error) => {
-                this.error = "Failed to delete comment";
-                console.error("Error deleting comment:", error);
+            error: (error: any) => {
                 this._commentToDelete = null;
+                
+                // Check for 403 status code directly instead of using instanceof
+                console.log(error);
+                if (error && error.status === 403) {
+                    this._showPermissionDeniedNotification();
+                } else {
+                  console.log("in err", error);
+                    this.error = "Failed to delete comment";
+                    console.error("Error deleting comment:", error);
+                    this._showErrorNotification("Failed to delete comment. Please try again.");
+                }
             }
         });
+    }
+    
+    /**
+     * Shows a permission denied notification using Notify
+     */
+    private _showPermissionDeniedNotification(): void {
+        if (typeof Notify !== "undefined") {
+            new Notify({
+                status: "error",
+                title: "Permission Denied",
+                text: "You don't have permission to delete this comment. Only comment owners or administrators can delete comments.",
+                effect: "fade",
+                speed: 300,
+                customClass: null,
+                customIcon: null,
+                showIcon: true,
+                showCloseButton: true,
+                autoclose: true,
+                autotimeout: 5000,
+                gap: 20,
+                distance: 20,
+                type: 1,
+                position: "right top"
+            });
+        } else {
+            console.error("Permission Denied: You don't have permission to delete this comment.");
+        }
+    }
+    
+    /**
+     * Shows a success notification using Notify
+     */
+    private _showSuccessNotification(message: string): void {
+        if (typeof Notify !== "undefined") {
+            new Notify({
+                status: "success",
+                title: "Success",
+                text: message,
+                effect: "fade",
+                speed: 300,
+                customClass: null,
+                customIcon: null,
+                showIcon: true,
+                showCloseButton: true,
+                autoclose: true,
+                autotimeout: 3000,
+                gap: 20,
+                distance: 20,
+                type: 1,
+                position: "right top"
+            });
+        } else {
+            console.log("Success:", message);
+        }
+    }
+    
+    /**
+     * Shows an error notification using Notify
+     */
+    private _showErrorNotification(message: string): void {
+        if (typeof Notify !== "undefined") {
+            new Notify({
+                status: "error",
+                title: "Error",
+                text: message,
+                effect: "fade",
+                speed: 300,
+                customClass: null,
+                customIcon: null,
+                showIcon: true,
+                showCloseButton: true,
+                autoclose: true,
+                autotimeout: 5000,
+                gap: 20,
+                distance: 20,
+                type: 1,
+                position: "right top"
+            });
+        } else {
+            console.error("Error:", message);
+        }
     }
 }

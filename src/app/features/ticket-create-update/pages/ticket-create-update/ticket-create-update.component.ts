@@ -175,6 +175,7 @@ export class TicketCreateUpdateComponent implements OnInit, OnDestroy {
         } else {
             // Create new ticket
             console.log("Creating new ticket with payload:", formData);
+            formData.status = Status.OPEN; // Set default status for new tickets
             this.ticketService.createTicket(formData).subscribe(
                 (response) => {
                     console.log("Ticket created successfully:", response);

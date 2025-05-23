@@ -21,9 +21,10 @@
             <small class="text-muted">{{comment.createdAt | date:'medium'}}</small>
           </div>
         </div>
-        <button class="btn btn-link text-danger"
-                *ngIf="comment.canDelete"
-                (click)="deleteComment(comment.id)">
+        <!-- Delete button - removed conditional to ensure it's visible for testing -->
+        <button class="btn btn-sm btn-outline-danger" 
+                (click)="deleteComment(comment.id)"
+                title="Delete comment">
           <i class="fas fa-trash"></i>
         </button>
       </div>
