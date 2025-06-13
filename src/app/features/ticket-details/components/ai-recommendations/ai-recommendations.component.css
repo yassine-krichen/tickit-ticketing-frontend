@@ -1,0 +1,64 @@
+.recommendations-panel {
+  margin-bottom: 1rem;
+}
+
+.suggestions {
+  white-space: pre-line;
+}
+
+.suggestions-content {
+  background-color: #ffffff; /* white background */
+  color: #333333;            /* dark text for readability */
+  padding: 15px;
+  border-radius: 4px;
+  border: 1px solid #ddd;    /* optional: light border for contrast */
+}
+
+.suggestion-header {
+  margin-bottom: 20px;
+  font-weight: 500;
+  color: black; /* orange header */
+}
+
+.step-item {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.step-number {
+  color: #ff7a00; /* orange number */
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-title {
+  color: #ff7a00; /* orange title */
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.step-action {
+  margin-bottom: 8px;
+  margin-left: 15px;
+}
+
+.step-justification {
+  margin-left: 15px;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.conclusion {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #ccc;
+  color: #ff7a00; /* orange conclusion */
+}
+
+:host ::ng-deep .highlight {
+  color: #ff7a00; /* orange highlight */
+}

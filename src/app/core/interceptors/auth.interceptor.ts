@@ -15,7 +15,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         const token = this.authService.getToken();
-        
+
         if (token) {
             req = req.clone({
                 setHeaders: {
@@ -23,22 +23,21 @@ export class AuthInterceptor implements HttpInterceptor {
                 }
             });
         }
-        
+
         return next.handle(req).pipe(
-            catchError((error: HttpErrorResponse) => {
-                // Only handle 401 errors (unauthorized), pass through all other errors
-                if (error.status === 401) {
-                    console.log("Authentication error:", error.message);
-                    
-                    // Clear the token and disconnect WebSocket
-                    this.authService.logout();
-                    
-                    // Redirect to login page
-                    this.router.navigate(["/auth/login"]);
+            catchError((error: any) => {
+                // Check if error is HttpErrorResponse
+                if (error instanceof HttpErrorResponse) {
+                    if (error.status === 401) {
+                        console.log("Authentication error:", error.message);
+                        this.authService.logout();
+                        this.router.navigate(["/auth/login"]);
+                    }
+                    return throwError(() => error);
                 }
-                
-                // Return the original HttpErrorResponse to preserve its type
-                return throwError(() => error);
+
+                // For non-HTTP errors, create a proper error object
+                return throwError(() => new Error(error.message || 'An unknown error occurred'));
             })
         );
     }

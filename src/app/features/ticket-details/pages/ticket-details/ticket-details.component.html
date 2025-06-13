@@ -58,7 +58,7 @@
             (activityDeleted)="onActivityDeleted($event)">
           </app-ticket-activity-timeline>
 
-          
+
 
         </div>
 
@@ -75,7 +75,7 @@
             <app-case-tracker [steps]="historyEntries"></app-case-tracker>
 
             <!-- AI Recommendations Card -->
-            <app-ai-recommendations [recommendations]="recommendations"></app-ai-recommendations>
+            <app-ai-recommendations [ticketId]="ticketId"></app-ai-recommendations>
           </app-ticket-sidebar>
         </div>
       </div>

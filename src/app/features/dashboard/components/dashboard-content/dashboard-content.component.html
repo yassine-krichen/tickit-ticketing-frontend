@@ -6,20 +6,20 @@
       <button class="btn btn-outline-secondary d-flex align-items-center filter-drawer-toggle" (click)="toggleFilterDrawer()">
         <i class="fas fa-filter me-2"></i>
         <span>Filter</span>
-        <span class="badge bg-primary ms-2 d-flex align-items-center justify-content-center" 
-              style="height: 20px; min-width: 20px;" 
-              *ngIf="advancedFilters.priorities.length + 
-                    advancedFilters.statuses.length + 
-                    advancedFilters.types.length + 
+        <span class="badge bg-primary ms-2 d-flex align-items-center justify-content-center"
+              style="height: 20px; min-width: 20px;"
+              *ngIf="advancedFilters.priorities.length +
+                    advancedFilters.statuses.length +
+                    advancedFilters.types.length +
                     advancedFilters.steps.length > 0">
-          {{ advancedFilters.priorities.length + 
-             advancedFilters.statuses.length + 
-             advancedFilters.types.length + 
+          {{ advancedFilters.priorities.length +
+             advancedFilters.statuses.length +
+             advancedFilters.types.length +
              advancedFilters.steps.length }}
         </span>
       </button>
-      <button class="btn btn-outline-secondary" 
-              (click)="clearAllFilters()" 
+      <button class="btn btn-outline-secondary"
+              (click)="clearAllFilters()"
               title="Clear all filters"
               *ngIf="hasActiveFilters()">
         <i class="fas fa-redo me-1"></i>
@@ -33,7 +33,7 @@
   </div>
 
   <!-- KPI Cards Section -->
-  <app-kpis-metrics 
+  <app-kpis-metrics
     [totalTicketsCount]="totalTicketsCount"
     [inProgressCount]="inProgressCount"
     [blockedCount]="blockedCount"
@@ -46,7 +46,7 @@
   </app-kpis-metrics>
 
   <!-- Filter Tabs -->
-  <app-ticket-filters 
+  <app-ticket-filters
     [activeTab]="activeTab"
     (tabChange)="setActiveTab($event)"
     (orderByChange)="onOrderByChange($event)"
@@ -68,25 +68,25 @@
 
     <!-- Ticket Search -->
     <div class="p-3 border-bottom">
-      <app-ticket-search 
+      <app-ticket-search
         [searchTerm]="searchTerm"
         (search)="onSearchChange($event)">
       </app-ticket-search>
     </div>
-    
+
     <!-- Ticket Items Container with Scroll Event -->
-    <div 
-      class="ticket-list-container" 
+    <div
+      class="ticket-list-container"
       #ticketListContainer
       (scroll)="onScroll($event)"
       style="max-height: 600px; overflow-y: auto;"
       role="region"
       aria-live="polite"
       aria-label="Ticket list with infinite scrolling">
-      
+
       <!-- Ticket Items -->
       <div class="list-group list-group-flush">
-        <app-ticket-item 
+        <app-ticket-item
           *ngFor="let ticket of tickets"
           [ticket]="ticket"
           (delete)="deleteTicket($event)"
@@ -110,7 +110,7 @@
         </div>
 
         <!-- End of results message -->
-        <div class="p-3 text-center text-muted end-of-results" 
+        <div class="p-3 text-center text-muted end-of-results"
              *ngIf="isLastPage && !loadingMore && tickets.length > 0"
              style="background-color: #f8f9fa; border-top: 1px solid #eee; margin-top: 10px;"
              aria-live="polite">
@@ -129,7 +129,10 @@
       </div>
     </div>
   </div>
-  
+
+  <!-- New analytics section -->
+  <app-ticket-analytics></app-ticket-analytics>
+
   <!-- Filter Drawer -->
   <app-filter-drawer
     [isOpen]="isFilterDrawerOpen"

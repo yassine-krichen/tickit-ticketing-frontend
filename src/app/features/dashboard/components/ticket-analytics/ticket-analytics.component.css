@@ -1,0 +1,41 @@
+.analysis-content {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 15px;
+  background-color: #ffffff;
+  color: #1e1e1e;
+  border-radius: 4px;
+}
+
+.section-title {
+  color: #f86408;
+  margin-top: 15px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.trend-list, .concern-list, .recommendation-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.trend-list li, .concern-list li, .recommendation-list li {
+  margin-bottom: 10px;
+  padding-left: 20px;
+  position: relative;
+}
+
+li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: #ffb300;
+}
+
+:host ::ng-deep .highlight-green {
+  color: #fdf905;
+}
+
+:host ::ng-deep .highlight-orange {
+  color: #ffc107;
+}

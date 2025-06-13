@@ -18,6 +18,7 @@ import { TicketSearchComponent } from './components/ticket-search/ticket-search.
 import { FilterDrawerComponent } from './components/filter-drawer/filter-drawer.component';
 import { CoreModule } from '../../core/core.module';
 import { DashboardNavbarComponent } from './components/dashboard-navbar/dashboard-navbar.component';
+import { TicketAnalyticsComponent } from './components/ticket-analytics/ticket-analytics.component';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,8 @@ import { DashboardNavbarComponent } from './components/dashboard-navbar/dashboar
     TicketStatusBadgeComponent,
     TicketSearchComponent,
     FilterDrawerComponent,
-    DashboardNavbarComponent
+    DashboardNavbarComponent,
+    TicketAnalyticsComponent
   ],
   imports: [
     CommonModule,
@@ -42,4 +44,4 @@ import { DashboardNavbarComponent } from './components/dashboard-navbar/dashboar
     CoreModule
   ]
 })
-export class DashboardModule { } 
+export class DashboardModule { }
