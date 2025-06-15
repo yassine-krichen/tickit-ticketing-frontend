@@ -1,61 +1,141 @@
-<div class="card mt-4">
-    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-      <h5 class="mb-0">AI Analysis Dashboard</h5>
-      <button class="btn btn-primary"
-              (click)="runAnalysis()"
-              [disabled]="loading">
-        <i class="fas fa-brain me-2"></i>
-        {{ loading ? 'Analyzing...' : 'Run Ticket Analytics' }}
-      </button>
+<div class="card shadow-sm">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">System Analytics</h5>
+    <button
+      class="btn btn-primary"
+      (click)="generateAnalysis()"
+      [disabled]="loading"
+    >
+      <i
+        class="fas"
+        [class.fa-chart-line]="!loading"
+        [class.fa-spinner]="loading"
+        [class.fa-spin]="loading"
+      ></i>
+      {{ loading ? "Analyzing..." : "Generate Analysis" }}
+    </button>
+  </div>
+
+  <div class="card-body">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="text-center py-4">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Generating analysis...</span>
+      </div>
+      <p class="text-muted mt-2">Analyzing system data...</p>
     </div>
 
-    <div class="card-body">
-      <!-- Loading State -->
-      <div *ngIf="loading" class="text-center py-3">
-        <div class="spinner-border text-primary"></div>
-        <p class="mt-2 text-muted">
-          Analyzing ticket data...<br>
-          <small class="text-muted">
-            This may take several minutes<br>
-            Time elapsed: {{ elapsedTime }}
-          </small>
-        </p>
-      </div>
+    <!-- Error State -->
+    <div *ngIf="error" class="alert alert-danger">
+      {{ error }}
+    </div>
 
-      <!-- Error State -->
-      <div *ngIf="error" class="alert alert-danger">
-        {{ error }}
-      </div>
+    <!-- Empty State -->
+    <div
+      *ngIf="!loading && !analysis && !error"
+      class="text-center py-4 text-muted"
+    >
+      <i class="fas fa-chart-line fa-2x mb-3"></i>
+      <p>Click the button above to generate system analytics</p>
+    </div>
 
-      <!-- Analysis Section -->
-      <div *ngIf="analysis && !loading" class="analysis-content">
-        <p class="intro-text">Based on the available data in the ticketing system, here's an analysis with key trends, areas of concern, and recommendations for improvement:</p>
-
-        <div class="mt-4">
-          <h6 class="section-title">Key Trends and Patterns:</h6>
-          <ul class="trend-list">
-            <li *ngFor="let trend of analysis.trends">{{trend}}</li>
-          </ul>
-        </div>
-
-        <div class="mt-4">
-          <h6 class="section-title">Areas of Concern:</h6>
-          <ul class="concern-list">
-            <li *ngFor="let concern of analysis.concerns">{{concern}}</li>
-          </ul>
-        </div>
-
-        <div class="mt-4">
-          <h6 class="section-title">Recommendations for Improvement:</h6>
-          <ul class="recommendation-list">
-            <li *ngFor="let recommendation of analysis.recommendations">{{recommendation}}</li>
-          </ul>
+    <!-- Results -->
+    <div *ngIf="analysis && !loading">
+      <!-- Performance Metrics -->
+      <div class="mb-4">
+        <h6 class="text-primary mb-3">Performance Metrics</h6>
+        <div class="row g-3">
+          <div
+            *ngFor="let metric of analysis.performanceMetrics | keyvalue"
+            class="col-md-4"
+          >
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h6 class="card-title text-muted">{{ metric.key }}</h6>
+                <h3 class="mb-0">{{ formatMetricValue(metric.value) }}</h3>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Empty State -->
-      <div *ngIf="!analysis && !loading && !error" class="text-center text-muted p-4">
-        Click "Run Ticket Analytics" to generate analysis insights.
+      <!-- Trends -->
+      <div class="mb-4">
+        <h6 class="text-primary mb-3">Trends</h6>
+        <div class="list-group">
+          <div
+            *ngFor="let trend of getFilteredTrends()"
+            class="list-group-item"
+          >
+            <div class="d-flex align-items-center">
+              <i
+                class="material-icons me-2"
+                [class]="getTrendClass(trend.significance)"
+              >
+                {{ getTrendIcon(trend.significance) }}
+              </i>
+              <div>
+                <h6 class="mb-1">{{ trend.category }}</h6>
+                <p class="mb-0 text-muted small">
+                  {{ trend.description }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recommendations -->
+      <div class="mb-4">
+        <h6 class="text-primary mb-3">Recommendations</h6>
+        <div class="list-group">
+          <div
+            *ngFor="let rec of analysis.recommendations"
+            class="list-group-item"
+          >
+            <ng-container *ngIf="!rec.startsWith('ATT INFO: Risk Areas:')">
+              <div class="d-flex">
+                <i class="fas fa-info-circle text-info me-2 mt-1"></i>
+                <div>
+                  <p
+                    class="mb-0"
+                    [innerHTML]="
+                      rec.replace(
+                        'ATT INFO:',
+                        '<strong>Action Required:</strong>'
+                      )
+                    "
+                  ></p>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+
+      <!-- Risk Areas -->
+      <div>
+        <h6 class="text-primary mb-3">Risk Areas</h6>
+        <div class="list-group">
+          <div *ngFor="let risk of analysis.riskAreas" class="list-group-item">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h6 class="mb-0">{{ risk.area }}</h6>
+              <span [class]="getRiskLevelClass(risk.riskLevel)">
+                {{ risk.riskLevel }}
+              </span>
+            </div>
+            <p class="mb-2 text-muted small">{{ risk.description }}</p>
+            <div class="mt-2">
+              <span
+                class="badge bg-light text-dark me-2"
+                *ngFor="let step of risk.mitigationSteps"
+              >
+                {{ step }}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+</div>

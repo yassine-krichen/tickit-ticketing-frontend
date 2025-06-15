@@ -5,12 +5,14 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { BackButtonComponent } from './components/back-button/back-button.component';
 import { ScrollToTopComponent } from './components/scroll-to-top/scroll-to-top.component';
 import { FileSizePipe } from './pipes/file-size.pipe';
+import { LineBreaksPipe } from './pipes/line-breaks.pipe';
 @NgModule({
   declarations: [
     SidebarComponent,
     BackButtonComponent,
     ScrollToTopComponent,
-    FileSizePipe
+    FileSizePipe,
+    LineBreaksPipe
   ],
   imports: [
     CommonModule,
@@ -20,7 +22,8 @@ import { FileSizePipe } from './pipes/file-size.pipe';
     SidebarComponent,
     BackButtonComponent,
     ScrollToTopComponent,
-    FileSizePipe
+    FileSizePipe,
+    LineBreaksPipe
   ],
   providers: [
     // Add your singleton services here

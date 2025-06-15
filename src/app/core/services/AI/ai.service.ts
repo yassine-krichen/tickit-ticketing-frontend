@@ -1,53 +1,68 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { timeout } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 
-export interface AIRecommendation {
-  id: string;
-  title: string;
-  description: string;
-  confidence: number;
+export interface TrendInsight {
   category: string;
-  steps: Array<{
-    order: number;
-    description: string;
-    completed: boolean;
-  }>;
+  description: string;
+  significance: number;
 }
 
-export interface TicketAnalysis {
-  trends: string[];
-  concerns: string[];
+export interface RiskArea {
+  area: string;
+  description: string;
+  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
+  mitigationSteps: string[];
+}
+
+export interface EstimatedEffort {
+  minHours: number;
+  maxHours: number;
+  difficulty: 'EASY' | 'MODERATE' | 'COMPLEX';
+}
+
+export interface AIAnalysisResponse {
+  performanceMetrics: { [key: string]: number };
+  trends: TrendInsight[];
   recommendations: string[];
+  riskAreas: RiskArea[];
+}
+
+export interface AIResolutionResponse {
+  primarySolution: string;
+  alternativeSolutions: string[];
+  requiredSteps: string[];
+  potentialRisks: string[];
+  confidenceScore: number;
+  estimatedEffort: EstimatedEffort;
+  requiredResources: string[];
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AIService {
-  private apiUrl = `${environment.apiUrl}/api/v1/ai`;
+  private readonly baseUrl = `${environment.apiUrl}/api/v1/ai`;
 
-  // Set timeout to 10 minutes (600000 ms)
-  private httpOptions = {
-    timeout: 600000,
-    responseType: 'json' as const
-  };
+  private readonly REQUEST_TIMEOUT = 600000; // 10 minutes
 
   constructor(private http: HttpClient) {}
 
-  getRecommendations(ticketId: string): Observable<AIRecommendation[]> {
-    return this.http.get<AIRecommendation[]>(
-      `${this.apiUrl}/recommendations/${ticketId}`,
-      this.httpOptions
-    );
+  getSystemAnalysis(): Observable<AIAnalysisResponse> {
+    return this.http
+      .post<AIAnalysisResponse>(`${this.baseUrl}/analyse`, {})
+      .pipe(
+        timeout(this.REQUEST_TIMEOUT)
+      );
   }
 
-  analyzeTickets(): Observable<TicketAnalysis> {
-    return this.http.post<TicketAnalysis>(
-      `${this.apiUrl}/analyse`,
-      {},
-      this.httpOptions
-    );
+  getTicketSuggestions(ticketId: string): Observable<AIResolutionResponse> {
+    return this.http
+      .post<AIResolutionResponse>(`${this.baseUrl}/suggest/${ticketId}`, {})
+      .pipe(
+        timeout(this.REQUEST_TIMEOUT)
+      );
   }
 }

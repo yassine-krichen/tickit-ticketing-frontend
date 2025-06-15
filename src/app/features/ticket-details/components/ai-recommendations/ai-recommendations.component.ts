@@ -1,77 +1,86 @@
-import { Component, Input, OnDestroy } from '@angular/core';
-import { AIService, AIRecommendation } from 'src/app/core/services/AI/ai.service';
-import { Subject } from 'rxjs';
-import { takeUntil, finalize, catchError, timeout } from 'rxjs/operators';
+import { Component, Input } from '@angular/core';
+import {
+  AIService,
+  AIResolutionResponse,
+} from 'src/app/core/services/AI/ai.service';
 
 @Component({
   selector: 'app-ai-recommendations',
   templateUrl: './ai-recommendations.component.html',
-  styleUrls: ['./ai-recommendations.component.css']
 })
-export class AiRecommendationsComponent implements OnDestroy {
+export class AiRecommendationsComponent {
   @Input() ticketId!: string;
 
-  recommendations: AIRecommendation[] = [];
+  recommendations: AIResolutionResponse | null = null;
   loading = false;
   error: string | null = null;
-  hasLoaded = false;
-  startTime: number = 0;
-
-  private destroy$ = new Subject<void>();
 
   constructor(private aiService: AIService) {}
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  loadRecommendations(): void {
-    if (!this.ticketId) {
-      this.error = 'No ticket ID provided';
-      return;
-    }
+  generateRecommendations() {
+    if (!this.ticketId) return;
 
     this.loading = true;
     this.error = null;
-    this.hasLoaded = true;
-    this.startTime = Date.now();
 
-    this.aiService.getRecommendations(this.ticketId)
-      .pipe(
-        takeUntil(this.destroy$),
-        catchError((error) => {
-          console.error('Error details:', error);
-
-          // Check if it's a timeout error
-          if (error.name === 'TimeoutError') {
-            throw new Error('The request is still processing. Please wait...');
-          }
-
-          throw new Error('An error occurred while getting recommendations. Please try again.');
-        }),
-        finalize(() => {
-          this.loading = false;
-          const duration = (Date.now() - this.startTime) / 1000;
-          console.log(`Request took ${duration} seconds`);
-        })
-      )
-      .subscribe({
-        next: (data) => {
-          this.recommendations = data;
-          this.error = null;
-        },
-        error: (err) => {
-          this.error = err.message;
-          this.recommendations = [];
-        }
-      });
+    this.aiService.getTicketSuggestions(this.ticketId).subscribe({
+      next: (response) => {
+        this.recommendations = response;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('AI recommendations error:', err);
+        this.error = 'Failed to generate recommendations';
+        this.loading = false;
+      },
+    });
   }
 
-  // Helper method to show elapsed time
-  get elapsedTime(): string {
-    if (!this.loading || !this.startTime) return '';
-    const seconds = Math.floor((Date.now() - this.startTime) / 1000);
-    return `${seconds} seconds`;
+  getDifficultyClass(difficulty: string): string {
+    switch (difficulty) {
+      case 'EASY':
+        return 'badge bg-success';
+      case 'MODERATE':
+        return 'badge bg-warning';
+      case 'COMPLEX':
+        return 'badge bg-danger';
+      default:
+        return 'badge bg-secondary';
+    }
+  }
+
+  getConfidenceClass(score: number): string {
+    if (score >= 0.8) return 'text-success';
+    if (score >= 0.6) return 'text-warning';
+    return 'text-danger';
+  }
+
+  getFilteredSteps(): string[] {
+    if (!this.recommendations?.requiredSteps) return [];
+
+    const steps: string[] = [];
+    let isInStepsSection = true;
+
+    for (const step of this.recommendations.requiredSteps) {
+      // Check if we've hit a different section header
+      if (
+        step.toLowerCase().includes('known risks:') ||
+        step.toLowerCase().includes('required resources:')
+      ) {
+        isInStepsSection = false;
+        continue;
+      }
+
+      // Only add the step if we're still in the steps section
+      if (
+        isInStepsSection &&
+        !step.startsWith('Risk:') &&
+        !step.startsWith('Resource:')
+      ) {
+        steps.push(step);
+      }
+    }
+
+    return steps;
   }
 }

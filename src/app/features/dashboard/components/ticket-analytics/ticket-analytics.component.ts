@@ -1,75 +1,101 @@
-import { Component, OnDestroy } from '@angular/core';
-import { AIService, TicketAnalysis } from 'src/app/core/services/AI/ai.service';
-import { finalize, takeUntil, catchError } from 'rxjs/operators';
-import { Subject, of } from 'rxjs';
-import { HttpErrorResponse } from '@angular/common/http';
+import { Component } from '@angular/core';
+import {
+  AIService,
+  AIAnalysisResponse,
+  TrendInsight,
+} from 'src/app/core/services/AI/ai.service';
 
 @Component({
   selector: 'app-ticket-analytics',
   templateUrl: './ticket-analytics.component.html',
-  styleUrls: ['./ticket-analytics.component.css']
 })
-export class TicketAnalyticsComponent implements OnDestroy {
+export class TicketAnalyticsComponent {
+  analysis: AIAnalysisResponse | null = null;
   loading = false;
   error: string | null = null;
-  analysis: TicketAnalysis | null = null;
-  startTime: number = 0;
-
-  private destroy$ = new Subject<void>();
 
   constructor(private aiService: AIService) {}
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  runAnalysis(): void {
+  generateAnalysis() {
     this.loading = true;
     this.error = null;
-    this.startTime = Date.now();
 
-    this.aiService.analyzeTickets()
-      .pipe(
-        takeUntil(this.destroy$),
-        catchError((error: any) => {
-          console.error('Error details:', error);
-
-          if (error instanceof HttpErrorResponse) {
-            // Handle HTTP errors
-            const message = error.error?.message || error.message || 'An error occurred during analysis';
-            return of({ error: message });
-          }
-
-          // Handle non-HTTP errors
-          return of({ error: error.message || 'An unknown error occurred' });
-        }),
-        finalize(() => {
-          this.loading = false;
-          const duration = (Date.now() - this.startTime) / 1000;
-          console.log(`Analysis took ${duration} seconds`);
-        })
-      )
-      .subscribe({
-        next: (result: any) => {
-          if (result.error) {
-            this.error = result.error;
-            this.analysis = null;
-            return;
-          }
-          this.analysis = result as TicketAnalysis;
-          this.error = null;
-        },
-        error: (err) => {
-          this.error = 'Failed to process analysis results';
-          this.analysis = null;
-        }
-      });
+    this.aiService.getSystemAnalysis().subscribe({
+      next: (response) => {
+        this.analysis = response;
+        this.loading = false;
+      },
+      error: (err) => {
+        this.error = 'Failed to generate system analytics';
+        this.loading = false;
+        console.error('Analytics error:', err);
+      },
+    });
   }
 
-  get elapsedTime(): string {
-    if (!this.loading || !this.startTime) return '';
-    const seconds = Math.floor((Date.now() - this.startTime) / 1000);
-    return `${seconds} seconds`;
+  getRiskLevelClass(level: string): string {
+    switch (level) {
+      case 'HIGH':
+        return 'badge bg-danger';
+      case 'MEDIUM':
+        return 'badge bg-warning';
+      case 'LOW':
+        return 'badge bg-success';
+      default:
+        return 'badge bg-secondary';
+    }
+  }
+
+  formatMetricValue(value: number): string {
+    return value.toFixed(1) + '%';
+  }
+
+  getTrendIcon(significance: number): string {
+    if (significance >= 0.7) return 'trending_up';
+    if (significance >= 0.3) return 'trending_flat';
+    return 'trending_down';
+  }
+
+  getTrendClass(significance: number): string {
+    if (significance >= 0.7) return 'text-success';
+    if (significance >= 0.3) return 'text-warning';
+    return 'text-danger';
+  }
+
+  getFilteredTrends(): TrendInsight[] {
+    if (!this.analysis?.trends) return [];
+
+    const trends: TrendInsight[] = [];
+    let isInTrendsSection = true;
+
+    for (const trend of this.analysis.trends) {
+      // Check if we've hit a different section header
+      if (
+        trend.description.toLowerCase().includes('recommendations:') ||
+        trend.description.toLowerCase().includes('risk areas:')
+      ) {
+        isInTrendsSection = false;
+        continue;
+      }
+
+      // Only add trends that are actual trends
+      if (
+        isInTrendsSection &&
+        !trend.description.toLowerCase().startsWith('att info:') &&
+        !trend.description
+          .toLowerCase()
+          .includes('documentation compliance risks:') &&
+        !trend.description
+          .toLowerCase()
+          .includes('infrastructure verification needs:') &&
+        !trend.description
+          .toLowerCase()
+          .includes('inter-commune coverage issues:')
+      ) {
+        trends.push(trend);
+      }
+    }
+
+    return trends;
   }
 }
