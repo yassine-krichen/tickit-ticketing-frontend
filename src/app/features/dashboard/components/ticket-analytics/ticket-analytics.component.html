@@ -63,7 +63,10 @@
       <div class="mb-4">
         <h6 class="text-primary mb-3">Trends</h6>
         <div class="list-group">
-          <div *ngFor="let trend of analysis.trends" class="list-group-item">
+          <div
+            *ngFor="let trend of getFilteredTrends()"
+            class="list-group-item"
+          >
             <div class="d-flex align-items-center">
               <i
                 class="material-icons me-2"

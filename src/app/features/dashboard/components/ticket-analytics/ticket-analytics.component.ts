@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import {
   AIService,
   AIAnalysisResponse,
+  TrendInsight,
 } from 'src/app/core/services/AI/ai.service';
 
 @Component({
@@ -59,5 +60,42 @@ export class TicketAnalyticsComponent {
     if (significance >= 0.7) return 'text-success';
     if (significance >= 0.3) return 'text-warning';
     return 'text-danger';
+  }
+
+  getFilteredTrends(): TrendInsight[] {
+    if (!this.analysis?.trends) return [];
+
+    const trends: TrendInsight[] = [];
+    let isInTrendsSection = true;
+
+    for (const trend of this.analysis.trends) {
+      // Check if we've hit a different section header
+      if (
+        trend.description.toLowerCase().includes('recommendations:') ||
+        trend.description.toLowerCase().includes('risk areas:')
+      ) {
+        isInTrendsSection = false;
+        continue;
+      }
+
+      // Only add trends that are actual trends
+      if (
+        isInTrendsSection &&
+        !trend.description.toLowerCase().startsWith('att info:') &&
+        !trend.description
+          .toLowerCase()
+          .includes('documentation compliance risks:') &&
+        !trend.description
+          .toLowerCase()
+          .includes('infrastructure verification needs:') &&
+        !trend.description
+          .toLowerCase()
+          .includes('inter-commune coverage issues:')
+      ) {
+        trends.push(trend);
+      }
+    }
+
+    return trends;
   }
 }
