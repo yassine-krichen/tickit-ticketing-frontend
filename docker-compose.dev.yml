@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  tickit-frontend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "4201:4200"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - API_URL=http://localhost:8080
+      - PRODUCTION=false
+    container_name: tickit-frontend-dev
+    restart: unless-stopped
+
+  # Uncomment if you want to run with a backend service
+  # tickit-backend:
+  #   image: your-backend-image:latest
+  #   ports:
+  #     - "8080:8080"
+  #   container_name: tickit-backend
+  #   restart: unless-stopped

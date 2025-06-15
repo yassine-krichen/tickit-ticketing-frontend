@@ -2,9 +2,13 @@
 // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
+// Extend the Window interface to include our environment configuration
+declare const window: any;
+
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8080',
+  apiUrl:
+    (window && window.env && window.env.apiUrl) || 'http://localhost:8080',
 };
 
 /*

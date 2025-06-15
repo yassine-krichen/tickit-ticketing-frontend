@@ -1,0 +1,59 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+coverage/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Testing
+karma.conf.js
+src/test.ts
+src/**/*.spec.ts
+e2e/
+
+# Linting
+tslint.json
+.eslintrc*
+
+# Documentation
+README.md
+*.md
+
+# Environment files (we'll handle these separately)
+.env*
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+temp/
