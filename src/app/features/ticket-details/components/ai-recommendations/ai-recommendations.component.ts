@@ -54,4 +54,33 @@ export class AiRecommendationsComponent {
     if (score >= 0.6) return 'text-warning';
     return 'text-danger';
   }
+
+  getFilteredSteps(): string[] {
+    if (!this.recommendations?.requiredSteps) return [];
+
+    const steps: string[] = [];
+    let isInStepsSection = true;
+
+    for (const step of this.recommendations.requiredSteps) {
+      // Check if we've hit a different section header
+      if (
+        step.toLowerCase().includes('known risks:') ||
+        step.toLowerCase().includes('required resources:')
+      ) {
+        isInStepsSection = false;
+        continue;
+      }
+
+      // Only add the step if we're still in the steps section
+      if (
+        isInStepsSection &&
+        !step.startsWith('Risk:') &&
+        !step.startsWith('Resource:')
+      ) {
+        steps.push(step);
+      }
+    }
+
+    return steps;
+  }
 }
