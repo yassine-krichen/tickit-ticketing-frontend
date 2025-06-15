@@ -1,17 +1,20 @@
 import { Component, Input, OnDestroy } from '@angular/core';
-import { AIService, AIRecommendation } from 'src/app/core/services/AI/ai.service';
+import {
+  AIService,
+  AIResolutionResponse,
+} from 'src/app/core/services/AI/ai.service';
 import { Subject } from 'rxjs';
 import { takeUntil, finalize, catchError, timeout } from 'rxjs/operators';
 
 @Component({
   selector: 'app-ai-recommendations',
   templateUrl: './ai-recommendations.component.html',
-  styleUrls: ['./ai-recommendations.component.css']
+  styleUrls: ['./ai-recommendations.component.css'],
 })
 export class AiRecommendationsComponent implements OnDestroy {
   @Input() ticketId!: string;
 
-  recommendations: AIRecommendation[] = [];
+  recommendations: AIResolutionResponse | null = null;
   loading = false;
   error: string | null = null;
   hasLoaded = false;
@@ -26,7 +29,7 @@ export class AiRecommendationsComponent implements OnDestroy {
     this.destroy$.complete();
   }
 
-  loadRecommendations(): void {
+  generateRecommendations(): void {
     if (!this.ticketId) {
       this.error = 'No ticket ID provided';
       return;
@@ -37,7 +40,8 @@ export class AiRecommendationsComponent implements OnDestroy {
     this.hasLoaded = true;
     this.startTime = Date.now();
 
-    this.aiService.getRecommendations(this.ticketId)
+    this.aiService
+      .getTicketSuggestions(this.ticketId)
       .pipe(
         takeUntil(this.destroy$),
         catchError((error) => {
@@ -48,7 +52,9 @@ export class AiRecommendationsComponent implements OnDestroy {
             throw new Error('The request is still processing. Please wait...');
           }
 
-          throw new Error('An error occurred while getting recommendations. Please try again.');
+          throw new Error(
+            'An error occurred while getting recommendations. Please try again.'
+          );
         }),
         finalize(() => {
           this.loading = false;
@@ -63,8 +69,8 @@ export class AiRecommendationsComponent implements OnDestroy {
         },
         error: (err) => {
           this.error = err.message;
-          this.recommendations = [];
-        }
+          this.recommendations = null;
+        },
       });
   }
 
