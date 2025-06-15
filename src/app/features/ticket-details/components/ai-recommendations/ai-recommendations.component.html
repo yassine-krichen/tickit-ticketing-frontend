@@ -1,48 +1,147 @@
 <div class="ai-recommendations">
   <div class="card shadow-sm">
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h5 class="card-title mb-0">AI Recommendations</h5>
-        <button
-          class="btn btn-primary"
-          (click)="generateRecommendations()"
-          [disabled]="loading || !ticketId"
-        >
-          <i class="fas fa-magic me-2"></i>
-          {{ loading ? "Analyzing..." : "Get Recommendations" }}
-        </button>
-      </div>
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">AI Recommendations</h5>
+      <button
+        class="btn btn-sm btn-primary"
+        (click)="generateRecommendations()"
+        [disabled]="loading"
+      >
+        <i
+          class="fas"
+          [class.fa-robot]="!loading"
+          [class.fa-spinner]="loading"
+          [class.fa-spin]="loading"
+        ></i>
+        {{ loading ? "Generating..." : "Generate Recommendations" }}
+      </button>
+    </div>
 
+    <div class="card-body">
       <!-- Loading State -->
       <div *ngIf="loading" class="text-center py-4">
         <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Loading...</span>
+          <span class="visually-hidden">Generating recommendations...</span>
         </div>
         <p class="text-muted mt-2">Analyzing ticket data...</p>
       </div>
 
       <!-- Error State -->
       <div *ngIf="error" class="alert alert-danger">
-        <i class="fas fa-exclamation-circle me-2"></i>
+        <i class="fas fa-exclamation-triangle me-2"></i>
         {{ error }}
       </div>
 
+      <!-- Empty State -->
+      <div
+        *ngIf="!loading && !recommendations && !error"
+        class="text-center py-4 text-muted"
+      >
+        <i class="fas fa-robot fa-2x mb-3"></i>
+        <p>Click the button above to generate AI recommendations</p>
+      </div>
+
       <!-- Results -->
-      <div *ngIf="recommendations" class="recommendations-results">
-        <div class="meta-info mb-3 text-muted small">
-          <i class="fas fa-clock me-1"></i>
-          Generated on: {{ recommendations.timestamp | date : "medium" }} |
-          <i class="fas fa-search me-1"></i>
-          {{ recommendations.similarCasesFound }} similar cases found |
-          <i class="fas fa-chart-line me-1"></i>
-          {{ recommendations.confidenceScore * 100 | number : "1.0-0" }}%
-          confidence
+      <div
+        *ngIf="recommendations && !loading"
+        class="recommendations-container"
+      >
+        <!-- Primary Solution -->
+        <div class="mb-4">
+          <h6 class="text-primary mb-2">Primary Action</h6>
+          <div class="alert alert-info">
+            {{ recommendations.primarySolution }}
+          </div>
         </div>
 
-        <div
-          class="suggestions-content"
-          [innerHTML]="recommendations.suggestions | lineBreaks"
-        ></div>
+        <!-- Alternative Solutions -->
+        <div class="mb-4">
+          <h6 class="text-primary mb-2">Alternative Actions</h6>
+          <ul class="list-group">
+            <li
+              *ngFor="let solution of recommendations.alternativeSolutions"
+              class="list-group-item"
+            >
+              <i class="fas fa-lightbulb text-warning me-2"></i>
+              {{ solution }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- Required Steps -->
+        <div class="mb-4">
+          <h6 class="text-primary mb-2">Required Steps</h6>
+          <div class="list-group">
+            <div
+              *ngFor="let step of recommendations.requiredSteps; let i = index"
+              class="list-group-item"
+            >
+              <span class="badge bg-secondary me-2">{{ i + 1 }}</span>
+              {{ step }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Potential Risks -->
+        <div class="mb-4">
+          <h6 class="text-primary mb-2">Potential Risks</h6>
+          <ul class="list-group">
+            <li
+              *ngFor="let risk of recommendations.potentialRisks"
+              class="list-group-item list-group-item-warning"
+            >
+              <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+              {{ risk }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- Required Resources -->
+        <div class="mb-4">
+          <h6 class="text-primary mb-2">Required Resources</h6>
+          <ul class="list-group">
+            <li
+              *ngFor="let resource of recommendations.requiredResources"
+              class="list-group-item"
+            >
+              <i class="fas fa-cube me-2"></i>
+              {{ resource }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- Effort Estimation -->
+        <div class="card bg-light">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <span class="me-3">
+                  <strong>Estimated Time:</strong>
+                  {{ recommendations.estimatedEffort.minHours }}-
+                  {{ recommendations.estimatedEffort.maxHours }} hours
+                </span>
+                <span
+                  [class]="
+                    getDifficultyClass(
+                      recommendations.estimatedEffort.difficulty
+                    )
+                  "
+                >
+                  {{ recommendations.estimatedEffort.difficulty }}
+                </span>
+              </div>
+              <div>
+                <strong>Confidence:</strong>
+                <span
+                  [class]="getConfidenceClass(recommendations.confidenceScore)"
+                  class="ms-2"
+                >
+                  {{ (recommendations.confidenceScore * 100).toFixed(0) }}%
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

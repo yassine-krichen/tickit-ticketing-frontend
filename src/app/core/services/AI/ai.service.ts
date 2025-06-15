@@ -1,20 +1,43 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { timeout } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 
+export interface TrendInsight {
+  category: string;
+  description: string;
+  significance: number;
+}
+
+export interface RiskArea {
+  area: string;
+  description: string;
+  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
+  mitigationSteps: string[];
+}
+
+export interface EstimatedEffort {
+  minHours: number;
+  maxHours: number;
+  difficulty: 'EASY' | 'MODERATE' | 'COMPLEX';
+}
+
 export interface AIAnalysisResponse {
-  analysis: string;
-  timestamp: Date;
-  dataPoints: number;
+  performanceMetrics: { [key: string]: number };
+  trends: TrendInsight[];
+  recommendations: string[];
+  riskAreas: RiskArea[];
 }
 
 export interface AIResolutionResponse {
-  ticketId: string;
-  suggestions: string;
-  similarCasesFound: number;
+  primarySolution: string;
+  alternativeSolutions: string[];
+  requiredSteps: string[];
+  potentialRisks: string[];
   confidenceScore: number;
-  timestamp: Date;
+  estimatedEffort: EstimatedEffort;
+  requiredResources: string[];
 }
 
 @Injectable({
@@ -23,25 +46,23 @@ export interface AIResolutionResponse {
 export class AIService {
   private readonly baseUrl = `${environment.apiUrl}/api/v1/ai`;
 
-  // Set timeout to 10 minutes (600000 ms)
-  private httpOptions = {
-    timeout: 600000,
-    responseType: 'json' as const,
-  };
+  private readonly REQUEST_TIMEOUT = 600000; // 10 minutes
 
   constructor(private http: HttpClient) {}
 
   getSystemAnalysis(): Observable<AIAnalysisResponse> {
-    return this.http.post<AIAnalysisResponse>(`${this.baseUrl}/analyse`, {},
-      this.httpOptions
-    );
+    return this.http
+      .post<AIAnalysisResponse>(`${this.baseUrl}/analyse`, {})
+      .pipe(
+        timeout(this.REQUEST_TIMEOUT)
+      );
   }
 
   getTicketSuggestions(ticketId: string): Observable<AIResolutionResponse> {
-    return this.http.post<AIResolutionResponse>(
-      `${this.baseUrl}/suggest/${ticketId}`,
-      {},
-      this.httpOptions
-    );
+    return this.http
+      .post<AIResolutionResponse>(`${this.baseUrl}/suggest/${ticketId}`, {})
+      .pipe(
+        timeout(this.REQUEST_TIMEOUT)
+      );
   }
 }
