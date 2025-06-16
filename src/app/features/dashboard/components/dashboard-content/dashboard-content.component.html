@@ -3,37 +3,53 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h3 mb-0 text-dark">Ticket Dashboard</h1>
     <div class="d-flex gap-3">
-      <button class="btn btn-outline-secondary d-flex align-items-center filter-drawer-toggle" (click)="toggleFilterDrawer()">
+      <button
+        class="btn btn-outline-secondary d-flex align-items-center filter-drawer-toggle"
+        (click)="toggleFilterDrawer()"
+      >
         <i class="fas fa-filter me-2"></i>
         <span>Filter</span>
-        <span class="badge bg-primary ms-2 d-flex align-items-center justify-content-center"
-              style="height: 20px; min-width: 20px;"
-              *ngIf="advancedFilters.priorities.length +
-                    advancedFilters.statuses.length +
-                    advancedFilters.types.length +
-                    advancedFilters.steps.length > 0">
-          {{ advancedFilters.priorities.length +
-             advancedFilters.statuses.length +
-             advancedFilters.types.length +
-             advancedFilters.steps.length }}
+        <span
+          class="badge bg-primary ms-2 d-flex align-items-center justify-content-center"
+          style="height: 20px; min-width: 20px"
+          *ngIf="
+            advancedFilters.priorities.length +
+              advancedFilters.statuses.length +
+              advancedFilters.types.length +
+              advancedFilters.steps.length >
+            0
+          "
+        >
+          {{
+            advancedFilters.priorities.length +
+              advancedFilters.statuses.length +
+              advancedFilters.types.length +
+              advancedFilters.steps.length
+          }}
         </span>
       </button>
-      <button class="btn btn-outline-secondary"
-              (click)="clearAllFilters()"
-              title="Clear all filters"
-              *ngIf="hasActiveFilters()">
+      <button
+        class="btn btn-outline-secondary"
+        (click)="clearAllFilters()"
+        title="Clear all filters"
+        *ngIf="hasActiveFilters()"
+      >
         <i class="fas fa-redo me-1"></i>
         Clear Filters
       </button>
-      <button class="btn btn-primary" [routerLink]="['/ticket-create-update/ticket/new']">
+      <button
+        class="btn btn-primary"
+        [routerLink]="['/ticket-create-update/ticket/new']"
+      >
         <i class="fas fa-plus me-1"></i>
         Create New Ticket
       </button>
     </div>
   </div>
 
-  <!-- KPI Cards Section -->
+  <!-- KPI Cards Section (always visible) -->
   <app-kpis-metrics
+    id="section-analytics"
     [totalTicketsCount]="totalTicketsCount"
     [inProgressCount]="inProgressCount"
     [blockedCount]="blockedCount"
@@ -42,7 +58,8 @@
     [inProgressMoM]="inProgressMoM"
     [blockedMoM]="blockedMoM"
     [resolvedMoM]="resolvedMoM"
-    class="mb-4">
+    class="mb-4"
+  >
   </app-kpis-metrics>
 
   <!-- Filter Tabs -->
@@ -50,12 +67,15 @@
     [activeTab]="activeTab"
     (tabChange)="setActiveTab($event)"
     (orderByChange)="onOrderByChange($event)"
-    class="mb-4">
+    class="mb-4"
+  >
   </app-ticket-filters>
 
   <!-- Recent Tickets Section -->
   <div class="card border-0 shadow-sm mb-4">
-    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+    <div
+      class="card-header bg-white d-flex justify-content-between align-items-center py-3"
+    >
       <h5 class="mb-0">
         <i class="fas fa-clipboard-list me-2"></i> Recent Tickets
       </h5>
@@ -70,31 +90,38 @@
     <div class="p-3 border-bottom">
       <app-ticket-search
         [searchTerm]="searchTerm"
-        (search)="onSearchChange($event)">
+        (search)="onSearchChange($event)"
+      >
       </app-ticket-search>
     </div>
 
     <!-- Ticket Items Container with Scroll Event -->
     <div
+      id="section-tickets"
       class="ticket-list-container"
       #ticketListContainer
       (scroll)="onScroll($event)"
-      style="max-height: 600px; overflow-y: auto;"
+      style="max-height: 600px; overflow-y: auto"
       role="region"
       aria-live="polite"
-      aria-label="Ticket list with infinite scrolling">
-
+      aria-label="Ticket list with infinite scrolling"
+    >
       <!-- Ticket Items -->
       <div class="list-group list-group-flush">
         <app-ticket-item
           *ngFor="let ticket of tickets"
           [ticket]="ticket"
           (delete)="deleteTicket($event)"
-          (toggleDropdown)="toggleDropdown($event.event, $event.ticketId)">
+          (toggleDropdown)="toggleDropdown($event.event, $event.ticketId)"
+        >
         </app-ticket-item>
 
         <!-- Loading state when fetching initial tickets -->
-        <div class="p-5 text-center text-muted" *ngIf="loading && tickets?.length === 0" aria-live="assertive">
+        <div
+          class="p-5 text-center text-muted"
+          *ngIf="loading && tickets?.length === 0"
+          aria-live="assertive"
+        >
           <div class="spinner-border text-primary mb-3" role="status">
             <span class="visually-hidden">Loading tickets...</span>
           </div>
@@ -102,28 +129,55 @@
         </div>
 
         <!-- Loading more tickets indicator -->
-        <div class="p-3 text-center text-muted" *ngIf="loadingMore" aria-live="polite">
-          <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+        <div
+          class="p-3 text-center text-muted"
+          *ngIf="loadingMore"
+          aria-live="polite"
+        >
+          <div
+            class="spinner-border spinner-border-sm text-primary me-2"
+            role="status"
+          >
             <span class="visually-hidden">Loading more tickets...</span>
           </div>
           <span>Loading more tickets...</span>
         </div>
 
         <!-- End of results message -->
-        <div class="p-3 text-center text-muted end-of-results"
-             *ngIf="isLastPage && !loadingMore && tickets.length > 0"
-             style="background-color: #f8f9fa; border-top: 1px solid #eee; margin-top: 10px;"
-             aria-live="polite">
-          <i class="fas fa-check-circle me-2 text-success" aria-hidden="true"></i>
-          <span><strong>You've reached the end of the list.</strong> No more tickets to load.</span>
+        <div
+          class="p-3 text-center text-muted end-of-results"
+          *ngIf="isLastPage && !loadingMore && tickets.length > 0"
+          style="
+            background-color: #f8f9fa;
+            border-top: 1px solid #eee;
+            margin-top: 10px;
+          "
+          aria-live="polite"
+        >
+          <i
+            class="fas fa-check-circle me-2 text-success"
+            aria-hidden="true"
+          ></i>
+          <span
+            ><strong>You've reached the end of the list.</strong> No more
+            tickets to load.</span
+          >
         </div>
 
         <!-- Empty state when no tickets match filter -->
-        <div class="p-5 text-center text-muted" *ngIf="!loading && tickets.length === 0" aria-live="assertive">
+        <div
+          class="p-5 text-center text-muted"
+          *ngIf="!loading && tickets.length === 0"
+          aria-live="assertive"
+        >
           <i class="fas fa-search fa-3x mb-3 text-light" aria-hidden="true"></i>
           <p>No tickets match your current filter.</p>
-          <button class="btn btn-sm btn-outline-secondary mt-2" (click)="clearAllFilters()">
-            <i class="fas fa-redo me-1" aria-hidden="true"></i> Clear All Filters
+          <button
+            class="btn btn-sm btn-outline-secondary mt-2"
+            (click)="clearAllFilters()"
+          >
+            <i class="fas fa-redo me-1" aria-hidden="true"></i> Clear All
+            Filters
           </button>
         </div>
       </div>
@@ -131,33 +185,59 @@
   </div>
 
   <!-- New analytics section -->
-  <app-ticket-analytics></app-ticket-analytics>
+  <app-ticket-analytics id="section-ai-insights"></app-ticket-analytics>
 
   <!-- Filter Drawer -->
   <app-filter-drawer
     [isOpen]="isFilterDrawerOpen"
     (close)="closeFilterDrawer()"
-    (filterChange)="onAdvancedFilterChange($event)">
+    (filterChange)="onAdvancedFilterChange($event)"
+  >
   </app-filter-drawer>
 
   <!-- Scroll to Top Button -->
   <app-scroll-to-top></app-scroll-to-top>
 
   <!-- Delete Confirmation Modal -->
-  <div class="modal fade" id="deleteTicketModal" tabindex="-1" aria-labelledby="deleteTicketModalLabel" aria-hidden="true">
+  <div
+    class="modal fade"
+    id="deleteTicketModal"
+    tabindex="-1"
+    aria-labelledby="deleteTicketModalLabel"
+    aria-hidden="true"
+  >
     <div class="modal-dialog modal-sm">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="deleteTicketModalLabel">Confirm Deletion</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <h5 class="modal-title" id="deleteTicketModalLabel">
+            Confirm Deletion
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
         </div>
         <div class="modal-body">
-          <p>Are you sure you want to delete ticket #{{ ticketToDelete?.id }}?</p>
+          <p>
+            Are you sure you want to delete ticket #{{ ticketToDelete?.id }}?
+          </p>
           <p class="small text-muted">This action cannot be undone.</p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-sm btn-danger" (click)="confirmDelete()">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-danger"
+            (click)="confirmDelete()"
+          >
             <i class="fas fa-trash me-1"></i>Delete
           </button>
         </div>
