@@ -49,8 +49,15 @@
         <!-- Primary Solution -->
         <div class="mb-4">
           <h6 class="text-primary mb-2">Primary Action</h6>
-          <div class="alert alert-info">
-            {{ recommendations.primarySolution }}
+          <div
+            class="alert"
+            [ngClass]="
+              getFilteredPrimarySolution() ? 'alert-info' : 'alert-warning'
+            "
+          >
+            {{
+              getFilteredPrimarySolution() || "No primary solution available"
+            }}
           </div>
         </div>
 

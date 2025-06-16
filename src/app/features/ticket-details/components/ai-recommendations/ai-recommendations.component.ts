@@ -27,6 +27,9 @@ export class AiRecommendationsComponent {
       next: (response) => {
         this.recommendations = response;
         this.loading = false;
+        // Add logging here to debug
+        console.log('Received recommendations:', this.recommendations);
+        console.log('Primary solution:', this.getFilteredPrimarySolution());
       },
       error: (err) => {
         console.error('AI recommendations error:', err);
@@ -82,5 +85,36 @@ export class AiRecommendationsComponent {
     }
 
     return steps;
+  }
+
+  getFilteredPrimarySolution(): string | null {
+    console.log('getFilteredPrimarySolution called');
+    if (!this.recommendations?.primarySolution) {
+      console.log('No recommendations or primary solution');
+      return null;
+    }
+
+    const solution = this.recommendations.primarySolution;
+    console.log('Original solution:', solution);
+
+    const sectionMarkers = [
+      'alternative solutions:',
+      'required steps:',
+      'known risks:',
+      'required resources:',
+    ];
+
+    let firstSectionIndex = solution.length;
+    for (const marker of sectionMarkers) {
+      const index = solution.toLowerCase().indexOf(marker);
+      if (index !== -1 && index < firstSectionIndex) {
+        firstSectionIndex = index;
+      }
+    }
+
+    const primarySolution = solution.substring(0, firstSectionIndex).trim();
+    console.log('Filtered primary solution:', primarySolution);
+
+    return primarySolution || null;
   }
 }
