@@ -83,4 +83,30 @@ export class AiRecommendationsComponent {
 
     return steps;
   }
+
+  getFilteredPrimarySolution(): string | null {
+    if (!this.recommendations?.primarySolution) return null;
+
+    const solution = this.recommendations.primarySolution;
+
+    // Find the start of alternative solutions or other sections
+    const alternativeSectionStart = solution
+      .toLowerCase()
+      .indexOf('alternative');
+    const requiredStepsStart = solution.toLowerCase().indexOf('required steps');
+    const knownRisksStart = solution.toLowerCase().indexOf('known risks');
+
+    // Find the earliest section marker after the primary solution
+    const sectionMarkers = [
+      alternativeSectionStart,
+      requiredStepsStart,
+      knownRisksStart,
+    ].filter((index) => index !== -1);
+
+    const firstSectionStart =
+      sectionMarkers.length > 0 ? Math.min(...sectionMarkers) : solution.length;
+
+    // Return only the primary solution section
+    return solution.substring(0, firstSectionStart).trim();
+  }
 }

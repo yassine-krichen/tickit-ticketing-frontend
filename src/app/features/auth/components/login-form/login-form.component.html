@@ -3,10 +3,22 @@
     <label for="username" class="form-label">
       <i class="fas fa-user me-2"></i>Username
     </label>
-    <input id="username" type="text" class="form-control" formControlName="username" 
-           [class.is-invalid]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched"
-           placeholder="Enter your username">
-    <div *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched" class="invalid-feedback">
+    <input
+      id="username"
+      type="text"
+      class="form-control"
+      formControlName="username"
+      [class.is-invalid]="
+        loginForm.get('username')?.invalid && loginForm.get('username')?.touched
+      "
+      placeholder="Enter your username"
+    />
+    <div
+      *ngIf="
+        loginForm.get('username')?.invalid && loginForm.get('username')?.touched
+      "
+      class="invalid-feedback"
+    >
       Please enter your username.
     </div>
   </div>
@@ -14,24 +26,39 @@
     <label for="password" class="form-label">
       <i class="fas fa-lock me-2"></i>Password
     </label>
-    <input id="password" type="password" class="form-control" formControlName="password" 
-           [class.is-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
-           placeholder="Enter your password">
-    <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="invalid-feedback">
+    <input
+      id="password"
+      type="password"
+      class="form-control"
+      formControlName="password"
+      [class.is-invalid]="
+        loginForm.get('password')?.invalid && loginForm.get('password')?.touched
+      "
+      placeholder="Enter your password"
+    />
+    <div
+      *ngIf="
+        loginForm.get('password')?.invalid && loginForm.get('password')?.touched
+      "
+      class="invalid-feedback"
+    >
       Password is required (min 6 chars).
     </div>
   </div>
-  <div class="mb-3 form-check">
+  <!-- <div class="mb-3 form-check">
     <input type="checkbox" class="form-check-input" id="rememberMe">
     <label class="form-check-label" for="rememberMe">
       <i class="fas fa-clock me-2"></i>Remember me for 30 days
     </label>
-  </div>
+  </div> -->
   <div *ngIf="error" class="alert alert-danger py-2">{{ error }}</div>
   <button type="submit" class="btn btn-primary w-100" [disabled]="loading">
-    <i class="fas fa-sign-in-alt me-2"></i>{{ loading ? 'Signing in...' : 'Sign in' }}
+    <i class="fas fa-sign-in-alt me-2"></i
+    >{{ loading ? "Signing in..." : "Sign in" }}
   </button>
 </form>
 <div class="text-center mt-3">
-  <span>Don't have an account? <a [routerLink]="['/auth/signup']">Sign up</a></span>
-</div> 
+  <span
+    >Don't have an account? <a [routerLink]="['/auth/signup']">Sign up</a></span
+  >
+</div>
