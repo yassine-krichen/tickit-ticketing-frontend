@@ -1,22 +1,20 @@
 <div class="ticket-create-update-layout">
   <!-- Sidebar on the left -->
   <app-sidebar></app-sidebar>
- 
+
   <!-- Main content area on the right -->
   <div class="ticket-create-update-content">
     <div class="create-ticket-container container-fluid py-4">
       <!-- Header -->
-      <app-create-header
-        [isEditMode]="isEditMode"
-        (back)="onBackClick()">
+      <app-create-header [isEditMode]="isEditMode" (back)="onBackClick()">
       </app-create-header>
-   
+
       <!-- Tip alert shown only in create mode and when showTip is true -->
-      <app-create-tip
+      <!-- <app-create-tip
         *ngIf="!isEditMode && showTip"
         (dismiss)="dismissTip()">
-      </app-create-tip>
-      
+      </app-create-tip> -->
+
       <!-- Loading Indicator -->
       <div *ngIf="isEditMode && loading" class="text-center py-5">
         <div class="spinner-border text-primary mb-2" role="status">
@@ -24,23 +22,28 @@
         </div>
         <p class="text-muted">Loading ticket data...</p>
       </div>
-      
+
       <!-- Error Message -->
       <div *ngIf="error" class="alert alert-danger" role="alert">
         <i class="fas fa-exclamation-triangle me-2"></i>
         {{ error }}
-        <button type="button" class="btn-close float-end" (click)="error = null"></button>
+        <button
+          type="button"
+          class="btn-close float-end"
+          (click)="error = null"
+        ></button>
       </div>
-     
+
       <!-- Ticket Form Component - Only show when not loading in edit mode -->
       <app-ticket-form
         *ngIf="!isEditMode || (isEditMode && !loading && ticket)"
         [ticket]="ticket"
         [editMode]="isEditMode"
         (formSubmit)="onSubmit($event)"
-        (cancel)="onBackClick()">
+        (cancel)="onBackClick()"
+      >
       </app-ticket-form>
-      
+
       <!-- Status field with conditional disabled state -->
       <!-- <div class="mb-3">
         <label for="status" class="form-label">Status</label>
@@ -52,7 +55,6 @@
           <i class="fas fa-info-circle me-1"></i> Status is set to "Open" for new tickets
         </div>
       </div> -->
-     
     </div>
   </div>
 </div>

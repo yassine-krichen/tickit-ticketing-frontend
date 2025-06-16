@@ -95,17 +95,11 @@ export class SidebarComponent implements OnInit {
     private initializeActiveItem(): void {
         const currentUrl = this.router.url;
         
-        if (currentUrl.includes("/dashboard/tickets")) {
-            this.activeItem = "tickets";
-            this.openDropdown = "dashboard";
-        } else if (currentUrl.includes("/dashboard/analytics")) {
-            this.activeItem = "analytics";
-            this.openDropdown = "dashboard";
-        } else if (currentUrl.includes("/dashboard/ai-insights")) {
-            this.activeItem = "ai-insights";
-            this.openDropdown = "dashboard";
-        } else if (currentUrl.includes("/dashboard")) {
+        if (currentUrl.includes("/dashboard")) {
             this.activeItem = "dashboard";
+            this.openDropdown = "dashboard";
+            // You could add logic here to detect which section is active
+            // based on URL fragments or query parameters if needed
         } else if (currentUrl.includes("/ticket-create-update/ticket/new")) {
             this.activeItem = "create-ticket";
         } else if (currentUrl.includes("/notifications")) {
@@ -167,6 +161,15 @@ export class SidebarComponent implements OnInit {
     private capitalize(str: string): string {
         if (!str) return "";
         return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    /**
+     * Navigate to dashboard section
+     * @param section - The dashboard section to navigate to
+     */
+    navigateToDashboardSection(section: string): void {
+        this.setActiveItem(section);
+        this.router.navigate(['/dashboard'], { fragment: section });
     }
 }
 

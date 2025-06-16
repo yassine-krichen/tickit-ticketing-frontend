@@ -1,4 +1,10 @@
-import { Component, OnInit, HostListener, ElementRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  HostListener,
+  ElementRef,
+  ViewChild,
+} from '@angular/core';
 import { TicketService } from 'src/app/core/services/ticket/ticket.service';
 import { SearchCategory } from '../ticket-search/ticket-search.component';
 import { OrderByEvent } from '../ticket-filters/ticket-filters.component';
@@ -8,8 +14,9 @@ import {
   Status,
   CaseType,
   TicketResponse,
-  PaginatedResponse
+  PaginatedResponse,
 } from 'src/app/core/models/ticket.model';
+import { ActivatedRoute, Router } from '@angular/router';
 
 // Declare Notify for TypeScript
 declare const Notify: any;
@@ -18,7 +25,7 @@ declare const bootstrap: any; // Declare bootstrap for modal handling
 @Component({
   selector: 'app-dashboard-content',
   templateUrl: './dashboard-content.component.html',
-  styleUrls: ['./dashboard-content.component.css']
+  styleUrls: ['./dashboard-content.component.css'],
 })
 export class DashboardContentComponent implements OnInit {
   @ViewChild('ticketListContainer') ticketListContainer: ElementRef;
@@ -55,7 +62,7 @@ export class DashboardContentComponent implements OnInit {
     statuses: [],
     types: [],
     steps: [],
-    subStatuses: []
+    subStatuses: [],
   };
 
   // Drawer state
@@ -76,11 +83,30 @@ export class DashboardContentComponent implements OnInit {
   private _deleteModal: any = null;
   ticketToDelete: TicketResponse | null = null;
 
-  constructor(private ticketService: TicketService, private elementRef: ElementRef) { }
+  // Add section control
+  activeSection: string = 'analytics'; // Default to tickets section
+
+  constructor(
+    private ticketService: TicketService,
+    private elementRef: ElementRef,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadTickets();
     this.loadTicketStats();
+
+    // Listen for fragment changes to switch sections
+    this.route.fragment.subscribe((fragment) => {
+      if (
+        fragment &&
+        ['tickets', 'analytics', 'ai-insights'].includes(fragment)
+      ) {
+        this.activeSection = fragment;
+        this.scrollToSection(fragment);
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -106,7 +132,7 @@ export class DashboardContentComponent implements OnInit {
       speed: 300,
       showCloseButton: false,
       autoclose: false,
-      position: 'right top'
+      position: 'right top',
     });
 
     this.loading = true;
@@ -137,7 +163,7 @@ export class DashboardContentComponent implements OnInit {
       speed: 300,
       autoclose: true,
       autotimeout: 5000,
-      position: 'right top'
+      position: 'right top',
     });
 
     this.error = errorMessage;
@@ -157,8 +183,8 @@ export class DashboardContentComponent implements OnInit {
    * Initialize the delete confirmation modal
    */
   private initDeleteModal(): void {
-    const modalElement = document.getElementById("deleteTicketModal");
-    if (modalElement && typeof bootstrap !== "undefined") {
+    const modalElement = document.getElementById('deleteTicketModal');
+    if (modalElement && typeof bootstrap !== 'undefined') {
       this._deleteModal = new bootstrap.Modal(modalElement);
     }
   }
@@ -198,54 +224,59 @@ export class DashboardContentComponent implements OnInit {
       priorityFilter = this.advancedFilters.priorities[0];
     }
 
-    this.ticketService.getPaginatedTickets(
-      this.currentPage,
-      this.pageSize,
-      this.orderBy.field,
-      this.orderBy.direction,
-      this.searchTerm,
-      statusFilter,
-      priorityFilter
-    ).subscribe({
-      next: (response: PaginatedResponse<TicketResponse>) => {
-        // Append or replace tickets
-        if (loadMore) {
-          this.tickets = [...this.tickets, ...response.content];
-        } else {
-          this.tickets = response.content;
+    this.ticketService
+      .getPaginatedTickets(
+        this.currentPage,
+        this.pageSize,
+        this.orderBy.field,
+        this.orderBy.direction,
+        this.searchTerm,
+        statusFilter,
+        priorityFilter
+      )
+      .subscribe({
+        next: (response: PaginatedResponse<TicketResponse>) => {
+          // Append or replace tickets
+          if (loadMore) {
+            this.tickets = [...this.tickets, ...response.content];
+          } else {
+            this.tickets = response.content;
 
-          // Hide the loading notification when we get the initial data
-          this._hideLoadingNotification();
-        }
+            // Hide the loading notification when we get the initial data
+            this._hideLoadingNotification();
+          }
 
-        // Update pagination info
-        this.totalPages = response.totalPages;
-        this.totalItems = response.totalItems;
+          // Update pagination info
+          this.totalPages = response.totalPages;
+          this.totalItems = response.totalItems;
 
-        // Fix for isLastPage being undefined
-        if (response.isLastPage !== undefined) {
-          this.isLastPage = response.isLastPage;
-        } else {
-          this.isLastPage = response.pageNumber >= response.totalPages - 1 || response.content.length === 0;
-        }
+          // Fix for isLastPage being undefined
+          if (response.isLastPage !== undefined) {
+            this.isLastPage = response.isLastPage;
+          } else {
+            this.isLastPage =
+              response.pageNumber >= response.totalPages - 1 ||
+              response.content.length === 0;
+          }
 
-        // If we received an empty array and it's not the first page, we've hit the end
-        if (response.content.length === 0 && this.currentPage > 0) {
-          this.isLastPage = true;
-        }
+          // If we received an empty array and it's not the first page, we've hit the end
+          if (response.content.length === 0 && this.currentPage > 0) {
+            this.isLastPage = true;
+          }
 
-        this.loading = false;
-        this.loadingMore = false;
-      },
-      error: (error) => {
-        const errorMessage = 'Failed to load tickets. Please try again later.';
-        this._showErrorNotification(errorMessage);
-        this._hideLoadingNotification(); // Hide loading notification
-        this.loading = false;
-        this.loadingMore = false;
-        console.error('Error loading tickets:', error);
-      }
-  });
+          this.loading = false;
+          this.loadingMore = false;
+        },
+        error: (error) => {
+          const errorMessage =
+            'Failed to load tickets. Please try again later.';
+          this._showErrorNotification(errorMessage);
+          this._hideLoadingNotification(); // Hide loading notification
+          this.loading = false;
+          this.loadingMore = false;
+          console.error('Error loading tickets:', error);
+        },
+      });
   }
 
   /**
@@ -257,10 +288,16 @@ export class DashboardContentComponent implements OnInit {
         // Set basic counts
         this.totalTicketsCount = stats.totalTickets || 0;
         const countsByStatus = stats.countsByStatus || [];
-        this.inProgressCount = this.getCountForCategory(countsByStatus, 'IN_PROGRESS');
+        this.inProgressCount = this.getCountForCategory(
+          countsByStatus,
+          'IN_PROGRESS'
+        );
         this.blockedCount = this.getCountForCategory(countsByStatus, 'BLOCKED');
-        this.resolvedCount = this.getCountForCategory(countsByStatus, 'RESOLVED');
-        
+        this.resolvedCount = this.getCountForCategory(
+          countsByStatus,
+          'RESOLVED'
+        );
+
         // Set Month-over-Month comparison values if they exist
         if (stats.momComparisons) {
           this.totalTicketsMoM = stats.momComparisons.totalTickets ?? null;
@@ -286,12 +323,12 @@ export class DashboardContentComponent implements OnInit {
         this.inProgressMoM = null;
         this.blockedMoM = null;
         this.resolvedMoM = null;
-      }
+      },
     });
   }
 
   getCountForCategory(counts: any[], category: string): number {
-    const found = counts.find(item => item.category === category);
+    const found = counts.find((item) => item.category === category);
     return found ? found.count : 0;
   }
 
@@ -323,7 +360,9 @@ export class DashboardContentComponent implements OnInit {
     if (!this.isLastPage && !this.loadingMore && !this.loading) {
       // Safety check to prevent infinite loading
       if (this.currentPage > 20) {
-        console.log('Reached maximum page limit (20), stopping infinite scroll');
+        console.log(
+          'Reached maximum page limit (20), stopping infinite scroll'
+        );
         this.isLastPage = true;
         return;
       }
@@ -331,7 +370,10 @@ export class DashboardContentComponent implements OnInit {
     }
   }
 
-  onSearchChange(searchEvent: {term: string, category: SearchCategory}): void {
+  onSearchChange(searchEvent: {
+    term: string;
+    category: SearchCategory;
+  }): void {
     this.searchTerm = searchEvent.term;
     this.searchCategory = searchEvent.category;
     this.loadTickets(); // Reload with new search parameters
@@ -370,12 +412,12 @@ export class DashboardContentComponent implements OnInit {
 
   /**
    * Open the delete confirmation modal for a ticket
-   * 
+   *
    * @param ticket Ticket to be deleted
    */
   deleteTicket(ticket: TicketResponse): void {
     this.ticketToDelete = ticket;
-    
+
     if (this._deleteModal) {
       this._deleteModal.show();
     } else {
@@ -391,7 +433,7 @@ export class DashboardContentComponent implements OnInit {
    */
   confirmDelete(): void {
     this.performDeleteTicket();
-    
+
     if (this._deleteModal) {
       this._deleteModal.hide();
     }
@@ -402,21 +444,23 @@ export class DashboardContentComponent implements OnInit {
    */
   private performDeleteTicket(): void {
     if (!this.ticketToDelete) return;
-    
+
     this.ticketService.deleteTicket(this.ticketToDelete.id).subscribe({
       next: (response) => {
         // Filter out the deleted ticket
-        this.tickets = this.tickets.filter(t => t.id !== this.ticketToDelete.id);
-        
+        this.tickets = this.tickets.filter(
+          (t) => t.id !== this.ticketToDelete.id
+        );
+
         // Reload statistics
         this.loadTicketStats();
-        
+
         // Show success notification (using Notify instead of alert)
         new Notify({
-          status: "success",
-          title: "Ticket Deleted",
-          text: response.message || "Ticket deleted successfully",
-          effect: "fade",
+          status: 'success',
+          title: 'Ticket Deleted',
+          text: response.message || 'Ticket deleted successfully',
+          effect: 'fade',
           speed: 300,
           customClass: null,
           customIcon: null,
@@ -427,20 +471,20 @@ export class DashboardContentComponent implements OnInit {
           gap: 20,
           distance: 20,
           type: 1,
-          position: "right top"
+          position: 'right top',
         });
-        
+
         this.ticketToDelete = null;
       },
       error: (error) => {
-        console.error("Error deleting ticket:", error);
-        
+        console.error('Error deleting ticket:', error);
+
         // Show error notification
         new Notify({
-          status: "error",
-          title: "Error",
-          text: "Failed to delete ticket. Please try again.",
-          effect: "fade",
+          status: 'error',
+          title: 'Error',
+          text: 'Failed to delete ticket. Please try again.',
+          effect: 'fade',
           speed: 300,
           customClass: null,
           customIcon: null,
@@ -451,9 +495,9 @@ export class DashboardContentComponent implements OnInit {
           gap: 20,
           distance: 20,
           type: 1,
-          position: "right top"
+          position: 'right top',
         });
-      }
+      },
     });
   }
 
@@ -474,7 +518,7 @@ export class DashboardContentComponent implements OnInit {
       statuses: [],
       types: [],
       steps: [],
-      subStatuses: []
+      subStatuses: [],
     };
 
     // Close filter drawer if open
@@ -498,16 +542,21 @@ export class DashboardContentComponent implements OnInit {
     }
 
     // Check if order by is not default
-    if (this.orderBy.field !== 'timestamp' || this.orderBy.direction !== 'desc') {
+    if (
+      this.orderBy.field !== 'timestamp' ||
+      this.orderBy.direction !== 'desc'
+    ) {
       return true;
     }
 
     // Check if any advanced filters are active
-    if (this.advancedFilters.priorities.length > 0 ||
-        this.advancedFilters.statuses.length > 0 ||
-        this.advancedFilters.types.length > 0 ||
-        this.advancedFilters.steps.length > 0 ||
-        this.advancedFilters.subStatuses.length > 0) {
+    if (
+      this.advancedFilters.priorities.length > 0 ||
+      this.advancedFilters.statuses.length > 0 ||
+      this.advancedFilters.types.length > 0 ||
+      this.advancedFilters.steps.length > 0 ||
+      this.advancedFilters.subStatuses.length > 0
+    ) {
       return true;
     }
 
@@ -519,5 +568,26 @@ export class DashboardContentComponent implements OnInit {
     if (this._deleteModal) {
       this._deleteModal.dispose();
     }
+  }
+
+  /**
+   * Scroll to the specified section
+   */
+  private scrollToSection(section: string): void {
+    setTimeout(() => {
+      const element = document.getElementById(`section-${section}`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  }
+
+  /**
+   * Set active section programmatically
+   */
+  setActiveSection(section: string): void {
+    this.activeSection = section;
+    // Update URL fragment without navigation
+    this.router.navigate([], { fragment: section, replaceUrl: true });
   }
 }
