@@ -27,6 +27,9 @@ export class AiRecommendationsComponent {
       next: (response) => {
         this.recommendations = response;
         this.loading = false;
+        // Add logging here to debug
+        console.log('Received recommendations:', this.recommendations);
+        console.log('Primary solution:', this.getFilteredPrimarySolution());
       },
       error: (err) => {
         console.error('AI recommendations error:', err);
@@ -85,28 +88,33 @@ export class AiRecommendationsComponent {
   }
 
   getFilteredPrimarySolution(): string | null {
-    if (!this.recommendations?.primarySolution) return null;
+    console.log('getFilteredPrimarySolution called');
+    if (!this.recommendations?.primarySolution) {
+      console.log('No recommendations or primary solution');
+      return null;
+    }
 
     const solution = this.recommendations.primarySolution;
+    console.log('Original solution:', solution);
 
-    // Find the start of alternative solutions or other sections
-    const alternativeSectionStart = solution
-      .toLowerCase()
-      .indexOf('alternative');
-    const requiredStepsStart = solution.toLowerCase().indexOf('required steps');
-    const knownRisksStart = solution.toLowerCase().indexOf('known risks');
-
-    // Find the earliest section marker after the primary solution
     const sectionMarkers = [
-      alternativeSectionStart,
-      requiredStepsStart,
-      knownRisksStart,
-    ].filter((index) => index !== -1);
+      'alternative solutions:',
+      'required steps:',
+      'known risks:',
+      'required resources:',
+    ];
 
-    const firstSectionStart =
-      sectionMarkers.length > 0 ? Math.min(...sectionMarkers) : solution.length;
+    let firstSectionIndex = solution.length;
+    for (const marker of sectionMarkers) {
+      const index = solution.toLowerCase().indexOf(marker);
+      if (index !== -1 && index < firstSectionIndex) {
+        firstSectionIndex = index;
+      }
+    }
 
-    // Return only the primary solution section
-    return solution.substring(0, firstSectionStart).trim();
+    const primarySolution = solution.substring(0, firstSectionIndex).trim();
+    console.log('Filtered primary solution:', primarySolution);
+
+    return primarySolution || null;
   }
 }
