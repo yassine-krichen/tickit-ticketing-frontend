@@ -1,39 +1,85 @@
-<div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4" *ngIf="ticket">
+<div
+  class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4"
+  *ngIf="ticket"
+>
   <div class="d-flex align-items-center gap-3 gx-5">
-    <app-back-button (onClick)="goBack()"></app-back-button>
+    <!-- <app-back-button (onClick)="goBack()"></app-back-button> -->
+    <div class="back-button">
+      <button class="btn btn-outline-secondary" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i>
+        <span>Back</span>
+      </button>
+    </div>
     <h1 class="h3 mb-0">{{ ticket.subject }}</h1>
     <!-- Status Badge -->
-    <span class="badge rounded-pill d-flex justify-content-center align-items-center" 
-        [ngStyle]="{
-        'background-color': (ticket.status === 'OPEN') ? '#e0ecfc' :
-                  (ticket.status === 'IN_PROGRESS') ? '#dcfce7' :
-                  (ticket.status === 'BLOCKED') ? '#fee2e2' :
-                  (ticket.status === 'RESOLVED') ? '#f0fdfa' :
-                  (ticket.status === 'CLOSED') ? '#f4f4f5' : '#e0ecfc',
-        'color': (ticket.status === 'OPEN') ? '#1e40af' :
-             (ticket.status === 'IN_PROGRESS') ? '#166534' :
-             (ticket.status === 'BLOCKED') ? '#b91c1c' :
-             (ticket.status === 'RESOLVED') ? '#0f766e' :
-             (ticket.status === 'CLOSED') ? '#52525b' : '#1e40af'
-        }">
+    <span
+      class="badge rounded-pill d-flex justify-content-center align-items-center"
+      [ngStyle]="{
+        'background-color':
+          ticket.status === 'OPEN'
+            ? '#e0ecfc'
+            : ticket.status === 'IN_PROGRESS'
+            ? '#dcfce7'
+            : ticket.status === 'BLOCKED'
+            ? '#fee2e2'
+            : ticket.status === 'RESOLVED'
+            ? '#f0fdfa'
+            : ticket.status === 'CLOSED'
+            ? '#f4f4f5'
+            : '#e0ecfc',
+        color:
+          ticket.status === 'OPEN'
+            ? '#1e40af'
+            : ticket.status === 'IN_PROGRESS'
+            ? '#166534'
+            : ticket.status === 'BLOCKED'
+            ? '#b91c1c'
+            : ticket.status === 'RESOLVED'
+            ? '#0f766e'
+            : ticket.status === 'CLOSED'
+            ? '#52525b'
+            : '#1e40af'
+      }"
+    >
       {{ ticket.status }}
     </span>
     <!-- Priority Badge -->
-    <span class="badge rounded-pill d-flex justify-content-center align-items-center"
-        [ngStyle]="{
-        'background-color': (ticket.priority === 'P5') ? '#fee2e2' :
-                  (ticket.priority === 'P4') ? '#ffedd5' :
-                  (ticket.priority === 'P3') ? '#fef9c3' :
-                  (ticket.priority === 'P2') ? '#e0ecfc' :
-                  (ticket.priority === 'P1') ? '#f4f4f5' : 'transparent',
-        'color': (ticket.priority === 'P5') ? '#b91c1c' :
-             (ticket.priority === 'P4') ? '#c2410c' :
-             (ticket.priority === 'P3') ? '#854d0e' :
-             (ticket.priority === 'P2') ? '#1e40af' :
-             (ticket.priority === 'P1') ? '#52525b' : '#000'
-        }">
+    <span
+      class="badge rounded-pill d-flex justify-content-center align-items-center"
+      [ngStyle]="{
+        'background-color':
+          ticket.priority === 'P5'
+            ? '#fee2e2'
+            : ticket.priority === 'P4'
+            ? '#ffedd5'
+            : ticket.priority === 'P3'
+            ? '#fef9c3'
+            : ticket.priority === 'P2'
+            ? '#e0ecfc'
+            : ticket.priority === 'P1'
+            ? '#f4f4f5'
+            : 'transparent',
+        color:
+          ticket.priority === 'P5'
+            ? '#b91c1c'
+            : ticket.priority === 'P4'
+            ? '#c2410c'
+            : ticket.priority === 'P3'
+            ? '#854d0e'
+            : ticket.priority === 'P2'
+            ? '#1e40af'
+            : ticket.priority === 'P1'
+            ? '#52525b'
+            : '#000'
+      }"
+    >
       {{ getPriorityLabel(ticket.priority) }}
     </span>
   </div>
-  <button class="btn btn-primary ms-auto" [routerLink]="['/ticket-create-update/ticket/edit/', ticket.id]">Update</button>
+  <button
+    class="btn btn-primary ms-auto"
+    [routerLink]="['/ticket-create-update/ticket/edit/', ticket.id]"
+  >
+    Update
+  </button>
 </div>

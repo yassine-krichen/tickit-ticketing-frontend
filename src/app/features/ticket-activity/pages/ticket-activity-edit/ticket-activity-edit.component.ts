@@ -6,11 +6,11 @@ import { TicketActivityService } from '../../../../core/services/ticket-activity
 @Component({
   selector: 'app-ticket-activity-edit',
   templateUrl: './ticket-activity-edit.component.html',
-  styleUrls: ['./ticket-activity-edit.component.css']
+  styleUrls: ['./ticket-activity-edit.component.css'],
 })
 export class TicketActivityEditComponent implements OnInit {
   activityId: string; // Change to string
-  ticketId: string;  // Change to string
+  ticketId: string; // Change to string
   activityForm: FormGroup;
   loading = false;
   error: string | null = null;
@@ -23,7 +23,7 @@ export class TicketActivityEditComponent implements OnInit {
   ) {
     this.activityForm = this.fb.group({
       type: ['', Validators.required],
-      description: ['', Validators.required]
+      description: ['', Validators.required],
     });
   }
 
@@ -40,27 +40,30 @@ export class TicketActivityEditComponent implements OnInit {
 
   private loadActivityDetails(): void {
     this.loading = true;
-    this.activityService.getActivityById(this.ticketId, this.activityId).subscribe({
-      next: (activity) => {
-        this.activityForm.patchValue({
-          description: activity.description,
-          type: activity.type,
-          duration: activity.duration
-        });
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading activity:', error);
-        this.error = 'Failed to load activity details';
-        this.loading = false;
-      }
-    });
+    this.activityService
+      .getActivityById(this.ticketId, this.activityId)
+      .subscribe({
+        next: (activity) => {
+          this.activityForm.patchValue({
+            description: activity.description,
+            type: activity.type,
+            duration: activity.duration,
+          });
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading activity:', error);
+          this.error = 'Failed to load activity details';
+          this.loading = false;
+        },
+      });
   }
 
   onSubmit(): void {
     if (this.activityForm.valid) {
       this.loading = true;
-      this.activityService.updateActivity(this.ticketId, this.activityId, this.activityForm.value)
+      this.activityService
+        .updateActivity(this.ticketId, this.activityId, this.activityForm.value)
         .subscribe({
           next: () => {
             this.router.navigate(['/ticket-details', this.ticketId]);
@@ -69,12 +72,17 @@ export class TicketActivityEditComponent implements OnInit {
             console.error('Error updating activity:', error);
             this.error = 'Failed to update activity';
             this.loading = false;
-          }
+          },
         });
     }
   }
 
   onCancel(): void {
-    this.router.navigate(['/ticket-details', this.ticketId]);
+    this.router.navigate([
+      '/tickets',
+      this.ticketId,
+      'activities',
+      this.activityId,
+    ]);
   }
 }
