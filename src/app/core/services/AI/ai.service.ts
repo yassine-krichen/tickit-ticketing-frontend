@@ -46,7 +46,7 @@ export interface AIResolutionResponse {
 export class AIService {
   private readonly baseUrl = `${environment.apiUrl}/api/v1/ai`;
 
-  private readonly REQUEST_TIMEOUT = 600000; // 10 minutes
+  private readonly REQUEST_TIMEOUT = 120000; // 2 minutes
 
   constructor(private http: HttpClient) {}
 
