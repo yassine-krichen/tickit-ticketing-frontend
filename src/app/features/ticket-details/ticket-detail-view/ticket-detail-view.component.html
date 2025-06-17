@@ -12,7 +12,7 @@
           <p><strong>Type:</strong> {{ getCaseTypeLabel(ticket.type) }}</p>
           <p><strong>Step:</strong> {{ getCaseTypeLabel(ticket.step) }}</p>
           <p *ngIf="ticket.subStatus"><strong>Sub Status:</strong> {{ ticket.subStatus }}</p>
-          <p><strong>Priority:</strong> <span class="badge" [ngClass]="getPriorityClass(ticket.priority)">{{ getPriorityLabel(ticket.priority) }}</span></p>
+          <p *ngIf="ticket"><strong>Priority:</strong> <span class="badge" [ngClass]="getPriorityClass(ticket?.priority)">{{ getPriorityLabel(ticket?.priority) }}</span></p>
         </div>
         <div class="col-md-6">
           <p><strong>Created:</strong> {{ ticket.createdAt | date:'medium' }}</p>

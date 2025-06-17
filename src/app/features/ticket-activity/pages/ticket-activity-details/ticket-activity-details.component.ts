@@ -8,6 +8,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { UserService } from "../../../../core/services/user/user.service";
 import { forkJoin, of } from "rxjs";
 import { catchError, map } from "rxjs/operators";
+import { Title } from '@angular/platform-browser';
 
 declare var bootstrap: any;
 declare var Notify: any;
@@ -47,7 +48,8 @@ export class TicketActivityDetailsComponent implements OnInit, AfterViewInit {
         private router: Router,
         private formBuilder: FormBuilder,
         private activityService: TicketActivityService,
-        private userService: UserService
+        private userService: UserService,
+        private titleService: Title
     ) {
         this.commentForm = this.formBuilder.group({
             text: ["", [Validators.required]]
@@ -55,6 +57,7 @@ export class TicketActivityDetailsComponent implements OnInit, AfterViewInit {
     }
 
     ngOnInit(): void {
+        this.titleService.setTitle("Activity Details | Tickit");
         this.loading = true;
         this.route.params.subscribe(params => {
             this.ticketId = params["ticketId"];
