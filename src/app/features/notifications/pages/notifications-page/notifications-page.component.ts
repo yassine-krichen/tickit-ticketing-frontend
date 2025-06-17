@@ -56,7 +56,7 @@ export class NotificationsPageComponent implements OnInit, OnDestroy {
     ) { }
     
     ngOnInit(): void {
-        this.titleService.setTitle("Notifications - Ticketing System");
+        this.titleService.setTitle("Notifications | Tickit");
         this.loadNotifications();
         this.subscribeToRealtimeUpdates();
         setTimeout(() => {

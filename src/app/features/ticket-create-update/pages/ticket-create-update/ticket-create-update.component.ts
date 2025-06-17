@@ -13,6 +13,7 @@ import {
   getPriorityLabel,
   getStatusLabel,
 } from 'src/app/core/utils/ticket.util';
+import { Title } from '@angular/platform-browser';
 
 /**
  * Component responsible for creating new tickets or editing existing ones
@@ -55,18 +56,23 @@ export class TicketCreateUpdateComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private ticketService: TicketService
+    private ticketService: TicketService,
+    private titleService: Title
   ) {}
 
   /**
    * Initialize the component, setup form, and fetch ticket data if in edit mode
    */
   ngOnInit(): void {
+    
     this.initializeForm();
 
     this.route.paramMap.pipe(takeUntil(this._destroy$)).subscribe((params) => {
       const id = params.get('id');
       this.isEditMode = !!id;
+      this.titleService.setTitle(
+        this.isEditMode ? 'Edit Ticket | Tickit' : 'Create Ticket | Tickit'
+      );
 
       if (this.isEditMode && id) {
         this.ticketId = id;
