@@ -1,80 +1,104 @@
 <form [formGroup]="filterForm" class="notification-filters">
-    <div class="card">
-        <div class="card-body pb-2">
-            <div class="row g-3">
-                <!-- Search - Full width on small screens, one-third on larger screens -->
-                <div class="col-12 col-md-4">
-                    <label for="searchTerm" class="form-label">Search</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-search"></i></span>
-                        <input 
-                            type="text" 
-                            class="form-control" 
-                            id="searchTerm" 
-                            formControlName="searchTerm"
-                            placeholder="Search notifications...">
-                    </div>
-                </div>
-                
-                <!-- Status filter - Half width on small screens, one-fourth on larger screens -->
-                <div class="col-6 col-md-2">
-                    <label for="readStatus" class="form-label">Status</label>
-                    <select class="form-select" id="readStatus" formControlName="readFlag">
-                        <option *ngFor="let option of readStatusOptions" [ngValue]="option.value">
-                            {{option.label}}
-                        </option>
-                    </select>
-                </div>
-                
-                <!-- Type filter - Half width on small screens, one-fourth on larger screens -->
-                <div class="col-6 col-md-2">
-                    <label for="type" class="form-label">Type</label>
-                    <select class="form-select" id="type" formControlName="type">
-                        <option *ngFor="let type of notificationTypes" [value]="type.value">
-                            {{type.label}}
-                        </option>
-                    </select>
-                </div>
-                
-                <!-- Date Range - Full width on small screens, one-third on larger screens -->
-                <div class="col-12 col-md-4">
-                    <label class="form-label">Date Range</label>
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <div class="input-group input-group-sm">
-                                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-                                <input 
-                                    type="date" 
-                                    class="form-control" 
-                                    formControlName="startDate"
-                                    aria-label="Start date"
-                                    placeholder="From">
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="input-group input-group-sm">
-                                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-                                <input 
-                                    type="date" 
-                                    class="form-control" 
-                                    formControlName="endDate"
-                                    aria-label="End date"
-                                    placeholder="To">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Action buttons - centered with proper spacing -->
-            <div class="d-flex justify-content-end mt-3">
-                <button type="button" class="btn btn-sm btn-outline-secondary me-2" (click)="resetFilters()">
-                    <i class="fas fa-times me-1"></i>Reset
-                </button>
-                <button type="button" class="btn btn-sm btn-primary" (click)="applyFilters()">
-                    <i class="fas fa-filter me-1"></i>Apply Filters
-                </button>
-            </div>
+  <div class="card">
+    <div class="card-body pb-2">
+      <div class="row g-3">
+        <!-- Search - Full width on small screens, one-third on larger screens -->
+        <div class="col-12 col-md-4">
+          <label for="searchTerm" class="form-label">Search</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+            <input
+              type="text"
+              class="form-control"
+              id="searchTerm"
+              formControlName="searchTerm"
+              placeholder="Search notifications..."
+            />
+          </div>
         </div>
+
+        <!-- Status filter - Half width on small screens, one-fourth on larger screens -->
+        <div class="col-6 col-md-2">
+          <label for="readStatus" class="form-label">Status</label>
+          <select
+            class="form-select"
+            id="readStatus"
+            formControlName="readFlag"
+          >
+            <option
+              *ngFor="let option of readStatusOptions"
+              [ngValue]="option.value"
+            >
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Type filter - Half width on small screens, one-fourth on larger screens -->
+        <div class="col-6 col-md-2">
+          <label for="type" class="form-label">Type</label>
+          <select class="form-select" id="type" formControlName="type">
+            <option *ngFor="let type of notificationTypes" [value]="type.value">
+              {{ type.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Date Range - Full width on small screens, one-third on larger screens -->
+        <div class="col-12 col-md-4">
+          <label class="form-label">Date Range</label>
+          <div class="row g-2">
+            <div class="col-6">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text"
+                  ><i class="fas fa-calendar-alt"></i
+                ></span>
+                <input
+                  type="date"
+                  class="form-control"
+                  formControlName="startDate"
+                  aria-label="Start date"
+                  placeholder="From"
+                  [max]="filterForm.get('endDate')?.value || null"
+                />
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text"
+                  ><i class="fas fa-calendar-alt"></i
+                ></span>
+                <input
+                  type="date"
+                  class="form-control"
+                  formControlName="endDate"
+                  aria-label="End date"
+                  placeholder="To"
+                  [min]="filterForm.get('startDate')?.value || null"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action buttons - centered with proper spacing -->
+      <div class="d-flex justify-content-end mt-3">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary me-2"
+          (click)="resetFilters()"
+        >
+          <i class="fas fa-times me-1"></i>Reset
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-primary"
+          (click)="applyFilters()"
+        >
+          <i class="fas fa-filter me-1"></i>Apply Filters
+        </button>
+      </div>
     </div>
+  </div>
 </form>
