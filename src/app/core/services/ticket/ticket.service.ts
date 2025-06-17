@@ -24,15 +24,17 @@ export class TicketService {
 
   constructor(private http: HttpClient) {}
 
-  // Get paginated tickets
+  // Enhanced getPaginatedTickets with support for multiple filters
   getPaginatedTickets(
     page: number = 0,
     size: number = 10,
     sortField: string = 'timestamp',
     sortDir: string = 'desc',
     q?: string,
-    status?: Status,
-    priority?: Priority
+    statuses?: Status[],
+    priorities?: Priority[],
+    types?: CaseType[],
+    steps?: CaseStep[]
   ): Observable<PaginatedResponse<TicketResponse>> {
     let params = new HttpParams()
       .set('page', page.toString())
@@ -40,9 +42,40 @@ export class TicketService {
       .set('sortField', sortField)
       .set('sortDir', sortDir);
 
-    if (q) params = params.set('q', q);
-    if (status) params = params.set('status', status);
-    if (priority) params = params.set('priority', priority);
+    // Search query
+    if (q && q.trim()) {
+      params = params.set('q', q.trim());
+    }
+
+    // Multiple status filters
+    if (statuses && statuses.length > 0) {
+      statuses.forEach((status) => {
+        params = params.append('status', status);
+      });
+    }
+
+    // Multiple priority filters
+    if (priorities && priorities.length > 0) {
+      priorities.forEach((priority) => {
+        params = params.append('priority', priority);
+      });
+    }
+
+    // Multiple type filters
+    if (types && types.length > 0) {
+      types.forEach((type) => {
+        params = params.append('types', type);
+      });
+    }
+
+    // Multiple step filters
+    if (steps && steps.length > 0) {
+      steps.forEach((step) => {
+        params = params.append('steps', step);
+      });
+    }
+
+    console.log('API Request params:', params.toString());
 
     return this.http
       .get<PaginatedResponse<TicketResponse>>(this.baseUrl, { params })
@@ -90,6 +123,61 @@ export class TicketService {
     );
   }
 
+  // Enhanced search with multiple filters
+  searchTickets(
+    statuses?: Status[],
+    priorities?: Priority[],
+    types?: CaseType[],
+    steps?: CaseStep[],
+    issuedBy?: string,
+    acteTraitement?: string,
+    subStatus?: string
+  ): Observable<TicketResponse[]> {
+    let params = new HttpParams();
+
+    // Multiple status filters
+    if (statuses && statuses.length > 0) {
+      statuses.forEach((status) => {
+        params = params.append('status', status);
+      });
+    }
+
+    // Multiple priority filters
+    if (priorities && priorities.length > 0) {
+      priorities.forEach((priority) => {
+        params = params.append('priority', priority);
+      });
+    }
+
+    // Multiple type filters
+    if (types && types.length > 0) {
+      types.forEach((type) => {
+        params = params.append('types', type);
+      });
+    }
+
+    // Multiple step filters
+    if (steps && steps.length > 0) {
+      steps.forEach((step) => {
+        params = params.append('steps', step);
+      });
+    }
+
+    // Single value filters
+    if (issuedBy) params = params.set('issuedBy', issuedBy);
+    if (acteTraitement) params = params.set('acteTraitement', acteTraitement);
+    if (subStatus) params = params.set('subStatus', subStatus);
+
+    return this.http
+      .get<TicketResponse[]>(`${this.baseUrl}/search`, { params })
+      .pipe(
+        catchError((error) => {
+          console.error('Error searching tickets:', error);
+          return of([]);
+        })
+      );
+  }
+
   // Create a new ticket
   createTicket(ticketRequest: TicketRequest): Observable<TicketResponse> {
     return this.http.post<TicketResponse>(this.baseUrl, ticketRequest);
@@ -109,10 +197,6 @@ export class TicketService {
   ): Observable<TicketResponse[]> {
     let params = new HttpParams();
 
-    if (status) params.append('status', status);
-    if (priority) params.append('priority', priority);
-    if (issuedBy) params.append('issuedBy', issuedBy);
-    if (acteTraitement) params.append('acteTraitement', acteTraitement);
     if (status) params = params.set('status', status);
     if (priority) params = params.set('priority', priority);
     if (issuedBy) params = params.set('issuedBy', issuedBy);
@@ -123,36 +207,6 @@ export class TicketService {
       .pipe(
         catchError((error) => {
           console.error('Error fetching tickets:', error);
-          return [];
-        })
-      );
-  }
-
-  // Enhanced search with new fields - points to /search endpoint
-  searchTickets(
-    status?: Status,
-    priority?: Priority,
-    issuedBy?: string,
-    acteTraitement?: string,
-    type?: CaseType,
-    step?: CaseStep, // Updated to use CaseStep
-    subStatus?: string
-  ): Observable<TicketResponse[]> {
-    let params = new HttpParams();
-
-    if (status) params = params.set('status', status);
-    if (priority) params = params.set('priority', priority);
-    if (issuedBy) params = params.set('issuedBy', issuedBy);
-    if (acteTraitement) params = params.set('acteTraitement', acteTraitement);
-    if (type) params = params.set('type', type);
-    if (step) params = params.set('step', step);
-    if (subStatus) params = params.set('subStatus', subStatus);
-
-    return this.http
-      .get<TicketResponse[]>(`${this.baseUrl}/search`, { params })
-      .pipe(
-        catchError((error) => {
-          console.error('Error searching tickets:', error);
           return [];
         })
       );
@@ -214,7 +268,6 @@ export class TicketService {
     type: CaseType,
     step: CaseStep
   ): Observable<boolean> {
-    // Updated to use CaseStep
     return this.http.get<boolean>(
       `${this.baseUrl}/validate-type-step?type=${type}&step=${step}`
     );
@@ -222,7 +275,6 @@ export class TicketService {
 
   // Get valid steps for a type
   getValidStepsForType(type: CaseType): Observable<CaseStep[]> {
-    // Updated to use CaseStep
     return this.http.get<CaseStep[]>(`${this.baseUrl}/valid-steps/${type}`);
   }
 

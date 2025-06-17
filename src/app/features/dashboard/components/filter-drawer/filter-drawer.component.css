@@ -47,20 +47,101 @@
   flex-grow: 1;
 }
 
-/* Styling for filter buttons in a selected state */
+/* Enhanced filter button styling */
+.btn-sm {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Priority and Status buttons - selected state */
 .btn-secondary {
   background-color: var(--bs-primary) !important;
   border-color: var(--bs-primary) !important;
   color: white !important;
 }
 
-/* Styling for filter buttons in unselected state */
+/* Priority and Status buttons - unselected state */
 .btn-outline-secondary {
   color: #6c757d !important;
   border-color: #dee2e6 !important;
+  background-color: transparent !important;
 }
 
 .btn-outline-secondary:hover {
   background-color: #f8f9fa !important;
   color: #495057 !important;
-} 
+  border-color: #adb5bd !important;
+}
+
+/* Type buttons - selected state */
+.btn-primary {
+  background-color: var(--bs-primary) !important;
+  border-color: var(--bs-primary) !important;
+  color: white !important;
+}
+
+/* Type buttons - unselected state */
+.btn-outline-primary {
+  color: var(--bs-primary) !important;
+  border-color: var(--bs-primary) !important;
+  background-color: transparent !important;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--bs-primary) !important;
+  color: white !important;
+  border-color: var(--bs-primary) !important;
+}
+
+/* Success buttons (Select All/Deselect All) */
+.btn-success {
+  background-color: #198754 !important;
+  border-color: #198754 !important;
+  color: white !important;
+}
+
+.btn-outline-success {
+  color: #198754 !important;
+  border-color: #198754 !important;
+  background-color: transparent !important;
+}
+
+.btn-outline-success:hover {
+  background-color: #198754 !important;
+  color: white !important;
+  border-color: #198754 !important;
+}
+
+/* Accordion improvements */
+.accordion-button {
+  background-color: #f8f9fa !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.accordion-button:focus {
+  box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25) !important;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: var(--bs-primary) !important;
+  color: white !important;
+}
+
+.accordion-item {
+  border: 1px solid #dee2e6 !important;
+}
+
+/* Badge styling */
+.badge {
+  font-size: 0.75em !important;
+}
+
+/* Position relative for type buttons to support badges */
+.position-relative {
+  position: relative !important;
+}
+
+/* Custom track by functions to improve performance */
+.gap-2 {
+  gap: 0.5rem !important;
+}

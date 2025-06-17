@@ -13,6 +13,7 @@ import {
   Priority,
   Status,
   CaseType,
+  CaseStep,
   TicketResponse,
   PaginatedResponse,
 } from 'src/app/core/models/ticket.model';
@@ -210,19 +211,10 @@ export class DashboardContentComponent implements OnInit {
       this.isLastPage = false; // Reset isLastPage when loading fresh
     }
 
-    // Map status filter from UI to API
-    let statusFilter: Status = null;
-    if (this.activeTab !== 'All Tickets') {
-      statusFilter = this.activeTab as Status;
-    } else if (this.advancedFilters.statuses.length === 1) {
-      statusFilter = this.advancedFilters.statuses[0];
-    }
+    // Build comprehensive filter arrays
+    const filterParams = this.buildFilterParams();
 
-    // Map priority filter
-    let priorityFilter: Priority = null;
-    if (this.advancedFilters.priorities.length === 1) {
-      priorityFilter = this.advancedFilters.priorities[0];
-    }
+    console.log('Loading tickets with filters:', filterParams);
 
     this.ticketService
       .getPaginatedTickets(
@@ -231,8 +223,10 @@ export class DashboardContentComponent implements OnInit {
         this.orderBy.field,
         this.orderBy.direction,
         this.searchTerm,
-        statusFilter,
-        priorityFilter
+        filterParams.statuses,
+        filterParams.priorities,
+        filterParams.types,
+        filterParams.steps
       )
       .subscribe({
         next: (response: PaginatedResponse<TicketResponse>) => {
@@ -277,6 +271,49 @@ export class DashboardContentComponent implements OnInit {
           console.error('Error loading tickets:', error);
         },
       });
+  }
+
+  /**
+   * Build comprehensive filter parameters for API call
+   */
+  private buildFilterParams(): {
+    statuses: Status[];
+    priorities: Priority[];
+    types: CaseType[];
+    steps: CaseStep[];
+  } {
+    const filterParams = {
+      statuses: [] as Status[],
+      priorities: [] as Priority[],
+      types: [] as CaseType[],
+      steps: [] as CaseStep[],
+    };
+
+    // Handle status filtering
+    if (this.advancedFilters.statuses.length > 0) {
+      // Use advanced filter statuses if any are selected
+      filterParams.statuses = [...this.advancedFilters.statuses];
+    } else if (this.activeTab !== 'All Tickets') {
+      // Use tab filter if no advanced filter is set
+      filterParams.statuses = [this.activeTab as Status];
+    }
+
+    // Handle priority filtering
+    if (this.advancedFilters.priorities.length > 0) {
+      filterParams.priorities = [...this.advancedFilters.priorities];
+    }
+
+    // Handle type filtering
+    if (this.advancedFilters.types.length > 0) {
+      filterParams.types = [...this.advancedFilters.types];
+    }
+
+    // Handle step filtering
+    if (this.advancedFilters.steps.length > 0) {
+      filterParams.steps = [...this.advancedFilters.steps];
+    }
+
+    return filterParams;
   }
 
   /**
@@ -381,6 +418,10 @@ export class DashboardContentComponent implements OnInit {
 
   setActiveTab(tab: string): void {
     this.activeTab = tab;
+    // Clear advanced status filters when tab changes
+    if (tab !== 'All Tickets') {
+      this.advancedFilters.statuses = [];
+    }
     this.loadTickets(); // Reload with new tab filter
   }
 
@@ -406,7 +447,14 @@ export class DashboardContentComponent implements OnInit {
   }
 
   onAdvancedFilterChange(filters: FilterOptions): void {
+    console.log('Advanced filters changed:', filters);
     this.advancedFilters = filters;
+
+    // Clear tab filter if advanced status filters are used
+    if (filters.statuses.length > 0) {
+      this.activeTab = 'All Tickets';
+    }
+
     this.loadTickets(); // Reload with new advanced filters
   }
 

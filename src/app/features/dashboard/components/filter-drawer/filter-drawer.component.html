@@ -4,7 +4,7 @@
   tabindex="-1"
   id="filterDrawer"
 >
-  <!-- Backdrop - don't use click handler on backdrop -->
+  <!-- Backdrop -->
   <div class="offcanvas-backdrop fade show" *ngIf="isOpen"></div>
 
   <div class="offcanvas-header">
@@ -37,7 +37,9 @@
 
     <!-- Priority Filter -->
     <div class="mb-4">
-      <h6 class="mb-3">Priority</h6>
+      <h6 class="mb-3">
+        <i class="fas fa-exclamation-triangle me-2"></i>Priority
+      </h6>
       <div class="d-flex flex-wrap gap-2">
         <button
           *ngFor="let priority of priorities"
@@ -53,7 +55,7 @@
 
     <!-- Status Filter -->
     <div class="mb-4">
-      <h6 class="mb-3">Status</h6>
+      <h6 class="mb-3"><i class="fas fa-tasks me-2"></i>Status</h6>
       <div class="d-flex flex-wrap gap-2">
         <button
           *ngFor="let status of statuses"
@@ -69,65 +71,94 @@
 
     <!-- Type Filter -->
     <div class="mb-4">
-      <h6 class="mb-3">Case Type</h6>
+      <h6 class="mb-3"><i class="fas fa-sitemap me-2"></i>Case Type</h6>
       <div class="d-flex flex-wrap gap-2">
         <button
-          *ngFor="let type of caseTypes"
-          class="btn btn-sm"
-          [class.btn-outline-secondary]="!isTypeSelected(type)"
-          [class.btn-secondary]="isTypeSelected(type)"
+          *ngFor="let type of caseTypes; trackBy: trackByType"
+          class="btn btn-sm position-relative"
+          [class.btn-outline-primary]="!isTypeSelected(type)"
+          [class.btn-primary]="isTypeSelected(type)"
           (click)="toggleType(type)"
         >
           {{ getCaseTypeLabel(type) }}
+          <!-- Show step count badge if type has steps and some are selected -->
+          <span
+            *ngIf="getSelectedStepsCountForType(type) > 0"
+            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark"
+            style="font-size: 0.6em"
+            >{{ getSelectedStepsCountForType(type) }}</span
+          >
         </button>
       </div>
     </div>
 
     <!-- Step Filter - Grouped by Type -->
     <div class="mb-4">
-      <h6 class="mb-3">Case Steps</h6>
+      <h6 class="mb-3"><i class="fas fa-list-ol me-2"></i>Case Steps</h6>
 
-      <!-- Show all steps in a simple list -->
-      <div class="d-flex flex-wrap gap-2 mb-3">
-        <button
-          *ngFor="let step of caseSteps"
-          class="btn btn-sm"
-          [class.btn-outline-secondary]="!isStepSelected(step)"
-          [class.btn-secondary]="isStepSelected(step)"
-          (click)="toggleStep(step)"
-        >
-          {{ getCaseStepLabel(step) }}
-        </button>
-      </div>
-
-      <!-- Or show grouped by type (collapsible) -->
-      <div class="accordion accordion-flush" id="stepsAccordion">
+      <!-- Grouped by type (collapsible) -->
+      <div class="accordion" id="stepsAccordion">
         <div
-          class="accordion-item"
-          *ngFor="let group of stepsGroupedByType; let i = index"
+          class="accordion-item border mb-2 rounded"
+          *ngFor="
+            let group of stepsGroupedByType;
+            let i = index;
+            trackBy: trackByGroup
+          "
         >
           <h6 class="accordion-header" [id]="'heading' + i">
             <button
-              class="accordion-button collapsed py-2"
+              class="accordion-button collapsed py-2 d-flex justify-content-between align-items-center"
               type="button"
-              data-bs-toggle="collapse"
-              [data-bs-target]="'#collapse' + i"
-              aria-expanded="false"
-              [aria-controls]="'collapse' + i"
+              (click)="toggleCollapse(i)"
+              [attr.aria-expanded]="false"
+              [attr.aria-controls]="'collapse' + i"
             >
-              <small class="text-muted">{{ group.typeLabel }} Steps</small>
+              <div class="d-flex align-items-center">
+                <span class="text-muted me-2">{{ group.typeLabel }} Steps</span>
+                <span
+                  class="badge bg-secondary"
+                  [class.bg-primary]="
+                    getSelectedStepsCountForType(group.type) > 0
+                  "
+                >
+                  {{ getSelectedStepsCountForType(group.type) }}/{{
+                    group.steps.length
+                  }}
+                </span>
+              </div>
             </button>
           </h6>
           <div
             [id]="'collapse' + i"
             class="accordion-collapse collapse"
-            [aria-labelledby]="'heading' + i"
+            [attr.aria-labelledby]="'heading' + i"
             data-bs-parent="#stepsAccordion"
           >
             <div class="accordion-body py-2">
+              <!-- Select All/None toggle for this type -->
+              <div class="mb-2">
+                <button
+                  class="btn btn-sm"
+                  [class.btn-outline-success]="
+                    !areAllStepsSelectedForType(group.type)
+                  "
+                  [class.btn-success]="areAllStepsSelectedForType(group.type)"
+                  (click)="toggleAllStepsForType(group.type)"
+                >
+                  <i class="fas fa-check-double me-1"></i>
+                  {{
+                    areAllStepsSelectedForType(group.type)
+                      ? "Deselect All"
+                      : "Select All"
+                  }}
+                </button>
+              </div>
+
+              <!-- Individual step buttons -->
               <div class="d-flex flex-wrap gap-2">
                 <button
-                  *ngFor="let step of group.steps"
+                  *ngFor="let step of group.steps; trackBy: trackByStep"
                   class="btn btn-sm"
                   [class.btn-outline-secondary]="!isStepSelected(step)"
                   [class.btn-secondary]="isStepSelected(step)"
