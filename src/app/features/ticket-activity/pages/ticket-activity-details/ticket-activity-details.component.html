@@ -38,9 +38,9 @@
             <i class="fas fa-info-circle me-2 text-primary"></i> Activity Information
           </h5>
           <span class="badge" 
-                [ngClass]="activity.completed ? 'bg-success' : 'bg-warning'"
+                [ngClass]="activity.duration ? 'bg-success' : 'bg-warning'"
                 *ngIf="activity.status !== null">
-            {{ activity.completed ? 'Completed' : 'In Progress' }}
+            {{ activity.duration ? 'Completed' : 'In Progress' }}
           </span>
         </div>
         <div class="card-body">
