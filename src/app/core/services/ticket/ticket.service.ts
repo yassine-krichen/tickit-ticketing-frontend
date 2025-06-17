@@ -4,34 +4,32 @@ import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 import {
-  Ticket,
-  BackendTicket,
-  TicketRequest,
-  TicketResponse,
-  TicketUpdateDTO,
-  TicketCount,
-  Status,
   Priority,
+  Status,
   CaseType,
+  CaseStep,
+  TicketResponse,
+  TicketRequest,
+  TicketUpdateDTO,
+  PaginatedResponse,
+  TicketCount,
   TypeStepValidation,
-  PaginatedResponse
 } from '../../models/ticket.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TicketService {
-  // Update baseUrl to use environment and match the controller endpoint
-  private readonly baseUrl = `${environment.apiUrl}/api/v1/tickets`;
+  private baseUrl = `${environment.apiUrl}/api/v1/tickets`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   // Get paginated tickets
   getPaginatedTickets(
     page: number = 0,
     size: number = 10,
-    sortField: string = "timestamp",
-    sortDir: string = "desc",
+    sortField: string = 'timestamp',
+    sortDir: string = 'desc',
     q?: string,
     status?: Status,
     priority?: Priority
@@ -46,9 +44,10 @@ export class TicketService {
     if (status) params = params.set('status', status);
     if (priority) params = params.set('priority', priority);
 
-    return this.http.get<PaginatedResponse<TicketResponse>>(this.baseUrl, { params })
+    return this.http
+      .get<PaginatedResponse<TicketResponse>>(this.baseUrl, { params })
       .pipe(
-        catchError(error => {
+        catchError((error) => {
           console.error('Error fetching paginated tickets:', error);
           throw error;
         })
@@ -69,27 +68,26 @@ export class TicketService {
       resolved: number | null;
     };
   }> {
-    return this.http.get<any>(`${this.baseUrl}/stats/all`)
-      .pipe(
-        map(response => response || {}),
-        catchError(error => {
-          console.error('Error fetching ticket statistics:', error);
-          // Return empty object with the expected structure instead of empty array
-          return of({
-            totalTickets: 0,
-            countsByStatus: [],
-            countsByType: [],
-            countsByStep: [],
-            countsBySubStatus: [],
-            momComparisons: {
-              totalTickets: null,
-              inProgress: null,
-              blocked: null,
-              resolved: null
-            }
-          });
-        })
-      );
+    return this.http.get<any>(`${this.baseUrl}/stats/all`).pipe(
+      map((response) => response || {}),
+      catchError((error) => {
+        console.error('Error fetching ticket statistics:', error);
+        // Return empty object with the expected structure instead of empty array
+        return of({
+          totalTickets: 0,
+          countsByStatus: [],
+          countsByType: [],
+          countsByStep: [],
+          countsBySubStatus: [],
+          momComparisons: {
+            totalTickets: null,
+            inProgress: null,
+            blocked: null,
+            resolved: null,
+          },
+        });
+      })
+    );
   }
 
   // Create a new ticket
@@ -120,9 +118,10 @@ export class TicketService {
     if (issuedBy) params = params.set('issuedBy', issuedBy);
     if (acteTraitement) params = params.set('acteTraitement', acteTraitement);
 
-    return this.http.get<TicketResponse[]>(`${this.baseUrl}/all`, { params })
+    return this.http
+      .get<TicketResponse[]>(`${this.baseUrl}/all`, { params })
       .pipe(
-        catchError(error => {
+        catchError((error) => {
           console.error('Error fetching tickets:', error);
           return [];
         })
@@ -136,7 +135,7 @@ export class TicketService {
     issuedBy?: string,
     acteTraitement?: string,
     type?: CaseType,
-    step?: CaseType,
+    step?: CaseStep, // Updated to use CaseStep
     subStatus?: string
   ): Observable<TicketResponse[]> {
     let params = new HttpParams();
@@ -149,9 +148,10 @@ export class TicketService {
     if (step) params = params.set('step', step);
     if (subStatus) params = params.set('subStatus', subStatus);
 
-    return this.http.get<TicketResponse[]>(`${this.baseUrl}/search`, { params })
+    return this.http
+      .get<TicketResponse[]>(`${this.baseUrl}/search`, { params })
       .pipe(
-        catchError(error => {
+        catchError((error) => {
           console.error('Error searching tickets:', error);
           return [];
         })
@@ -160,9 +160,10 @@ export class TicketService {
 
   // Get ticket counts by status
   getTicketCountsByStatus(): Observable<TicketCount[]> {
-    return this.http.get<TicketCount[]>(`${this.baseUrl}/counts-by-status`)
+    return this.http
+      .get<TicketCount[]>(`${this.baseUrl}/counts-by-status`)
       .pipe(
-        catchError(error => {
+        catchError((error) => {
           console.error('Error fetching ticket counts by status:', error);
           return [];
         })
@@ -171,31 +172,30 @@ export class TicketService {
 
   // Get ticket counts by type
   getTicketCountsByType(): Observable<TicketCount[]> {
-    return this.http.get<TicketCount[]>(`${this.baseUrl}/counts-by-type`)
-      .pipe(
-        catchError(error => {
-          console.error('Error fetching ticket counts by type:', error);
-          return [];
-        })
-      );
+    return this.http.get<TicketCount[]>(`${this.baseUrl}/counts-by-type`).pipe(
+      catchError((error) => {
+        console.error('Error fetching ticket counts by type:', error);
+        return [];
+      })
+    );
   }
 
   // Get ticket counts by step
   getTicketCountsByStep(): Observable<TicketCount[]> {
-    return this.http.get<TicketCount[]>(`${this.baseUrl}/counts-by-step`)
-      .pipe(
-        catchError(error => {
-          console.error('Error fetching ticket counts by step:', error);
-          return [];
-        })
-      );
+    return this.http.get<TicketCount[]>(`${this.baseUrl}/counts-by-step`).pipe(
+      catchError((error) => {
+        console.error('Error fetching ticket counts by step:', error);
+        return [];
+      })
+    );
   }
 
   // Get ticket counts by sub-status
   getTicketCountsBySubStatus(): Observable<TicketCount[]> {
-    return this.http.get<TicketCount[]>(`${this.baseUrl}/counts-by-sub-status`)
+    return this.http
+      .get<TicketCount[]>(`${this.baseUrl}/counts-by-sub-status`)
       .pipe(
-        catchError(error => {
+        catchError((error) => {
           console.error('Error fetching ticket counts by sub-status:', error);
           return [];
         })
@@ -204,21 +204,33 @@ export class TicketService {
 
   // Get ticket statistics by period
   getTicketStatsByPeriod(period: string): Observable<Map<string, number>> {
-    return this.http.get<Map<string, number>>(`${this.baseUrl}/stats/${period}`);
+    return this.http.get<Map<string, number>>(
+      `${this.baseUrl}/stats/${period}`
+    );
   }
 
   // Validate type-step combination
-  validateTypeStepCombination(type: CaseType, step: CaseType): Observable<boolean> {
-    return this.http.get<boolean>(`${this.baseUrl}/validate-type-step?type=${type}&step=${step}`);
+  validateTypeStepCombination(
+    type: CaseType,
+    step: CaseStep
+  ): Observable<boolean> {
+    // Updated to use CaseStep
+    return this.http.get<boolean>(
+      `${this.baseUrl}/validate-type-step?type=${type}&step=${step}`
+    );
   }
 
   // Get valid steps for a type
-  getValidStepsForType(type: CaseType): Observable<CaseType[]> {
-    return this.http.get<CaseType[]>(`${this.baseUrl}/valid-steps/${type}`);
+  getValidStepsForType(type: CaseType): Observable<CaseStep[]> {
+    // Updated to use CaseStep
+    return this.http.get<CaseStep[]>(`${this.baseUrl}/valid-steps/${type}`);
   }
 
   // Update ticket status
-  updateTicketStatus(ticketId: string, status: Status): Observable<TicketResponse> {
+  updateTicketStatus(
+    ticketId: string,
+    status: Status
+  ): Observable<TicketResponse> {
     return this.http.put<TicketResponse>(
       `${this.baseUrl}/${ticketId}/status`,
       null,
@@ -227,25 +239,38 @@ export class TicketService {
   }
 
   // Update ticket details
-  updateTicket(ticketId: string, updateData: TicketUpdateDTO): Observable<TicketResponse> {
-    return this.http.put<TicketResponse>(`${this.baseUrl}/${ticketId}`, updateData);
+  updateTicket(
+    ticketId: string,
+    updateData: TicketUpdateDTO
+  ): Observable<TicketResponse> {
+    return this.http.put<TicketResponse>(
+      `${this.baseUrl}/${ticketId}`,
+      updateData
+    );
   }
 
   // Delete a ticket - Updated to handle plain text responses
-  deleteTicket(ticketId: string): Observable<{ success: boolean, message: string }> {
+  deleteTicket(
+    ticketId: string
+  ): Observable<{ success: boolean; message: string }> {
     const headers = new HttpHeaders().set('Accept', 'text/plain');
-    return this.http.delete(`${this.baseUrl}/${ticketId}`, {
-      headers,
-      responseType: 'text'
-    }).pipe(
-      map(response => {
-        // Return success object with the response message
-        return { success: true, message: response as string };
-      }),
-      catchError(error => {
-        console.error('Error deleting ticket:', error);
-        return of({ success: false, message: error?.message || 'Failed to delete ticket' });
-      }),
-    );
+    return this.http
+      .delete(`${this.baseUrl}/${ticketId}`, {
+        headers,
+        responseType: 'text',
+      })
+      .pipe(
+        map((response) => {
+          // Return success object with the response message
+          return { success: true, message: response as string };
+        }),
+        catchError((error) => {
+          console.error('Error deleting ticket:', error);
+          return of({
+            success: false,
+            message: error?.message || 'Failed to delete ticket',
+          });
+        })
+      );
   }
 }

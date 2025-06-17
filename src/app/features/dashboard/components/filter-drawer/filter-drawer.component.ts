@@ -1,51 +1,59 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Priority, Status, CaseType } from 'src/app/core/models/ticket.model';
-import { getCaseTypeLabel, getPriorityLabel, getStatusLabel } from 'src/app/core/utils/ticket.util';
+import {
+  Priority,
+  Status,
+  CaseType,
+  CaseStep,
+} from 'src/app/core/models/ticket.model';
+import {
+  getCaseTypeLabel,
+  getCaseStepLabel,
+  getPriorityLabel,
+  getStatusLabel,
+  getValidStepsForType,
+} from 'src/app/core/utils/ticket.util';
 
 export interface FilterOptions {
   priorities: Priority[];
   statuses: Status[];
   types: CaseType[];
-  steps: CaseType[];
+  steps: CaseStep[]; // Updated to use CaseStep
   subStatuses: string[];
 }
 
 @Component({
   selector: 'app-filter-drawer',
   templateUrl: './filter-drawer.component.html',
-  styleUrls: ['./filter-drawer.component.css']
+  styleUrls: ['./filter-drawer.component.css'],
 })
 export class FilterDrawerComponent {
   @Input() isOpen = false;
   @Output() close = new EventEmitter<void>();
   @Output() filterChange = new EventEmitter<FilterOptions>();
-  
+
   // Track selected filters
   selectedPriorities: Priority[] = [];
   selectedStatuses: Status[] = [];
   selectedTypes: CaseType[] = [];
-  selectedSteps: CaseType[] = [];
+  selectedSteps: CaseStep[] = []; // Updated to use CaseStep
   selectedSubStatuses: string[] = [];
-  
+
   // Filter options
   priorities = Object.values(Priority);
   statuses = Object.values(Status);
   caseTypes = Object.values(CaseType);
-  
+  caseSteps = Object.values(CaseStep); // All available steps
+
   // Helper methods to use utils
   getStatusLabel = getStatusLabel;
   getPriorityLabel = getPriorityLabel;
   getCaseTypeLabel = getCaseTypeLabel;
-  
-  // Getter for step options to avoid filtering in the template
-  get stepOptions(): CaseType[] {
-    return this.caseTypes.filter(type => type.includes('_'));
-  }
-  
+  getCaseStepLabel = getCaseStepLabel; // Added case step label helper
+
   closeDrawer(): void {
     this.close.emit();
   }
-  
+
   togglePriority(priority: Priority): void {
     const index = this.selectedPriorities.indexOf(priority);
     if (index > -1) {
@@ -55,7 +63,7 @@ export class FilterDrawerComponent {
     }
     this.emitFilterChange();
   }
-  
+
   toggleStatus(status: Status): void {
     const index = this.selectedStatuses.indexOf(status);
     if (index > -1) {
@@ -65,7 +73,7 @@ export class FilterDrawerComponent {
     }
     this.emitFilterChange();
   }
-  
+
   toggleType(type: CaseType): void {
     const index = this.selectedTypes.indexOf(type);
     if (index > -1) {
@@ -75,8 +83,9 @@ export class FilterDrawerComponent {
     }
     this.emitFilterChange();
   }
-  
-  toggleStep(step: CaseType): void {
+
+  toggleStep(step: CaseStep): void {
+    // Updated to use CaseStep
     const index = this.selectedSteps.indexOf(step);
     if (index > -1) {
       this.selectedSteps.splice(index, 1);
@@ -85,7 +94,7 @@ export class FilterDrawerComponent {
     }
     this.emitFilterChange();
   }
-  
+
   clearFilters(): void {
     this.selectedPriorities = [];
     this.selectedStatuses = [];
@@ -94,30 +103,48 @@ export class FilterDrawerComponent {
     this.selectedSubStatuses = [];
     this.emitFilterChange();
   }
-  
+
   emitFilterChange(): void {
     this.filterChange.emit({
       priorities: this.selectedPriorities,
       statuses: this.selectedStatuses,
       types: this.selectedTypes,
       steps: this.selectedSteps,
-      subStatuses: this.selectedSubStatuses
+      subStatuses: this.selectedSubStatuses,
     });
   }
-  
+
   isPrioritySelected(priority: Priority): boolean {
     return this.selectedPriorities.includes(priority);
   }
-  
+
   isStatusSelected(status: Status): boolean {
     return this.selectedStatuses.includes(status);
   }
-  
+
   isTypeSelected(type: CaseType): boolean {
     return this.selectedTypes.includes(type);
   }
-  
-  isStepSelected(step: CaseType): boolean {
+
+  isStepSelected(step: CaseStep): boolean {
+    // Updated to use CaseStep
     return this.selectedSteps.includes(step);
   }
-} 
+
+  /**
+   * Get steps organized by their parent type for better UI grouping
+   */
+  get stepsGroupedByType(): Array<{
+    type: CaseType;
+    typeLabel: string;
+    steps: CaseStep[];
+  }> {
+    return this.caseTypes
+      .map((type) => ({
+        type,
+        typeLabel: this.getCaseTypeLabel(type),
+        steps: getValidStepsForType(type),
+      }))
+      .filter((group) => group.steps.length > 0); // Only show types that have steps
+  }
+}

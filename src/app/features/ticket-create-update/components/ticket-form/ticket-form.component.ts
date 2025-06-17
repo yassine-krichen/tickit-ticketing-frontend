@@ -1,13 +1,28 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { CaseType, Priority, Status, TicketRequest, TicketResponse, TicketUpdateDTO } from 'src/app/core/models/ticket.model';
+import {
+  Priority,
+  Status,
+  CaseType,
+  CaseStep,
+  TicketRequest,
+  TicketResponse,
+  TicketUpdateDTO,
+} from 'src/app/core/models/ticket.model';
 import { TicketService } from 'src/app/core/services/ticket/ticket.service';
-import { formatSLA, getCaseTypeLabel, getPriorityLabel, getStatusLabel } from 'src/app/core/utils/ticket.util';
+import {
+  getCaseTypeLabel,
+  getCaseStepLabel,
+  formatSLA,
+  getValidStepsForType,
+  getStatusLabel,
+  getPriorityLabel,
+} from 'src/app/core/utils/ticket.util';
 
 @Component({
   selector: 'app-ticket-form',
   templateUrl: './ticket-form.component.html',
-  styleUrls: ['./ticket-form.component.css']
+  styleUrls: ['./ticket-form.component.css'],
 })
 export class TicketFormComponent implements OnInit {
   @Input() ticket: TicketResponse | null = null;
@@ -16,31 +31,30 @@ export class TicketFormComponent implements OnInit {
   @Output() cancel = new EventEmitter<void>();
 
   ticketForm: FormGroup;
-  validSteps: CaseType[] = [];
+  validSteps: CaseStep[] = []; // Updated to use CaseStep
   stepValidationMessage = '';
 
   // All available case types from the enum
   caseTypes = Object.values(CaseType);
 
   // Priority options for dropdown
-  priorityOptions = Object.values(Priority).map(value => ({
+  priorityOptions = Object.values(Priority).map((value) => ({
     value,
-    label: getPriorityLabel(value)
+    label: getPriorityLabel(value),
   }));
 
   // Status options for dropdown
-  statusOptions = Object.values(Status).map(value => ({
+  statusOptions = Object.values(Status).map((value) => ({
     value,
-    label: getStatusLabel(value)
+    label: getStatusLabel(value),
   }));
 
   // Helper to access form controls more easily in the template
-  get f() { return this.ticketForm.controls; }
+  get f() {
+    return this.ticketForm.controls;
+  }
 
-  constructor(
-    private fb: FormBuilder,
-    private ticketService: TicketService
-  ) {
+  constructor(private fb: FormBuilder, private ticketService: TicketService) {
     this.ticketForm = this.createForm();
   }
 
@@ -49,12 +63,12 @@ export class TicketFormComponent implements OnInit {
       this.populateForm();
     } else {
       // For new tickets, disable the status field
-      const statusControl = this.ticketForm.get("status");
+      const statusControl = this.ticketForm.get('status');
       if (statusControl) {
         statusControl.disable();
       }
     }
-    
+
     this.onTypeChange(); // Load valid steps for existing type
   }
 
@@ -83,12 +97,13 @@ export class TicketFormComponent implements OnInit {
       subStatus: this.ticket.subStatus,
       priority: this.ticket.priority,
       status: this.ticket.status,
-      issuedBy: this.ticket.issuedBy
+      issuedBy: this.ticket.issuedBy,
     });
   }
 
   onTypeChange(): void {
     const selectedType = this.f.type.value as CaseType;
+
     if (!selectedType) {
       this.validSteps = [];
       this.stepValidationMessage = 'Please select a type first';
@@ -96,14 +111,19 @@ export class TicketFormComponent implements OnInit {
       return;
     }
 
+    // Use local utility function first (faster)
+    this.validSteps = getValidStepsForType(selectedType);
+
+    // Then validate with backend if needed
     this.ticketService.getValidStepsForType(selectedType).subscribe(
-      steps => {
+      (steps: CaseStep[]) => {
         this.validSteps = steps;
 
         if (steps.length === 0) {
-          this.stepValidationMessage = 'No specific steps defined for this type. Any step can be selected.';
+          this.stepValidationMessage =
+            'No specific steps defined for this type. Any step can be selected.';
           // If no specific restrictions, we can use all steps
-          this.validSteps = this.caseTypes;
+          this.validSteps = Object.values(CaseStep);
         } else {
           this.stepValidationMessage = '';
         }
@@ -114,24 +134,27 @@ export class TicketFormComponent implements OnInit {
           this.f.step.setValue('');
         }
       },
-      error => {
+      (error) => {
         console.error('Error fetching valid steps:', error);
-        this.stepValidationMessage = 'Error loading valid steps. Please try again.';
-        this.validSteps = [];
+        this.stepValidationMessage =
+          'Error loading valid steps. Please try again.';
+        // Keep the local valid steps as fallback
       }
     );
   }
 
   validateTypeStepCombination(): void {
     const type = this.f.type.value as CaseType;
-    const step = this.f.step.value as CaseType;
+    const step = this.f.step.value as CaseStep; // Updated to use CaseStep
 
     if (!type || !step) return;
 
     this.ticketService.validateTypeStepCombination(type, step).subscribe(
-      isValid => {
+      (isValid) => {
         if (!isValid) {
-          this.stepValidationMessage = `The selected step is not valid for the ${getCaseTypeLabel(type)} type`;
+          this.stepValidationMessage = `The selected step is not valid for the ${getCaseTypeLabel(
+            type
+          )} type`;
           this.f.step.setErrors({ invalidCombination: true });
         } else {
           this.stepValidationMessage = '';
@@ -139,33 +162,35 @@ export class TicketFormComponent implements OnInit {
           const currentErrors = this.f.step.errors;
           if (currentErrors) {
             delete currentErrors.invalidCombination;
-            this.f.step.setErrors(Object.keys(currentErrors).length ? currentErrors : null);
+            this.f.step.setErrors(
+              Object.keys(currentErrors).length ? currentErrors : null
+            );
           }
         }
       },
-      error => {
+      (error) => {
         console.error('Error validating type-step combination:', error);
       }
     );
   }
 
   onSubmit(): void {
-    console.log("Form submission triggered");
+    console.log('Form submission triggered');
 
     if (this.ticketForm.invalid) {
-        console.log("Form validation failed", this.ticketForm.errors);
+      console.log('Form validation failed', this.ticketForm.errors);
 
-        // Mark all form controls as touched to show validation errors
-        Object.keys(this.ticketForm.controls).forEach(key => {
-            const control = this.ticketForm.controls[key];
-            control.markAsTouched();
-            console.log(`Control ${key} errors:`, control.errors);
-        });
-        return;
+      // Mark all form controls as touched to show validation errors
+      Object.keys(this.ticketForm.controls).forEach((key) => {
+        const control = this.ticketForm.controls[key];
+        control.markAsTouched();
+        console.log(`Control ${key} errors:`, control.errors);
+      });
+      return;
     }
 
     const formData = this.ticketForm.value;
-    console.log("Form data being emitted:", formData);
+    console.log('Form data being emitted:', formData);
     this.formSubmit.emit(formData);
   }
 
@@ -176,6 +201,11 @@ export class TicketFormComponent implements OnInit {
   // Utility methods for the template
   getCaseTypeLabel(type: CaseType | string): string {
     return getCaseTypeLabel(type);
+  }
+
+  getCaseStepLabel(step: CaseStep | string): string {
+    // Added for step labels
+    return getCaseStepLabel(step);
   }
 
   formatSLA(duration: any): string {
