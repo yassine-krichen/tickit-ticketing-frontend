@@ -223,6 +223,7 @@ export class DashboardContentComponent implements OnInit {
         this.orderBy.field,
         this.orderBy.direction,
         this.searchTerm,
+        this.searchCategory,
         filterParams.statuses,
         filterParams.priorities,
         filterParams.types,

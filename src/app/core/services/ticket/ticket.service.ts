@@ -31,6 +31,7 @@ export class TicketService {
     sortField: string = 'timestamp',
     sortDir: string = 'desc',
     q?: string,
+    category?: string,
     statuses?: Status[],
     priorities?: Priority[],
     types?: CaseType[],
@@ -45,6 +46,10 @@ export class TicketService {
     // Search query
     if (q && q.trim()) {
       params = params.set('q', q.trim());
+    }
+
+    if (category && category.trim()) {
+      params = params.set('category', category.trim());
     }
 
     // Multiple status filters
